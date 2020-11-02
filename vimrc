@@ -1,31 +1,50 @@
 if has('nvim')
   call plug#begin('~/.local/share/nvim/plugged')
-    Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
-    Plug 'scrooloose/nerdtree'
+    Plug 'junegunn/vim-plug'
+
+    " Auto-completion and linting
+    Plug 'honza/vim-snippets'
     Plug 'neoclide/coc.nvim', {'branch': 'release'}
     Plug 'neomake/neomake'
+
+    " Fuzzy finder
     Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
     Plug 'junegunn/fzf.vim'
 
-    Plug 'junegunn/vim-plug'
-    Plug 'hardcoreplayers/gruvbox9'
-    Plug 'Yggdroot/indentLine'
-    Plug 'Xuyuanp/nerdtree-git-plugin'
-    Plug 'bfredl/nvim-miniyank'
+    " Airline
     Plug 'vim-airline/vim-airline-themes'
     Plug 'vim-airline/vim-airline'
-    Plug 'tpope/vim-commentary'
+
+    " Git and dir browsing
+    Plug 'scrooloose/nerdtree'
+    Plug 'Xuyuanp/nerdtree-git-plugin'
     Plug 'tpope/vim-fugitive'
+
+
+    " General utils
+    Plug 'Yggdroot/indentLine'
+    Plug 'kshenoy/vim-signature'
+    Plug 'tpope/vim-commentary'
     Plug 'tpope/vim-repeat'
     Plug 'tpope/vim-surround'
     Plug 'jiangmiao/auto-pairs'
+    Plug 'mg979/vim-visual-multi'
+    Plug 'chrisbra/improvedft'
 
+    " Ctags
+    Plug 'bfredl/nvim-miniyank'
+
+    " Syntax and colours
+    Plug 'hardcoreplayers/gruvbox9'
     Plug 'yuezk/vim-js'
     Plug 'HerringtonDarkholme/yats.vim'
     Plug 'jparise/vim-graphql'
+    Plug 'maxmellon/vim-jsx-pretty'
+    Plug 'peitalin/vim-jsx-typescript'
 
-    Plug 'kshenoy/vim-signature'
-    Plug 'honza/vim-snippets'
+    " Markdown preview from Browser
+    Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
+
   call plug#end()
   call neomake#configure#automake('nrwi', 500)
 endif
@@ -111,9 +130,9 @@ let g:airline_theme='lucius'
 " My syntax highlighting only works properly for the javascript filetype
 " so we have to set various typescript and react filetypes to javascript
 " here...
-" autocmd BufNewFile,BufRead *.jsx set filetype=javascript
-" autocmd BufNewFile,BufRead *.tsx set filetype=javascript
-" autocmd BufNewFile,BufRead *.ts set filetype=javascript
+autocmd BufNewFile,BufRead *.jsx set filetype=javascript
+autocmd BufNewFile,BufRead *.tsx set filetype=javascript
+autocmd BufNewFile,BufRead *.ts set filetype=javascript
 
 "  ...then so the linting works I'm setting the coc to recognise javascript
 "  as typescriptreact
@@ -146,7 +165,7 @@ let NERDTreeChDirMode = 1
 "
 " hover over any word and press leader twice to console log it
 " with a string to id it as well...
-nnoremap <leader><leader> yiWoconsole.log('<c-r>" : ', <c-r>")<esc>
+" nnoremap <leader><leader> yiWoconsole.log('<c-r>" : ', <c-r>")<esc>
 
 " type any word then press ctrl-z in insert mode to console log it
 " with an id string...
@@ -177,7 +196,7 @@ autocmd BufNewFile,BufRead *.bkm set filetype=vimbookmarks syntax=vim
 autocmd FileType vimbookmarks map <buffer> <silent> <cr> yy:tabnew<cr>:<c-r>"<cr>
 
 " There's a .bkm file saved in .vim/bookmarks/. Open that whenever I press <leader>b
-map <leader>b <c-w>n<c-w>J:e ~/.vim/bookmarks/bookmarks.bkm<cr>
+" map <leader>b <c-w>n<c-w>J:e ~/.vim/bookmarks/bookmarks.bkm<cr>
 map <F3> <c-w>n:e ~/.vim/bookmarks/bookmarks.bkm<cr>
 map <F4> :tabnew ~/.vim/bookmarks/bookmarks.bkm<cr>
 
@@ -207,33 +226,23 @@ nnoremap ][ ]m
 nnoremap [] [M
 
 " Goto MDN definition of the variable under the cursor
-map <silent> <leader>hmdn yiW:!open "https://developer.mozilla.org/en-US/search?q=<C-r>"&topic=js"<CR>
+map <silent> <c-h>mdn yiW:!open "https://developer.mozilla.org/en-US/search?q=<C-r>"&topic=js"<CR>
 
 " Creates a react functional comp using the name of the current file
-map <silent> <leader>q iimport React from 'react'function <c-r>%<BS><BS><BS>bbvBdyeA() {return (div<BS><BS><BS><div id="""></div>Goexport default "?id="vi"ugg:w
+" map <silent> <leader>q iimport React from 'react'function <c-r>%<BS><BS><BS>bbvBdyeA() {return (div<BS><BS><BS><div id="""></div>Goexport default "?id="vi"ugg:w
 
 " Adds connect to a react functional comp
-map <silent> <leader>w oimport { connect} from 'react-reduxGwwiconnect()vevbS)F)istate => ({?functionf)i{gg:w
+" map <silent> <leader>w oimport { connect} from 'react-reduxGwwiconnect()vevbS)F)istate => ({?functionf)i{gg:w
 
 " Creates a React Native Fn Comp
-map <silent> <leader>r  iimport React from 'react';import { View, Text} from 'react-native';const %bbDbbvBdyeA = () => {return (<View><Text>"</Text></View>jA;jA;oexport default ";{{:w
+" map <silent> <leader>r  iimport React from 'react';import { View, Text} from 'react-native';const %bbDbbvBdyeA = () => {return (<View><Text>"</Text></View>jA;jA;oexport default ";{{:w
 
 " converts REDUX_CONSTANTS to reduxConstants
-map <silent> <leader>U ve:s/_\(.\)/\L\1/ggv~
+" map <silent> <leader>U ve:s/_\(.\)/\L\1/ggv~
 
-map <silent> <leader>d :bd <c-a><cr><c-o><c-6>:bd<cr>
+" nnoremap <silent> <leader>gt <c-w><c-n><c-w>T:terminal<cr>:call RemoveNumbers()<cr>i
 
-" Put the word under the cursor into the search, like * but without jumping
-map <silent> <leader>w yiw:let @/ = @"<cr>
-map <silent> <leader>W yiW:let @/ = @"<cr>
-
-" Gets a terminal window open.
-nnoremap <silent> <leader>t <c-w><c-n><c-w>J12<c-w>-:terminal<cr>:call RemoveNumbers()<cr>i
-nnoremap <silent> <leader>T <c-w>gn<c-w><c-n><c-w>J12<c-w>-:terminal<cr>:call RemoveNumbers()<cr>i
-
-nnoremap <silent> <leader>gt <c-w><c-n><c-w>T:terminal<cr>:call RemoveNumbers()<cr>i
-
-nnoremap <silent> <leader>my <c-w><c-n><c-w>T:terminal<cr>:call RemoveNumbers()<cr>:set filetype=sql<cr>imycli mysql://admin@bigg-internal.cfhob3uc9nfn.eu-west-1.rds.amazonaws.com:3306 -p tb3wuP9uAeTmrMT3x6WXkeZyB<cr><C-l><F4>show databases<cr>
+" nnoremap <silent> <leader>my <c-w><c-n><c-w>T:terminal<cr>:call RemoveNumbers()<cr>:set filetype=sql<cr>imycli mysql://admin@bigg-internal.cfhob3uc9nfn.eu-west-1.rds.amazonaws.com:3306 -p tb3wuP9uAeTmrMT3x6WXkeZyB<cr><C-l><F4>show databases<cr>
 
 " Sets escape to go to normal mode from terminal mode.
 " Note: this breaks escaping the fuzzy.vim escaping but just use c-q instead
@@ -241,15 +250,8 @@ tnoremap <esc> <c-\><c-n>
 
 nnoremap <silent> rnr :tabnew<cr>:term<cr>:call RemoveNumbers()<cr>irnr<cr> 
 
-" moving between tabs for keyboards without page keys
-map <A-Left> :tabp<CR>
-map <A-Right> :tabn<CR>
-
 " select last pasted text
 nnoremap gp `[v`]
-
-map <C-w>gn :tabnew<CR>
-map <C-w>g% :tabnew %<CR>
 
 " Moving lines up and down
 nnoremap <C-j> :m .+1<CR>==
@@ -259,25 +261,51 @@ nnoremap <C-k> :m .-2<CR>==
 vnoremap <C-j> :m '>+1<CR>gv=gv
 vnoremap <C-k> :m '<-2<CR>gv=gv
 
-map <silent> <C-t> :NERDTreeToggle<CR>:vert res 30<cr>
-map <silent> <C-w><C-t> :NERDTreeToggle<CR><c-w>K:res 30<cr>
+" Maps Fuzzy Finder to ctrl+p
+nnoremap <silent> <c-p> :GFiles<CR>
+nnoremap <silent> <leader><leader>p :GFiles<CR>
+nnoremap <silent> <c-b> :Buffers<CR>
+nnoremap <silent> <leader><leader>b :Buffers<CR>
+nnoremap <silent> <c-s> :Ag<CR>
+nnoremap <silent> <leader><leader>s :Ag<CR>
+nnoremap <silent> <c-m> :Marks<cr>
+nnoremap <silent> <leader><leader>m :Marks<cr>
+nnoremap <silent> <leader><leader>/ :History/<cr>
+
+nnoremap <silent> <C-t> :NERDTreeToggle<CR>:vert res 30<cr>
+
+nnoremap <silent> <leader><leader>t :Tags<cr>
+
+" Reveal this file in nerdtree
 map <silent> <leader>f :NERDTreeFind<CR>
 
-" quick jump mappings for open brackets, braces and parenthesees
-" vmap <silent> ]] /\(\n\\|\t\\|\s\)\(}\\|]\\|)\)<cr>w
-" vmap <silent> ][ /\({\\|[\\|(\)\(\n\\|\t\\|\s\)<cr>
-" vmap <silent> [[ ?\({\\|[\\|(\)\(\n\\|\t\\|\s\)<cr>
-" vmap <silent> [] h?\(\n\\|\t\\|\s\)\(}\\|]\\|)\)<cr>w
+" Tabs
+map <c-w>gn :tabnew<CR>
+map [t :tabp<cr>
+map ]t :tabn<cr>
 
-" nmap <silent> ]] /\(\n\\|\t\\|\s\)\(}\\|]\\|)\)<cr>w
-" nmap <silent> ][ /\({\\|[\\|(\)\(\n\\|\t\\|\s\)<cr>
-" nmap <silent> [[ ?\({\\|[\\|(\)\(\n\\|\t\\|\s\)<cr>
-" nmap <silent> [] h?\(\n\\|\t\\|\s\)\(}\\|]\\|)\)<cr>w
+" Buffers
+map <leader>bp :bp<cr>
+map <leader>bn :bn<cr>
+map <leader>bd :bd!<cr>
+map ]b :bn<cr>
+map [b :bp<cr>
 
-" Maps Fuzzy Finder to ctrl+p
-nnoremap <C-p> :GFiles<CR>
-nnoremap <C-b> :Buffers<CR>
-nnoremap <C-s> :Ag<CR>
+" Terminal buffer
+nnoremap <silent> <leader>tn <c-w><c-n><c-w>J12<c-w>-:terminal<cr>:call RemoveNumbers()<cr>i
+nnoremap <silent> <leader>to :b {term:}<cr>i
+
+
+" delete all buffers but this one.
+nnoremap <silent> <leader>bD :bd! <c-a><cr><c-o>:bn<cr>:bd<cr>
+
+
+
+
+" Put the word under the cursor into the search, like * but without jumping
+nnoremap <silent> <leader>/w yiw:let @/ = @"<cr>
+nnoremap <silent> <leader>/W yiW:let @/ = @"<cr>
+
 
 set rtp+=~/.fzf
 
