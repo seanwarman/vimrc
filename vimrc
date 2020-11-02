@@ -6,26 +6,26 @@ if has('nvim')
     Plug 'neomake/neomake'
     Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
     Plug 'junegunn/fzf.vim'
-    Plug 'leafgarland/typescript-vim'
-    Plug 'peitalin/vim-jsx-typescript'
 
     Plug 'junegunn/vim-plug'
     Plug 'hardcoreplayers/gruvbox9'
     Plug 'Yggdroot/indentLine'
     Plug 'Xuyuanp/nerdtree-git-plugin'
     Plug 'bfredl/nvim-miniyank'
-    Plug 'leafgarland/typescript-vim'
     Plug 'vim-airline/vim-airline-themes'
     Plug 'vim-airline/vim-airline'
     Plug 'tpope/vim-commentary'
     Plug 'tpope/vim-fugitive'
     Plug 'tpope/vim-repeat'
     Plug 'tpope/vim-surround'
+    Plug 'jiangmiao/auto-pairs'
+
+    Plug 'yuezk/vim-js'
+    Plug 'HerringtonDarkholme/yats.vim'
     Plug 'jparise/vim-graphql'
-    Plug 'maxmellon/vim-jsx-pretty'
+
     Plug 'kshenoy/vim-signature'
     Plug 'honza/vim-snippets'
-    Plug 'jiangmiao/auto-pairs'
   call plug#end()
   call neomake#configure#automake('nrwi', 500)
 endif
@@ -36,6 +36,8 @@ func RemoveNumbers()
   set nocursorline
   set nocursorcolumn
 endfunc
+
+set nocompatible
 
 " coc Settings
 " Use `[g` and `]g` to navigate between errors
@@ -109,9 +111,9 @@ let g:airline_theme='lucius'
 " My syntax highlighting only works properly for the javascript filetype
 " so we have to set various typescript and react filetypes to javascript
 " here...
-autocmd BufNewFile,BufRead *.jsx set filetype=javascript
-autocmd BufNewFile,BufRead *.tsx set filetype=javascript
-autocmd BufNewFile,BufRead *.ts set filetype=javascript
+" autocmd BufNewFile,BufRead *.jsx set filetype=javascript
+" autocmd BufNewFile,BufRead *.tsx set filetype=javascript
+" autocmd BufNewFile,BufRead *.ts set filetype=javascript
 
 "  ...then so the linting works I'm setting the coc to recognise javascript
 "  as typescriptreact
