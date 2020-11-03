@@ -9,7 +9,8 @@ if has('nvim')
 
     " Fuzzy finder
     Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-    Plug 'junegunn/fzf.vim'
+    " My own fork of fzf vim by junegunn (adds changes and jumps)
+    Plug 'seanwarman/fzf.vim'
 
     " Airline
     Plug 'vim-airline/vim-airline-themes'
@@ -270,7 +271,11 @@ nnoremap <silent> <c-s> :Ag<CR>
 nnoremap <silent> <leader><leader>s :Ag<CR>
 nnoremap <silent> <c-m> :Marks<cr>
 nnoremap <silent> <leader><leader>m :Marks<cr>
+
 nnoremap <silent> <leader><leader>/ :History/<cr>
+
+nnoremap <silent> <leader><leader>; :Changes<CR>
+nnoremap <silent> <leader><leader>o :Jumps<CR>
 
 nnoremap <silent> <C-t> :NERDTreeToggle<CR>:vert res 30<cr>
 
