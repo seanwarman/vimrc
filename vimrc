@@ -9,18 +9,19 @@ if has('nvim')
 
     " Fuzzy finder
     Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-    " My own fork of fzf vim by junegunn (adds changes and jumps)
-    Plug 'seanwarman/fzf.vim'
+    Plug 'junegunn/fzf.vim'
 
     " Airline
     Plug 'vim-airline/vim-airline-themes'
     Plug 'vim-airline/vim-airline'
 
+    " Icons (you have to be using a nerd font for this)
+    Plug 'ryanoasis/vim-devicons'
+
     " Git and dir browsing
     Plug 'scrooloose/nerdtree'
     Plug 'Xuyuanp/nerdtree-git-plugin'
     Plug 'tpope/vim-fugitive'
-
 
     " General utils
     Plug 'Yggdroot/indentLine'
@@ -97,6 +98,12 @@ set smartindent
 set breakindent
 set nowrap
 set guicursor+=a:blinkon1
+
+" set breakindent
+" set breakindentopt=sbr
+" I use a unicode curly array with a <backslash><space>
+" set showbreak=↪>\
+
 " This amazing setting allows buffers to stay unsaved in the background
 " vim will prompt you if you want to quit to save them.
 set hidden
@@ -175,13 +182,25 @@ inoremap <C-z> <esc>ciWconsole.log('<c-r>": ', <c-r>")
 " Closes a whole tab including all splits. 
 map <silent> <c-w>C :tabclose<cr>
 
-" inserts a console.dir ':CD myVariable'
-command! -nargs=+ CD :norm! oconsole.dir(<args>, { depth: null })
-
 " Search for a search term in the given directory ':F term folder'
-command! -nargs=+ F :norm :set wildignore+=node_modules/**/*,./node_modules/**/*,package-lock.json<CR>:vim <args>/**/* <CR>:copen<CR><C-w>L:set nowrap<CR>40<C-w><:set wildignore-=node_modules/**/*,./node_modules/**/*,package-lock.json<CR>
+command! -nargs=+ F :silent grep! -RHn <args> args | copen | norm <c-w>L40<c-w><
 
+command! Vimrc e ~/.vim/vimrc
 
+command! So so ~/.vimrc
+
+command! Sesh mksession! ../sesh
+
+command! Ctags !ctags -R --exclude=ios --exclude=android --exclude=firebase_environments --exclude=coverage --exclude=.github --exclude=.jest --exclude=.circleci --exclude=node_modules
+
+" Adds any command output to the quickfix buffer
+command! -nargs=+ Cex :silent redir => o | silent execute '<args>' | silent redir END | silent cex split(o, '\n') | copen
+
+" Maps some useful lists to the quickfix buffer
+command! Cls :silent call setqflist(map(getbufinfo({'buflisted':1}), { key, val -> {"bufnr": val.bufnr, "lnum": val.lnum}})) | copen
+command! Cjumps :silent call setqflist(getjumplist()[0]) | copen
+command! Cchanges :silent call setqflist(map(getchangelist(bufnr())[0], {key, val -> {"bufnr": bufnr(), "col": val.col, "lnum": val.lnum}})) | copen
+command! Ctagstack :silent call setqflist(gettagstack().items) | copen
 
 
 " COOLDUDE3000 COMMAND BOOKMARKS
@@ -194,13 +213,14 @@ autocmd BufNewFile,BufRead *.bkm set filetype=vimbookmarks syntax=vim
 
 " Maps a command to enter when using that file (note <buffer> only applies
 " the map to the current buffer...
-autocmd FileType vimbookmarks map <buffer> <silent> <cr> yy:tabnew<cr>:<c-r>"<cr>
+autocmd FileType vimbookmarks map <buffer> <silent> <cr> yy:tabnew<cr>:e <c-r>"<cr>
 
 " There's a .bkm file saved in .vim/bookmarks/. Open that whenever I press <leader>b
 " map <leader>b <c-w>n<c-w>J:e ~/.vim/bookmarks/bookmarks.bkm<cr>
 map <F3> <c-w>n:e ~/.vim/bookmarks/bookmarks.bkm<cr>
 map <F4> :tabnew ~/.vim/bookmarks/bookmarks.bkm<cr>
 
+command! Bookmarks norm <c-w>n:e ~/.vim/bookmarks/bookmarks.bkm<cr>
 
 
 " Experiment with my own CHANGE BUFFER shortcut...
@@ -269,8 +289,8 @@ nnoremap <silent> <c-b> :Buffers<CR>
 nnoremap <silent> <leader><leader>b :Buffers<CR>
 nnoremap <silent> <c-s> :Ag<CR>
 nnoremap <silent> <leader><leader>s :Ag<CR>
-nnoremap <silent> <c-m> :Marks<cr>
-nnoremap <silent> <leader><leader>m :Marks<cr>
+" nnoremap <silent> <c-m> :Marks<cr>
+" nnoremap <silent> <leader><leader>m :Marks<cr>
 
 nnoremap <silent> <leader><leader>/ :History/<cr>
 
@@ -297,19 +317,23 @@ map ]b :bn<cr>
 map [b :bp<cr>
 
 " Terminal buffer
-nnoremap <silent> <leader>tn <c-w><c-n><c-w>J12<c-w>-:terminal<cr>:call RemoveNumbers()<cr>i
-nnoremap <silent> <leader>to :b {term:}<cr>i
+nnoremap <silent> <leader>tn <c-w><c-n><c-w>J12<c-w>-:terminal<cr>i
+nnoremap <silent> <leader>to :b {term:}<cr>
 
 
 " delete all buffers but this one.
 nnoremap <silent> <leader>bD :bd! <c-a><cr><c-o>:bn<cr>:bd<cr>
 
 
-
-
 " Put the word under the cursor into the search, like * but without jumping
-nnoremap <silent> <leader>/w yiw:let @/ = @"<cr>
-nnoremap <silent> <leader>/W yiW:let @/ = @"<cr>
+nnoremap <silent> <leader>/w "/yiw<cr>
+nnoremap <silent> <leader>/W "/yiW<cr>
+
+nnoremap <silent> <leader>"% :let @" = @%<cr>
+nnoremap <silent> <leader>+% :let @+ = @%<cr>
+
+" Quick search sexp in project
+nmap <silent> <leader>] yiw:Ag<cr><esc>pi
 
 
 set rtp+=~/.fzf
