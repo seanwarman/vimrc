@@ -22,6 +22,8 @@ if has('nvim')
     Plug 'scrooloose/nerdtree'
     Plug 'Xuyuanp/nerdtree-git-plugin'
     Plug 'tpope/vim-fugitive'
+    Plug 'francoiscabrol/ranger.vim'
+    Plug 'rbgrouleff/bclose.vim'
 
     " General utils
     Plug 'Yggdroot/indentLine'
@@ -168,6 +170,12 @@ set updatetime=100
 
 " NERDTree Settings (Find mappings further down)
 let NERDTreeChDirMode = 1
+let g:NERDTreeHijackNetrw = 0 " add this line if you use NERDTree (ranger plugin)
+let g:ranger_replace_netrw = 1 " open ranger when vim open a directory
+let g:ranger_map_keys = 0
+
+" netrw settings
+" let g:netrw_liststyle=3
 
 " Custom Commands...
 "
@@ -191,7 +199,8 @@ command! So so ~/.vimrc
 
 command! Sesh mksession! ../sesh
 
-command! Ctags !ctags -R --exclude=ios --exclude=android --exclude=firebase_environments --exclude=coverage --exclude=.github --exclude=.jest --exclude=.circleci --exclude=node_modules
+command! Ctags !ctags -R --exclude=node_modules
+" command! Ctags !ctags -R --exclude=ios --exclude=android --exclude=firebase_environments --exclude=coverage --exclude=.github --exclude=.jest --exclude=.circleci --exclude=node_modules
 
 " Adds any command output to the quickfix buffer
 command! -nargs=+ Cex :silent redir => o | silent execute '<args>' | silent redir END | silent cex split(o, '\n') | copen
@@ -201,7 +210,6 @@ command! Cls :silent call setqflist(map(getbufinfo({'buflisted':1}), { key, val 
 command! Cjumps :silent call setqflist(getjumplist()[0]) | copen
 command! Cchanges :silent call setqflist(map(getchangelist(bufnr())[0], {key, val -> {"bufnr": bufnr(), "col": val.col, "lnum": val.lnum}})) | copen
 command! Ctagstack :silent call setqflist(gettagstack().items) | copen
-
 
 " COOLDUDE3000 COMMAND BOOKMARKS
 "
@@ -269,8 +277,6 @@ map <silent> <c-h>mdn yiW:!open "https://developer.mozilla.org/en-US/search?q=<C
 " Note: this breaks escaping the fuzzy.vim escaping but just use c-q instead
 tnoremap <esc> <c-\><c-n>
 
-nnoremap <silent> rnr :tabnew<cr>:term<cr>:call RemoveNumbers()<cr>irnr<cr> 
-
 " select last pasted text
 nnoremap gp `[v`]
 
@@ -284,25 +290,26 @@ vnoremap <C-k> :m '<-2<CR>gv=gv
 
 " Maps Fuzzy Finder to ctrl+p
 nnoremap <silent> <c-p> :GFiles<CR>
-nnoremap <silent> <leader><leader>p :GFiles<CR>
 nnoremap <silent> <c-b> :Buffers<CR>
-nnoremap <silent> <leader><leader>b :Buffers<CR>
 nnoremap <silent> <c-s> :Ag<CR>
-nnoremap <silent> <leader><leader>s :Ag<CR>
-" nnoremap <silent> <c-m> :Marks<cr>
-" nnoremap <silent> <leader><leader>m :Marks<cr>
+
+" Quick switching registers
+nnoremap <silent> <leader>r :let regvar = nr2char(getchar()) \| call setreg(nr2char(getchar()), getreg(regvar))<cr>
 
 nnoremap <silent> <leader><leader>/ :History/<cr>
 
 nnoremap <silent> <leader><leader>; :Changes<CR>
 nnoremap <silent> <leader><leader>o :Jumps<CR>
 
-nnoremap <silent> <C-t> :NERDTreeToggle<CR>:vert res 30<cr>
 
 nnoremap <silent> <leader><leader>t :Tags<cr>
 
 " Reveal this file in nerdtree
-map <silent> <leader>f :NERDTreeFind<CR>
+map <silent> <leader>nf :NERDTreeFind<CR>
+nnoremap <silent> <leader>n. :NERDTreeToggle<CR>:vert res 30<cr>
+
+nnoremap <silent> <leader>rf :RangerCurrentFile<cr>
+nnoremap <silent> <leader>r. :RangerWorkingDirectory<cr>
 
 " Tabs
 map <c-w>gn :tabnew<CR>
@@ -312,7 +319,8 @@ map ]t :tabn<cr>
 " Buffers
 map <leader>bp :bp<cr>
 map <leader>bn :bn<cr>
-map <leader>bd :bd!<cr>
+map <leader>bd :Bclose!<cr>
+" map <leader>bd :bd!<cr>
 map ]b :bn<cr>
 map [b :bp<cr>
 
