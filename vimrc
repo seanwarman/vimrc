@@ -11,32 +11,23 @@ if has('nvim')
     Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
     Plug 'junegunn/fzf.vim'
 
-    " Airline
-    Plug 'vim-airline/vim-airline-themes'
-    Plug 'vim-airline/vim-airline'
-
-    " Icons (you have to be using a nerd font for this)
-    Plug 'ryanoasis/vim-devicons'
-
     " Git and dir browsing
-    Plug 'scrooloose/nerdtree'
-    Plug 'Xuyuanp/nerdtree-git-plugin'
     Plug 'tpope/vim-fugitive'
     Plug 'francoiscabrol/ranger.vim'
     Plug 'rbgrouleff/bclose.vim'
+    Plug 'pechorin/any-jump.vim'
 
     " General utils
-    Plug 'Yggdroot/indentLine'
     Plug 'kshenoy/vim-signature'
     Plug 'tpope/vim-commentary'
     Plug 'tpope/vim-repeat'
     Plug 'tpope/vim-surround'
     Plug 'jiangmiao/auto-pairs'
     Plug 'mg979/vim-visual-multi'
-    Plug 'chrisbra/improvedft'
 
-    " Ctags
-    Plug 'bfredl/nvim-miniyank'
+    " Airline
+    Plug 'vim-airline/vim-airline-themes'
+    Plug 'vim-airline/vim-airline'
 
     " Syntax and colours
     Plug 'hardcoreplayers/gruvbox9'
@@ -101,6 +92,9 @@ set breakindent
 set nowrap
 set guicursor+=a:blinkon1
 
+" Set tabs to indent 2 spaces
+set tabstop=2 softtabstop=0 expandtab shiftwidth=2 smarttab
+
 " set breakindent
 " set breakindentopt=sbr
 " I use a unicode curly array with a <backslash><space>
@@ -119,9 +113,6 @@ set nocursorcolumn
 
 " stop showing the swap file error
 set shortmess+=A
-
-" Set tabs to indent 2 spaces
-set tabstop=2 softtabstop=0 expandtab shiftwidth=2 smarttab
 
 " Maintain undo
 set undofile 
@@ -168,39 +159,31 @@ set updatetime=100
 
 
 
-" NERDTree Settings (Find mappings further down)
-let NERDTreeChDirMode = 1
-let g:NERDTreeHijackNetrw = 0 " add this line if you use NERDTree (ranger plugin)
+" ranger Settings (Find mappings further down)
 let g:ranger_replace_netrw = 1 " open ranger when vim open a directory
 let g:ranger_map_keys = 0
 
-" netrw settings
-" let g:netrw_liststyle=3
 
 " Custom Commands...
 "
-" hover over any word and press leader twice to console log it
-" with a string to id it as well...
-" nnoremap <leader><leader> yiWoconsole.log('<c-r>" : ', <c-r>")<esc>
-
-" type any word then press ctrl-z in insert mode to console log it
-" with an id string...
-inoremap <C-z> <esc>ciWconsole.log('<c-r>": ', <c-r>")
-
-" Closes a whole tab including all splits. 
-map <silent> <c-w>C :tabclose<cr>
 
 " Search for a search term in the given directory ':F term folder'
-command! -nargs=+ F :silent grep! -RHn <args> args | copen | norm <c-w>L40<c-w><
+command! -nargs=+ F :silent grep! -RHn <args> | copen | norm <c-w>L40<c-w><
 
+" Goes to my vimrc
 command! Vimrc e ~/.vim/vimrc
 
+" sources my vimrc
 command! So so ~/.vimrc
 
+" Saves a session
 command! Sesh mksession! ../sesh
 
-command! Ctags !ctags -R --exclude=node_modules
-" command! Ctags !ctags -R --exclude=ios --exclude=android --exclude=firebase_environments --exclude=coverage --exclude=.github --exclude=.jest --exclude=.circleci --exclude=node_modules
+" Clears my terminal history
+command! Clear set scrollback=1 | sleep 100m | set scrollback=10000
+
+" Creates a ctags file, with ignoring defaults
+command! Ctags silent !ctags -R --exclude=__tests__ --exclude=ios --exclude=android --exclude=firebase_environments --exclude=coverage --exclude=.github --exclude=.jest --exclude=.circleci --exclude=node_modules
 
 " Adds any command output to the quickfix buffer
 command! -nargs=+ Cex :silent redir => o | silent execute '<args>' | silent redir END | silent cex split(o, '\n') | copen
@@ -210,26 +193,6 @@ command! Cls :silent call setqflist(map(getbufinfo({'buflisted':1}), { key, val 
 command! Cjumps :silent call setqflist(getjumplist()[0]) | copen
 command! Cchanges :silent call setqflist(map(getchangelist(bufnr())[0], {key, val -> {"bufnr": bufnr(), "col": val.col, "lnum": val.lnum}})) | copen
 command! Ctagstack :silent call setqflist(gettagstack().items) | copen
-
-" COOLDUDE3000 COMMAND BOOKMARKS
-"
-" Write a list of commands (eg "F thing src" or "vim thing src/**/* | copen") 
-" to a file.bmk, hover over the command and press Enter to execute the command in a new tab.
-"
-" Creates a filetype for any file ending '.bkm'...
-autocmd BufNewFile,BufRead *.bkm set filetype=vimbookmarks syntax=vim
-
-" Maps a command to enter when using that file (note <buffer> only applies
-" the map to the current buffer...
-autocmd FileType vimbookmarks map <buffer> <silent> <cr> yy:tabnew<cr>:e <c-r>"<cr>
-
-" There's a .bkm file saved in .vim/bookmarks/. Open that whenever I press <leader>b
-" map <leader>b <c-w>n<c-w>J:e ~/.vim/bookmarks/bookmarks.bkm<cr>
-map <F3> <c-w>n:e ~/.vim/bookmarks/bookmarks.bkm<cr>
-map <F4> :tabnew ~/.vim/bookmarks/bookmarks.bkm<cr>
-
-command! Bookmarks norm <c-w>n:e ~/.vim/bookmarks/bookmarks.bkm<cr>
-
 
 " Experiment with my own CHANGE BUFFER shortcut...
 " I've replaced this with fuzzy finder's :Buffers command
@@ -245,6 +208,20 @@ command! Bookmarks norm <c-w>n:e ~/.vim/bookmarks/bookmarks.bkm<cr>
 
 
 " Custom mappings
+"
+" hover over any word and press leader twice to console log it
+" with a string to id it as well...
+" nnoremap <leader><leader> yiWoconsole.log('<c-r>" : ', <c-r>")<esc>
+
+" type any word then press ctrl-z in insert mode to console log it
+" with an id string...
+inoremap <C-z> <esc>ciWconsole.log('<c-r>": ', <c-r>")
+
+" Closes a whole tab including all splits. 
+map <silent> <c-w>C :tabclose<cr>
+
+" grep the word under the cursor
+map <leader>* :F <cword> * <CR>
 
 " JSX Element commenting, relies on vim commentary ('S')
 vmap K S{%i*/<Esc>l%a/*<Esc>
@@ -254,28 +231,11 @@ nnoremap [[ [m
 nnoremap ][ ]m
 nnoremap [] [M
 
-" Goto MDN definition of the variable under the cursor
-map <silent> <c-h>mdn yiW:!open "https://developer.mozilla.org/en-US/search?q=<C-r>"&topic=js"<CR>
-
-" Creates a react functional comp using the name of the current file
-" map <silent> <leader>q iimport React from 'react'function <c-r>%<BS><BS><BS>bbvBdyeA() {return (div<BS><BS><BS><div id="""></div>Goexport default "?id="vi"ugg:w
-
-" Adds connect to a react functional comp
-" map <silent> <leader>w oimport { connect} from 'react-reduxGwwiconnect()vevbS)F)istate => ({?functionf)i{gg:w
-
-" Creates a React Native Fn Comp
-" map <silent> <leader>r  iimport React from 'react';import { View, Text} from 'react-native';const %bbDbbvBdyeA = () => {return (<View><Text>"</Text></View>jA;jA;oexport default ";{{:w
-
-" converts REDUX_CONSTANTS to reduxConstants
-" map <silent> <leader>U ve:s/_\(.\)/\L\1/ggv~
-
-" nnoremap <silent> <leader>gt <c-w><c-n><c-w>T:terminal<cr>:call RemoveNumbers()<cr>i
-
-" nnoremap <silent> <leader>my <c-w><c-n><c-w>T:terminal<cr>:call RemoveNumbers()<cr>:set filetype=sql<cr>imycli mysql://admin@bigg-internal.cfhob3uc9nfn.eu-west-1.rds.amazonaws.com:3306 -p tb3wuP9uAeTmrMT3x6WXkeZyB<cr><C-l><F4>show databases<cr>
-
 " Sets escape to go to normal mode from terminal mode.
 " Note: this breaks escaping the fuzzy.vim escaping but just use c-q instead
 tnoremap <esc> <c-\><c-n>
+
+nnoremap <leader>/ yiw:let @/ = @"<cr>
 
 " select last pasted text
 nnoremap gp `[v`]
@@ -283,8 +243,6 @@ nnoremap gp `[v`]
 " Moving lines up and down
 nnoremap <C-j> :m .+1<CR>==
 nnoremap <C-k> :m .-2<CR>==
-" inoremap <C-j> <Esc>:m .+1<CR>==gi
-" inoremap <C-k> <Esc>:m .-2<CR>==gi
 vnoremap <C-j> :m '>+1<CR>gv=gv
 vnoremap <C-k> :m '<-2<CR>gv=gv
 
@@ -296,25 +254,14 @@ nnoremap <silent> <c-s> :Ag<CR>
 " Quick switching registers
 nnoremap <silent> <leader>r :let regvar = nr2char(getchar()) \| call setreg(nr2char(getchar()), getreg(regvar))<cr>
 
-nnoremap <silent> <leader><leader>/ :History/<cr>
-
-nnoremap <silent> <leader><leader>; :Changes<CR>
-nnoremap <silent> <leader><leader>o :Jumps<CR>
-
-
-nnoremap <silent> <leader><leader>t :Tags<cr>
-
 " Reveal this file in nerdtree
-map <silent> <leader>nf :NERDTreeFind<CR>
-nnoremap <silent> <leader>n. :NERDTreeToggle<CR>:vert res 30<cr>
+" map <silent> <leader>nf :NERDTreeFind<CR>
+" nnoremap <silent> <leader>n. :NERDTreeToggle<CR>:vert res 30<cr>
 
-nnoremap <silent> <leader>rf :RangerCurrentFile<cr>
-nnoremap <silent> <leader>r. :RangerWorkingDirectory<cr>
+nnoremap <silent> <leader>. :RangerCurrentFile<cr>
 
 " Tabs
 map <c-w>gn :tabnew<CR>
-map [t :tabp<cr>
-map ]t :tabn<cr>
 
 " Buffers
 map <leader>bp :bp<cr>
