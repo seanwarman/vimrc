@@ -15,7 +15,6 @@ if has('nvim')
     Plug 'tpope/vim-fugitive'
     Plug 'francoiscabrol/ranger.vim'
     Plug 'rbgrouleff/bclose.vim'
-    Plug 'pechorin/any-jump.vim'
 
     " General utils
     Plug 'kshenoy/vim-signature'
@@ -24,6 +23,7 @@ if has('nvim')
     Plug 'tpope/vim-surround'
     Plug 'jiangmiao/auto-pairs'
     Plug 'mg979/vim-visual-multi'
+    Plug 'MattesGroeger/vim-bookmarks'
 
     " Airline
     Plug 'vim-airline/vim-airline-themes'
@@ -187,6 +187,8 @@ command! Ctags silent !ctags -R --exclude=__tests__ --exclude=ios --exclude=andr
 
 " Adds any command output to the quickfix buffer
 command! -nargs=+ Cex :silent redir => o | silent execute '<args>' | silent redir END | silent cex split(o, '\n') | copen
+" Allows any simple of list of files to be selectable
+set errorformat+=%f
 
 " Maps some useful lists to the quickfix buffer
 command! Cls :silent call setqflist(map(getbufinfo({'buflisted':1}), { key, val -> {"bufnr": val.bufnr, "lnum": val.lnum}})) | copen
@@ -247,9 +249,11 @@ vnoremap <C-j> :m '>+1<CR>gv=gv
 vnoremap <C-k> :m '<-2<CR>gv=gv
 
 " Maps Fuzzy Finder to ctrl+p
-nnoremap <silent> <c-p> :GFiles<CR>
-nnoremap <silent> <c-b> :Buffers<CR>
-nnoremap <silent> <c-s> :Ag<CR>
+nnoremap <silent> <leader>pf :GFiles<CR>
+nnoremap <silent> <leader>ps :Ag<CR>
+nnoremap <silent> <leader>bb :Buffers<CR>
+" Quick search sexp in project
+nmap <silent> <leader>] yiw:Ag<cr><esc>pi
 
 " Quick switching registers
 nnoremap <silent> <leader>r :let regvar = nr2char(getchar()) \| call setreg(nr2char(getchar()), getreg(regvar))<cr>
@@ -267,28 +271,21 @@ map <c-w>gn :tabnew<CR>
 map <leader>bp :bp<cr>
 map <leader>bn :bn<cr>
 map <leader>bd :Bclose!<cr>
-" map <leader>bd :bd!<cr>
-map ]b :bn<cr>
-map [b :bp<cr>
-
-" Terminal buffer
-nnoremap <silent> <leader>tn <c-w><c-n><c-w>J12<c-w>-:terminal<cr>i
-nnoremap <silent> <leader>to :b {term:}<cr>
-
-
 " delete all buffers but this one.
 nnoremap <silent> <leader>bD :bd! <c-a><cr><c-o>:bn<cr>:bd<cr>
 
+" Terminal buffer
+nnoremap <silent> <leader>tt <c-w><c-n><c-w>J12<c-w>-:terminal<cr>i
+nnoremap <silent> <leader>to :b {term:}<cr>
+
 
 " Put the word under the cursor into the search, like * but without jumping
-nnoremap <silent> <leader>/w "/yiw<cr>
-nnoremap <silent> <leader>/W "/yiW<cr>
+nnoremap <silent> <leader>/w yiw:let @/ = <c-r><cr>
+nnoremap <silent> <leader>/W yiw:let @/ = <c-r><cr>
 
 nnoremap <silent> <leader>"% :let @" = @%<cr>
 nnoremap <silent> <leader>+% :let @+ = @%<cr>
 
-" Quick search sexp in project
-nmap <silent> <leader>] yiw:Ag<cr><esc>pi
 
 
 set rtp+=~/.fzf
