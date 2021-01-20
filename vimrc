@@ -80,6 +80,13 @@ hi Search cterm=NONE ctermfg=NONE ctermbg=Black
 hi Error NONE
 " vim-jsx-pretty
 let g:vim_jsx_pretty_colorful_config = 1
+
+" diff colours
+hi DiffAdd cterm=reverse ctermfg=35 ctermbg=235 guibg=DarkBlue
+hi DiffChange cterm=reverse ctermfg=76 ctermbg=235 guibg=DarkMagenta
+hi DiffDelete cterm=reverse ctermfg=166 ctermbg=235 gui=bold guifg=Blue guibg=DarkCyan
+hi DiffText cterm=reverse ctermfg=37 ctermbg=235 gui=bold guibg=Red
+
 " Gets rid of Vim's builtin mode status because we're using Lightline
 set noshowmode
 set nu
@@ -169,6 +176,9 @@ let g:ranger_map_keys = 0
 
 " Search for a search term in the given directory ':F term folder'
 command! -nargs=+ F :silent grep! -RHn <args> | copen | norm <c-w>L40<c-w><
+
+" Redirects any message output to the " register
+command! -nargs=+ Redir :redir => o | silent <args> | redir END | let @" = o
 
 " Goes to my vimrc
 command! Vimrc e ~/.vim/vimrc
