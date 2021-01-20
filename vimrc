@@ -191,6 +191,7 @@ command! Sesh mksession! ../sesh
 
 " Clears my terminal history
 command! Clear set scrollback=1 | sleep 100m | set scrollback=10000
+map <leader>ct :set scrollback=1 \| sleep 100m \| set scrollback=10000<cr>
 
 " Creates a ctags file, with ignoring defaults
 command! Ctags silent !ctags -R --exclude=__tests__ --exclude=ios --exclude=android --exclude=firebase_environments --exclude=coverage --exclude=.github --exclude=.jest --exclude=.circleci --exclude=node_modules
@@ -232,6 +233,8 @@ inoremap <C-z> <esc>ciWconsole.log('<c-r>": ', <c-r>")
 " Closes a whole tab including all splits. 
 map <silent> <c-w>C :tabclose<cr>
 
+map <silent> <leader>= :s/\([{\[]\)\(.\+\)\([}\]]\)/\1\r\2\r\3/g \| -1s/[  ]\+$//g \| s/,/,\r/g \| s/$/,/<cr>j=``
+
 " grep the word under the cursor
 map <leader>* :F <cword> * <CR>
 
@@ -264,6 +267,10 @@ nnoremap <silent> <leader>ps :Ag<CR>
 nnoremap <silent> <leader>bb :Buffers<CR>
 " Quick search sexp in project
 nmap <silent> <leader>] yiw:Ag<cr><esc>pi
+
+nnoremap <silent> <leader>gg :G<cr>
+nnoremap <silent> <leader>gd :Gdiff<cr>
+nnoremap <silent> <leader>gr :Gread<cr>
 
 " Quick switching registers
 nnoremap <silent> <leader>r :let regvar = nr2char(getchar()) \| call setreg(nr2char(getchar()), getreg(regvar))<cr>
