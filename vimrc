@@ -53,16 +53,6 @@ endfunc
 
 set nocompatible
 
-" coc Settings
-" Use `[g` and `]g` to navigate between errors
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
-
-nmap <silent> ga :CocAction<cr>
-
-" Expand a snippet suggestion with CTRL-l
-imap <C-l> <Plug>(coc-snippets-expand)
-
 " Remaps the spacebar as leader
 nnoremap <space> <Nop>
 let mapleader = " "
@@ -149,7 +139,15 @@ let g:coc_filetype_map = {
 \ }
 
 
-" coc settings
+" coc Settings
+" Use `[g` and `]g` to navigate between errors
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+
+nmap <silent> ga :CocAction<cr>
+
+" Expand a snippet suggestion with CTRL-e
+imap <expr> <c-e> pumvisible() ? "<Plug>(coc-snippets-expand)" : "<CR>"
 
 " Always show the signcolumn, otherwise it would shift the text each time
 " diagnostics appear/become resolved.
@@ -188,6 +186,7 @@ command! So so ~/.vimrc
 
 " Saves a session
 command! Sesh mksession! ../sesh
+map <leader>se :mksession! ../sesh<cr>
 
 " Clears my terminal history
 command! Clear set scrollback=1 | sleep 100m | set scrollback=10000
@@ -195,6 +194,7 @@ map <leader>ct :set scrollback=1 \| sleep 100m \| set scrollback=10000<cr>
 
 " Creates a ctags file, with ignoring defaults
 command! Ctags silent !ctags -R --exclude=__tests__ --exclude=ios --exclude=android --exclude=firebase_environments --exclude=coverage --exclude=.github --exclude=.jest --exclude=.circleci --exclude=node_modules
+map <silent> <leader>ct :silent !ctags -R --exclude=__tests__ --exclude=ios --exclude=android --exclude=firebase_environments --exclude=coverage --exclude=.github --exclude=.jest --exclude=.circleci --exclude=node_modules<cr>
 
 " Adds any command output to the quickfix buffer
 command! -nargs=+ Cex :silent redir => o | silent execute '<args>' | silent redir END | silent cex split(o, '\n') | copen
@@ -228,12 +228,16 @@ command! Ctagstack :silent call setqflist(gettagstack().items) | copen
 
 " type any word then press ctrl-z in insert mode to console log it
 " with an id string...
-inoremap <C-z> <esc>ciWconsole.log('<c-r>": ', <c-r>")
+inoremap <C-z> <esc>ciWconsole.log('<c-r>": ', <c-r>");
+inoremap <C-a> <esc>ciWconsole.log('@SEAN <c-r>": ', <c-r>");
+inoremap <C-l> <esc>$v^cconsole.log(");
 
 " Closes a whole tab including all splits. 
 map <silent> <c-w>C :tabclose<cr>
 
-map <silent> <leader>= :s/\([{\[]\)\(.\+\)\([}\]]\)/\1\r\2\r\3/g \| -1s/[  ]\+$//g \| s/,/,\r/g \| s/$/,/<cr>j=``
+" Attempts to put a single line of properties (eg: {1,2,3}) onto multiple lines
+map <silent> <leader>= :silent! s/\([{\[(]\)\(.\+\)\([}\])]\)/\1\r\2\r\3/g \| silent! -1s/ //g \| silent! s/,/,\r/g \| silent! s/$/,/<cr>j=%
+" map <silent> <leader>- /[{\[(]<cr>v/[}\])]<cr>J
 
 " grep the word under the cursor
 map <leader>* :F <cword> * <CR>
