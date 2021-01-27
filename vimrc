@@ -24,6 +24,8 @@ if has('nvim')
     Plug 'jiangmiao/auto-pairs'
     Plug 'mg979/vim-visual-multi'
     Plug 'MattesGroeger/vim-bookmarks'
+    Plug 'ludovicchabant/vim-gutentags'
+    Plug 'kristijanhusak/vim-js-file-import', {'do': 'npm install'}
 
     " Airline
     Plug 'vim-airline/vim-airline-themes'
@@ -168,10 +170,15 @@ set updatetime=100
 let g:ranger_replace_netrw = 1 " open ranger when vim open a directory
 let g:ranger_map_keys = 0
 
+" Fugitive mappings
+"
+" Add a commit or branch name to the "d" register then you can use
+" it to diff any file from the current branch...
+map <leader>pd :Gdiff <c-r>d<cr>
+
 
 " Custom Commands...
 "
-
 " Search for a search term in the given directory ':F term folder'
 command! -nargs=+ F :silent grep! -RHn <args> | copen | norm <c-w>L40<c-w><
 
@@ -236,8 +243,11 @@ inoremap <C-l> <esc>$v^cconsole.log(");
 map <silent> <c-w>C :tabclose<cr>
 
 " Attempts to put a single line of properties (eg: {1,2,3}) onto multiple lines
-map <silent> <leader>= :silent! s/\([{\[(]\)\(.\+\)\([}\])]\)/\1\r\2\r\3/g \| silent! -1s/ //g \| silent! s/,/,\r/g \| silent! s/$/,/<cr>j=%
-" map <silent> <leader>- /[{\[(]<cr>v/[}\])]<cr>J
+map <silent> <leader>= :silent! s/\([{\[(]\)\(.\{-}\)\([}\])]\)/\1\r\2\r\3/ \| silent! -1s/ //g \| silent! s/,/,\r/g \| silent! s/$/,/<cr>j=%
+map <silent> <leader>- /[}\])]<cr>v%J<esc>:s/,\([ ]\?}\)/\1/g<cr>
+
+" Adds an import to the file if the current variable or function is missing
+" map <silent> <leader>if yiw:let @f = taglist('<c-r><c-w>')[0].filename \| echo @f<cr>
 
 " grep the word under the cursor
 map <leader>* :F <cword> * <CR>
@@ -250,11 +260,23 @@ nnoremap [[ [m
 nnoremap ][ ]m
 nnoremap [] [M
 
-" Sets escape to go to normal mode from terminal mode.
-" Note: this breaks escaping the fuzzy.vim escaping but just use c-q instead
-tnoremap <esc> <c-\><c-n>
-
-nnoremap <leader>/ yiw:let @/ = @"<cr>
+" emulates <c-r> like insert mode for terminal mode
+tnoremap <expr> <C-R> '<C-\><C-N>"'.nr2char(getchar()).'pi'
+" Lets you use <c-w> in terminal mode
+tnoremap <expr> <c-w> '<c-\><c-N><c-w>'
+" Lets me use all my file and buffer shortcuts from term mode
+tnoremap <expr> <esc><leader> '<c-\><c-N><leader>'
+tnoremap <expr> <esc><leader>bb '<c-\><c-N>:Buffers<cr>'
+tnoremap <expr> <esc><leader>pf '<c-\><c-N>:GFiles<cr>'
+tnoremap <expr> <esc><leader>ps '<c-\><c-N>:Ag<cr>'
+tnoremap <expr> <esc><leader>gg '<c-\><c-N>:G<cr>'
+" RangerCurrentFile doesn't work from a term buffer so make a new buffer
+" first...
+tnoremap <expr> <esc><leader>. '<c-\><c-N><c-w>n<c-w>o:RangerCurrentFile<cr>'
+" Close for a terminal buffer
+tnoremap <expr> <esc><leader>bd '<c-\><c-N>:bd!<cr>'
+" Go to the command line from term mode
+tnoremap <expr> : '<c-\><c-N>:'
 
 " select last pasted text
 nnoremap gp `[v`]
@@ -296,7 +318,8 @@ map <leader>bd :Bclose!<cr>
 nnoremap <silent> <leader>bD :bd! <c-a><cr><c-o>:bn<cr>:bd<cr>
 
 " Terminal buffer
-nnoremap <silent> <leader>tt <c-w><c-n><c-w>J12<c-w>-:terminal<cr>i
+nnoremap <silent> <leader>ts <c-w><c-n><c-w>J12<c-w>-:terminal<cr>i
+nnoremap <silent> <leader>tn :te <cr>i
 nnoremap <silent> <leader>to :b {term:}<cr>
 
 
