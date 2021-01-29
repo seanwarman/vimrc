@@ -23,7 +23,6 @@ if has('nvim')
     Plug 'tpope/vim-surround'
     Plug 'jiangmiao/auto-pairs'
     Plug 'mg979/vim-visual-multi'
-    Plug 'MattesGroeger/vim-bookmarks'
     Plug 'ludovicchabant/vim-gutentags'
     Plug 'kristijanhusak/vim-js-file-import', {'do': 'npm install'}
 
@@ -263,20 +262,17 @@ nnoremap [] [M
 " emulates <c-r> like insert mode for terminal mode
 tnoremap <expr> <C-R> '<C-\><C-N>"'.nr2char(getchar()).'pi'
 " Lets you use <c-w> in terminal mode
-tnoremap <expr> <c-w> '<c-\><c-N><c-w>'
+tnoremap <expr> <esc><c-w> '<c-\><c-N><c-w>'
+tnoremap <expr> <c-6> '<c-\><c-N><c-6>'
 " Lets me use all my file and buffer shortcuts from term mode
-tnoremap <expr> <esc><leader> '<c-\><c-N><leader>'
-tnoremap <expr> <esc><leader>bb '<c-\><c-N>:Buffers<cr>'
-tnoremap <expr> <esc><leader>pf '<c-\><c-N>:GFiles<cr>'
-tnoremap <expr> <esc><leader>ps '<c-\><c-N>:Ag<cr>'
-tnoremap <expr> <esc><leader>gg '<c-\><c-N>:G<cr>'
+tnoremap <expr> <leader><leader> '<c-\><c-N><leader>'
+tnoremap <expr> <c-b> '<c-\><c-N>:Buffers<cr>'
+tnoremap <expr> <c-p> '<c-\><c-N>:GFiles<cr>'
+tnoremap <expr> <c-s> '<c-\><c-N>:Ag<cr>'
 " RangerCurrentFile doesn't work from a term buffer so make a new buffer
 " first...
-tnoremap <expr> <esc><leader>. '<c-\><c-N><c-w>n<c-w>o:RangerCurrentFile<cr>'
 " Close for a terminal buffer
-tnoremap <expr> <esc><leader>bd '<c-\><c-N>:bd!<cr>'
-" Go to the command line from term mode
-tnoremap <expr> : '<c-\><c-N>:'
+tnoremap <expr> <leader>bd '<c-\><c-N>:bd!<cr>'
 
 " select last pasted text
 nnoremap gp `[v`]
@@ -288,9 +284,9 @@ vnoremap <C-j> :m '>+1<CR>gv=gv
 vnoremap <C-k> :m '<-2<CR>gv=gv
 
 " Maps Fuzzy Finder to ctrl+p
-nnoremap <silent> <leader>pf :GFiles<CR>
-nnoremap <silent> <leader>ps :Ag<CR>
-nnoremap <silent> <leader>bb :Buffers<CR>
+nnoremap <silent> <c-p> :GFiles<CR>
+nnoremap <silent> <c-s> :Ag<CR>
+nnoremap <silent> <c-b> :Buffers<CR>
 " Quick search sexp in project
 nmap <silent> <leader>] yiw:Ag<cr><esc>pi
 
