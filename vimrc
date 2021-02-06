@@ -23,12 +23,11 @@ if has('nvim')
     Plug 'tpope/vim-surround'
     Plug 'jiangmiao/auto-pairs'
     Plug 'mg979/vim-visual-multi'
-    Plug 'ludovicchabant/vim-gutentags'
-    Plug 'kristijanhusak/vim-js-file-import', {'do': 'npm install'}
+    Plug 'easymotion/vim-easymotion'
 
     " Airline
-    Plug 'vim-airline/vim-airline-themes'
-    Plug 'vim-airline/vim-airline'
+    " Plug 'vim-airline/vim-airline-themes'
+    " Plug 'vim-airline/vim-airline'
 
     " Syntax and colours
     Plug 'hardcoreplayers/gruvbox9'
@@ -37,6 +36,8 @@ if has('nvim')
     Plug 'jparise/vim-graphql'
     Plug 'maxmellon/vim-jsx-pretty'
     Plug 'peitalin/vim-jsx-typescript'
+    Plug 'KabbAmine/vCoolor.vim'
+    Plug 'lilydjwg/colorizer'
 
     " Markdown preview from Browser
     Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
@@ -45,23 +46,13 @@ if has('nvim')
   call neomake#configure#automake('nrwi', 500)
 endif
 
-func RemoveNumbers()
-  set nonumber
-  set norelativenumber
-  set nocursorline
-  set nocursorcolumn
-endfunc
+command! PluginBaby :so ~/.vimrc | PlugClean | PlugInstall 
 
 set nocompatible
 
 " Remaps the spacebar as leader
 nnoremap <space> <Nop>
 let mapleader = " "
-
-" Styling and colors
-
-" transparent background
-hi Normal guibg=NONE ctermbg=NONE
 
 syntax on
 filetype plugin indent on
@@ -78,11 +69,9 @@ hi DiffChange cterm=reverse ctermfg=76 ctermbg=235 guibg=DarkMagenta
 hi DiffDelete cterm=reverse ctermfg=166 ctermbg=235 gui=bold guifg=Blue guibg=DarkCyan
 hi DiffText cterm=reverse ctermfg=37 ctermbg=235 gui=bold guibg=Red
 
-" Gets rid of Vim's builtin mode status because we're using Lightline
-set noshowmode
-set nu
-set relativenumber
 set smartcase
+
+set statusline=\ %n%=%t\ %m%=%y\ 
 set laststatus=2
 set autoindent
 set smartindent
@@ -118,38 +107,6 @@ set undodir=~/.vim/undodir
 
 set mouse=a
 
-
-" Airline settings:
-
-let g:airline_theme='lucius'
-
-
-" General Settings
-
-" My syntax highlighting only works properly for the javascript filetype
-" so we have to set various typescript and react filetypes to javascript
-" here...
-autocmd BufNewFile,BufRead *.jsx set filetype=javascript
-autocmd BufNewFile,BufRead *.tsx set filetype=javascript
-autocmd BufNewFile,BufRead *.ts set filetype=javascript
-
-"  ...then so the linting works I'm setting the coc to recognise javascript
-"  as typescriptreact
-let g:coc_filetype_map = {
-\ 'javascript': 'typescriptreact'
-\ }
-
-
-" coc Settings
-" Use `[g` and `]g` to navigate between errors
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
-
-nmap <silent> ga :CocAction<cr>
-
-" Expand a snippet suggestion with CTRL-e
-imap <expr> <c-e> pumvisible() ? "<Plug>(coc-snippets-expand)" : "<CR>"
-
 " Always show the signcolumn, otherwise it would shift the text each time
 " diagnostics appear/become resolved.
 if has("patch-8.1.1564")
@@ -165,6 +122,43 @@ set updatetime=100
 
 
 
+
+" Airline settings:
+
+" let g:airline_theme='lucius'
+
+" Easymotion settings
+map <Leader> <Plug>(easymotion-prefix)
+
+" General Settings
+
+" coc Settings
+" Use `[g` and `]g` to navigate between errors
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+
+nmap <silent> ga :CocAction<cr>
+
+" Expand a snippet suggestion with CTRL-e
+imap <expr> <c-e> pumvisible() ? "<Plug>(coc-snippets-expand)" : "<CR>"
+
+" My syntax highlighting only works properly for the javascript filetype
+" so we have to set various typescript and react filetypes to javascript
+" here...
+autocmd BufNewFile,BufRead *.jsx set filetype=javascript
+autocmd BufNewFile,BufRead *.tsx set filetype=javascript
+autocmd BufNewFile,BufRead *.ts set filetype=javascript
+
+" Makes syntax highlighting in the terminal (no ohmyzsh!)
+autocmd TermOpen,TermEnter zsh set filetype=sh 
+
+"  ...then so the linting works I'm setting the coc to recognise javascript
+"  as typescriptreact
+let g:coc_filetype_map = {
+\ 'javascript': 'typescriptreact'
+\ }
+
+
 " ranger Settings (Find mappings further down)
 let g:ranger_replace_netrw = 1 " open ranger when vim open a directory
 let g:ranger_map_keys = 0
@@ -174,6 +168,9 @@ let g:ranger_map_keys = 0
 " Add a commit or branch name to the "d" register then you can use
 " it to diff any file from the current branch...
 map <leader>pd :Gdiff <c-r>d<cr>
+nnoremap <silent> <leader>gg :G<cr>
+nnoremap <silent> <leader>gd :Gdiff<cr>
+nnoremap <silent> <leader>gr :Gread<cr>
 
 
 " Custom Commands...
@@ -190,13 +187,16 @@ command! Vimrc e ~/.vim/vimrc
 " sources my vimrc
 command! So so ~/.vimrc
 
+" Another command to quickly delete the current buffer
+command! B bd!
+
 " Saves a session
 command! Sesh mksession! ../sesh
 map <leader>se :mksession! ../sesh<cr>
+command! Gsesh :execute "mksession! ~/code/vimsessions/" . substitute(substitute(FugitiveHead(), "/", "-", "g"), " ", "", "g")
 
 " Clears my terminal history
 command! Clear set scrollback=1 | sleep 100m | set scrollback=10000
-map <leader>ct :set scrollback=1 \| sleep 100m \| set scrollback=10000<cr>
 
 " Creates a ctags file, with ignoring defaults
 command! Ctags silent !ctags -R --exclude=__tests__ --exclude=ios --exclude=android --exclude=firebase_environments --exclude=coverage --exclude=.github --exclude=.jest --exclude=.circleci --exclude=node_modules
@@ -213,16 +213,24 @@ command! Cjumps :silent call setqflist(getjumplist()[0]) | copen
 command! Cchanges :silent call setqflist(map(getchangelist(bufnr())[0], {key, val -> {"bufnr": bufnr(), "col": val.col, "lnum": val.lnum}})) | copen
 command! Ctagstack :silent call setqflist(gettagstack().items) | copen
 
-" Experiment with my own CHANGE BUFFER shortcut...
-" I've replaced this with fuzzy finder's :Buffers command
-" func GetBuffer()
-"   let g:gbff = input('Enter buffer: ')
-"   call inputrestore()
-"   execute ':b' . g:gbff
-" endfunc
 
-" Do CTRL-b to open the list of available buffers
-" nnoremap <c-b> :ls<cr>:call GetBuffer()<cr>
+
+" Terminal mode mappings
+"
+" Use CTRL-Space to escape term mode
+tnoremap <expr> <c-space> '<c-\><c-n>'
+
+" emulates <c-r> like insert mode for terminal mode
+tnoremap <expr> <c-r> '<c-\><c-n>"'.nr2char(getchar()).'pi'
+" Switch buffers in terminal mode
+tnoremap <expr> <c-^> '<c-\><c-n><c-^>'
+" Remaps CTRL-W in terminal mode
+" (see below I've also remapped "delete-word" to match the macos delete word ALT-BS)
+" tnoremap <expr> <c-w> '<c-\><c-n><c-w>'
+" Lets me use all my file and buffer shortcuts from term mode
+tnoremap <expr> <c-b> '<c-\><c-n>:Buffers<cr>'
+tnoremap <expr> <c-p> '<c-\><c-n>:GFiles<cr>'
+tnoremap <expr> <c-s> '<c-\><c-n>:Ag<cr>'
 
 
 
@@ -237,6 +245,16 @@ command! Ctagstack :silent call setqflist(gettagstack().items) | copen
 inoremap <C-z> <esc>ciWconsole.log('<c-r>": ', <c-r>");
 inoremap <C-a> <esc>ciWconsole.log('@SEAN <c-r>": ', <c-r>");
 inoremap <C-l> <esc>$v^cconsole.log(");
+
+" Toggle numbers...
+nnoremap <leader>rn :set relativenumber!<cr>
+
+
+" Quick mapping for doing yarn tests
+map <leader>yt <c-w>n<c-w>o:term<cr>iyarn test -u --watch<cr>
+
+" re-maps capital Yank to yank till the end of the line
+map Y y$
 
 " Closes a whole tab including all splits. 
 map <silent> <c-w>C :tabclose<cr>
@@ -259,21 +277,6 @@ nnoremap [[ [m
 nnoremap ][ ]m
 nnoremap [] [M
 
-" emulates <c-r> like insert mode for terminal mode
-tnoremap <expr> <C-R> '<C-\><C-N>"'.nr2char(getchar()).'pi'
-" Lets you use <c-w> in terminal mode
-tnoremap <expr> <esc><c-w> '<c-\><c-N><c-w>'
-tnoremap <expr> <c-6> '<c-\><c-N><c-6>'
-" Lets me use all my file and buffer shortcuts from term mode
-tnoremap <expr> <leader><leader> '<c-\><c-N><leader>'
-tnoremap <expr> <c-b> '<c-\><c-N>:Buffers<cr>'
-tnoremap <expr> <c-p> '<c-\><c-N>:GFiles<cr>'
-tnoremap <expr> <c-s> '<c-\><c-N>:Ag<cr>'
-" RangerCurrentFile doesn't work from a term buffer so make a new buffer
-" first...
-" Close for a terminal buffer
-tnoremap <expr> <leader>bd '<c-\><c-N>:bd!<cr>'
-
 " select last pasted text
 nnoremap gp `[v`]
 
@@ -290,16 +293,8 @@ nnoremap <silent> <c-b> :Buffers<CR>
 " Quick search sexp in project
 nmap <silent> <leader>] yiw:Ag<cr><esc>pi
 
-nnoremap <silent> <leader>gg :G<cr>
-nnoremap <silent> <leader>gd :Gdiff<cr>
-nnoremap <silent> <leader>gr :Gread<cr>
-
 " Quick switching registers
-nnoremap <silent> <leader>r :let regvar = nr2char(getchar()) \| call setreg(nr2char(getchar()), getreg(regvar))<cr>
-
-" Reveal this file in nerdtree
-" map <silent> <leader>nf :NERDTreeFind<CR>
-" nnoremap <silent> <leader>n. :NERDTreeToggle<CR>:vert res 30<cr>
+nnoremap <silent> <leader>r :echo 'Choose registers by key: 1st <- 2nd' \| let regvar = nr2char(getchar()) \| call setreg(nr2char(getchar()), getreg(regvar))<cr>
 
 nnoremap <silent> <leader>. :RangerCurrentFile<cr>
 
@@ -328,8 +323,17 @@ nnoremap <silent> <leader>+% :let @+ = @%<cr>
 
 
 
-set rtp+=~/.fzf
-
 " Defaults only for markdown files
 autocmd filetype markdown set tw=73
 autocmd filetype markdown set spell
+
+" These settings have to go last...
+
+set rtp+=~/.fzf
+
+" transparent background (this doesn't have to go last but it's keeping
+" SignColumn company)
+hi Normal guibg=NONE ctermbg=NONE
+" Transparent signcolumn (left hand padding)
+hi SignColumn guibg=NONE ctermbg=NONE
+
