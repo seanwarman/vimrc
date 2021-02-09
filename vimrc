@@ -1,3 +1,5 @@
+autocmd BufWritePost ~/.vim/vimrc source ~/.vim/vimrc
+
 if has('nvim')
   call plug#begin('~/.local/share/nvim/plugged')
     Plug 'junegunn/vim-plug'
@@ -23,11 +25,8 @@ if has('nvim')
     Plug 'tpope/vim-surround'
     Plug 'jiangmiao/auto-pairs'
     Plug 'mg979/vim-visual-multi'
-    Plug 'easymotion/vim-easymotion'
-
-    " Airline
-    " Plug 'vim-airline/vim-airline-themes'
-    " Plug 'vim-airline/vim-airline'
+    " Plug 'easymotion/vim-easymotion'
+    Plug 'justinmk/vim-sneak'
 
     " Syntax and colours
     Plug 'hardcoreplayers/gruvbox9'
@@ -46,7 +45,7 @@ if has('nvim')
   call neomake#configure#automake('nrwi', 500)
 endif
 
-command! PluginBaby :so ~/.vimrc | PlugClean | PlugInstall 
+command! PluginBaby :PlugClean | PlugInstall 
 
 set nocompatible
 
@@ -63,7 +62,7 @@ hi Error NONE
 " vim-jsx-pretty
 let g:vim_jsx_pretty_colorful_config = 1
 
-" diff colours
+" Nicer diff colours
 hi DiffAdd cterm=reverse ctermfg=35 ctermbg=235 guibg=DarkBlue
 hi DiffChange cterm=reverse ctermfg=76 ctermbg=235 guibg=DarkMagenta
 hi DiffDelete cterm=reverse ctermfg=166 ctermbg=235 gui=bold guifg=Blue guibg=DarkCyan
@@ -71,6 +70,7 @@ hi DiffText cterm=reverse ctermfg=37 ctermbg=235 gui=bold guibg=Red
 
 set smartcase
 
+" Sets statusline to [buffer-number -- filename [-/+] -- filetype]
 set statusline=\ %n%=%t\ %m%=%y\ 
 set laststatus=2
 set autoindent
@@ -123,12 +123,33 @@ set updatetime=100
 
 
 
-" Airline settings:
-
-" let g:airline_theme='lucius'
-
 " Easymotion settings
-map <Leader> <Plug>(easymotion-prefix)
+" map <Leader> <Plug>(easymotion-prefix)
+
+" Auto commands
+"
+" My syntax highlighting only works properly for the javascript filetype
+" so we have to set various typescript and react filetypes to javascript
+" here...
+autocmd BufNewFile,BufRead *.jsx set filetype=javascript
+autocmd BufNewFile,BufRead *.tsx set filetype=javascript
+autocmd BufNewFile,BufRead *.ts set filetype=javascript
+
+" Defaults only for markdown files
+autocmd BufNewFile,BufEnter *.md set tw=73
+autocmd BufNewFile,BufEnter *.md set spell
+autocmd BufLeave *.md set spell&
+autocmd BufLeave *.md set tw&
+
+" Makes syntax highlighting in the terminal (no ohmyzsh!)
+autocmd TermOpen,TermEnter zsh set filetype=sh 
+
+"  ...then so the linting works I'm setting the coc to recognise javascript
+"  as typescriptreact
+let g:coc_filetype_map = {
+\ 'javascript': 'typescriptreact'
+\ }
+
 
 " General Settings
 
@@ -142,24 +163,9 @@ nmap <silent> ga :CocAction<cr>
 " Expand a snippet suggestion with CTRL-e
 imap <expr> <c-e> pumvisible() ? "<Plug>(coc-snippets-expand)" : "<CR>"
 
-" My syntax highlighting only works properly for the javascript filetype
-" so we have to set various typescript and react filetypes to javascript
-" here...
-autocmd BufNewFile,BufRead *.jsx set filetype=javascript
-autocmd BufNewFile,BufRead *.tsx set filetype=javascript
-autocmd BufNewFile,BufRead *.ts set filetype=javascript
 
-" Makes syntax highlighting in the terminal (no ohmyzsh!)
-autocmd TermOpen,TermEnter zsh set filetype=sh 
-
-"  ...then so the linting works I'm setting the coc to recognise javascript
-"  as typescriptreact
-let g:coc_filetype_map = {
-\ 'javascript': 'typescriptreact'
-\ }
-
-
-" ranger Settings (Find mappings further down)
+" Ranger Settings (Find mappings further down)
+"
 let g:ranger_replace_netrw = 1 " open ranger when vim open a directory
 let g:ranger_map_keys = 0
 
@@ -179,7 +185,7 @@ nnoremap <silent> <leader>gr :Gread<cr>
 command! -nargs=+ F :silent grep! -RHn <args> | copen | norm <c-w>L40<c-w><
 
 " Redirects any message output to the " register
-command! -nargs=+ Redir :redir => o | silent <args> | redir END | let @" = o
+command! -nargs=+ -complete=history Redir :redir => o | silent execute '<args>' | redir END | let @" = o
 
 " Goes to my vimrc
 command! Vimrc e ~/.vim/vimrc
@@ -203,7 +209,7 @@ command! Ctags silent !ctags -R --exclude=__tests__ --exclude=ios --exclude=andr
 map <silent> <leader>ct :silent !ctags -R --exclude=__tests__ --exclude=ios --exclude=android --exclude=firebase_environments --exclude=coverage --exclude=.github --exclude=.jest --exclude=.circleci --exclude=node_modules<cr>
 
 " Adds any command output to the quickfix buffer
-command! -nargs=+ Cex :silent redir => o | silent execute '<args>' | silent redir END | silent cex split(o, '\n') | copen
+command! -nargs=+ -complete=function Cex :silent redir => o | silent execute '<args>' | silent redir END | silent cex split(o, '\n') | copen
 " Allows any simple of list of files to be selectable
 set errorformat+=%f
 
@@ -217,20 +223,10 @@ command! Ctagstack :silent call setqflist(gettagstack().items) | copen
 
 " Terminal mode mappings
 "
-" Use CTRL-Space to escape term mode
-tnoremap <expr> <c-space> '<c-\><c-n>'
-
 " emulates <c-r> like insert mode for terminal mode
 tnoremap <expr> <c-r> '<c-\><c-n>"'.nr2char(getchar()).'pi'
 " Switch buffers in terminal mode
 tnoremap <expr> <c-^> '<c-\><c-n><c-^>'
-" Remaps CTRL-W in terminal mode
-" (see below I've also remapped "delete-word" to match the macos delete word ALT-BS)
-" tnoremap <expr> <c-w> '<c-\><c-n><c-w>'
-" Lets me use all my file and buffer shortcuts from term mode
-tnoremap <expr> <c-b> '<c-\><c-n>:Buffers<cr>'
-tnoremap <expr> <c-p> '<c-\><c-n>:GFiles<cr>'
-tnoremap <expr> <c-s> '<c-\><c-n>:Ag<cr>'
 
 
 
@@ -287,6 +283,7 @@ vnoremap <C-j> :m '>+1<CR>gv=gv
 vnoremap <C-k> :m '<-2<CR>gv=gv
 
 " Maps Fuzzy Finder to ctrl+p
+"
 nnoremap <silent> <c-p> :GFiles<CR>
 nnoremap <silent> <c-s> :Ag<CR>
 nnoremap <silent> <c-b> :Buffers<CR>
@@ -323,10 +320,6 @@ nnoremap <silent> <leader>+% :let @+ = @%<cr>
 
 
 
-" Defaults only for markdown files
-autocmd filetype markdown set tw=73
-autocmd filetype markdown set spell
-
 " These settings have to go last...
 
 set rtp+=~/.fzf
@@ -336,4 +329,33 @@ set rtp+=~/.fzf
 hi Normal guibg=NONE ctermbg=NONE
 " Transparent signcolumn (left hand padding)
 hi SignColumn guibg=NONE ctermbg=NONE
+
+
+
+
+" Tmux relevent settings
+"
+command! Tmuxrc e ~/.vim/tmux.conf
+autocmd BufWritePost ~/.vim/tmux.conf call system('tmux source-file ~/.vim/tmux.conf')
+
+" My own mappings for fzf...
+" command! FuzzyLs call system('tmux split-window "{ ' . join(map(getbufinfo({"buflisted":1}), { key, val -> "echo " . val.name . ";" })) . ' } | ~/./.vim/vimfzf"')
+" command! FuzzyJumps call system('tmux split-window "{ ' . join(reverse(map(getjumplist()[0], { key, val -> "echo Line:" . val.lnum . " Buffer:" . val.bufnr . ";" }))) . ' } | ~/./.vim/vimfzf"')
+
+" Fuzzy finds a file in the given dir
+" command! -nargs=+ -complete=dir FuzzyFile !tmux split-window "cd <args>; ~/./.vim/vimfzf"
+" Fuzzy grep search in a given directory (TODO: make one of these that pipes into the quickfix)
+" command! -nargs=+ -complete=dir FuzzyGrep !tmux split-window "cd <args>; ~/./.vim/vimfzf grep"
+
+" TODO: vimfzf is a bash command, we could probably just write it here...
+" map <c-p> :silent! !tmux split-window ~/./.vim/vimfzf<cr>
+" map <c-s> :silent! !tmux split-window ~/./.vim/vimfzf grep<cr>
+" map <c-b> :silent! FuzzyLs<cr>
+" map <c-j> :silent! FuzzyJumps<cr>
+
+" Calls any terminal command in a quick split...
+command! -nargs=+ Sh silent! call system('tmux split-window "<args>"')
+map <leader>: :Sh 
+" Calls any terminal command (like ! but here we can concatinate function calls)
+command! -nargs=+ Sy silent! call system(<args>)
 

@@ -1,0 +1,6 @@
+if [[ $1 = 'grep' ]]; then
+  # TODO: get file previews working
+  file=$(grep --line-buffered --color=never -r "" * | fzf | sed 's/\(^[A-Za-z 0-9\-\./_]*\).*/\1/'); tmux send-keys -t 0 :e\ $file Enter
+else
+  file=$(fzf --preview='bat --color=always --style=header,grid --line-range :300 {}'); tmux send-keys -t 0 :e\ $file Enter
+fi
