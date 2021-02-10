@@ -306,18 +306,21 @@ map <c-w>gn :tabnew<CR>
 " give it a mapping for the enter key...
 " also give it a filetype for syntax highlighting
 function! AnyList(cmd, ftype, position, onenter)
+  " TODO: prevent this function from being called inside itself
   let g:anylistbuff = bufnr('buffer-list', 1)
   call setbufvar(g:anylistbuff, "&buftype", "nofile")
   execute "sbuffer" . g:anylistbuff
-  au! BufLeave buffer-list execute g:anylistbuff . "bd!"
+  au! BufLeave buffer-list execute g:anylistbuff . "bwipeout"
   silent! redir => o | execute 'silent ' . a:cmd | redir END | let @b = o
   silent! set cursorline
   execute "silent! set filetype=" . a:ftype
   execute "norm \<c-w>J10\<c-w>-gg\"bpgg" . a:position
   execute "map <silent> <buffer> <cr> " . a:onenter
-  " It doesn't like this delete command for some reason...
   map <buffer> dd <NOP>
-  map <buffer> dd "byiwV:g/./d \| bd!<c-r>b<cr>
+  " This works but if you delete the last buffer so the menu is the only one
+  " left it'll make that buffer undeletable.
+  " TODO: fix (as above).
+  map <buffer> dd "byiwV:g/./d<cr>:bd! <c-r>b<cr>
   map <buffer> <esc> <c-w>c
   map <buffer> h <NOP>
   map <buffer> l <NOP>
@@ -325,7 +328,7 @@ function! AnyList(cmd, ftype, position, onenter)
 endfunction
 
 " Buffers
-" map <silent> <c-b> :call AnyList("ls", "sh", "j2l", "\"byiw:b\<lt>c-r>b\<lt>cr>")<cr>
+map <silent> <leader>bb :call AnyList("ls", "sh", "j2l", "\"byiw:b\<lt>c-r>b\<lt>cr>")<cr>
 
 map <leader>b<tab> q:ib <tab>
 map <leader>bp :bp<cr>
