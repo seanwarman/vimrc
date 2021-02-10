@@ -157,11 +157,14 @@ let g:coc_filetype_map = {
 " Use `[g` and `]g` to navigate between errors
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
-
-nmap <silent> ga :CocAction<cr>
-
 " Expand a snippet suggestion with CTRL-e
 imap <expr> <c-e> pumvisible() ? "<Plug>(coc-snippets-expand)" : "<CR>"
+nmap ga <Plug>(coc-codeaction)
+vmap ga <Plug>(coc-codeaction-selected)
+nmap <leader>ec :CocEnable<cr>
+nmap <leader>dc :CocDisable<cr>
+nmap <leader>gc :CocDiagnostics<cr>
+
 
 
 " Ranger Settings (Find mappings further down)
@@ -298,7 +301,33 @@ nnoremap <silent> <leader>. :RangerCurrentFile<cr>
 " Tabs
 map <c-w>gn :tabnew<CR>
 
+" Give this function any command (marks, tags, ls),
+" tell the cursor what position it should be in,
+" give it a mapping for the enter key...
+" also give it a filetype for syntax highlighting
+function! AnyList(cmd, ftype, position, onenter)
+  let g:anylistbuff = bufnr('buffer-list', 1)
+  call setbufvar(g:anylistbuff, "&buftype", "nofile")
+  execute "sbuffer" . g:anylistbuff
+  au! BufLeave buffer-list execute g:anylistbuff . "bd!"
+  silent! redir => o | execute 'silent ' . a:cmd | redir END | let @b = o
+  silent! set cursorline
+  execute "silent! set filetype=" . a:ftype
+  execute "norm \<c-w>J10\<c-w>-gg\"bpgg" . a:position
+  execute "map <silent> <buffer> <cr> " . a:onenter
+  " It doesn't like this delete command for some reason...
+  map <buffer> dd <NOP>
+  map <buffer> dd "byiwV:g/./d \| bd!<c-r>b<cr>
+  map <buffer> <esc> <c-w>c
+  map <buffer> h <NOP>
+  map <buffer> l <NOP>
+  map <buffer> <c-b> <NOP>
+endfunction
+
 " Buffers
+" map <silent> <c-b> :call AnyList("ls", "sh", "j2l", "\"byiw:b\<lt>c-r>b\<lt>cr>")<cr>
+
+map <leader>b<tab> q:ib <tab>
 map <leader>bp :bp<cr>
 map <leader>bn :bn<cr>
 map <leader>bd :Bclose!<cr>
@@ -358,4 +387,3 @@ command! -nargs=+ Sh silent! call system('tmux split-window "<args>"')
 map <leader>: :Sh 
 " Calls any terminal command (like ! but here we can concatinate function calls)
 command! -nargs=+ Sy silent! call system(<args>)
-
