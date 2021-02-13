@@ -1,6 +1,12 @@
 if [[ $1 = 'grep' ]]; then
-  # TODO: get file previews working
-  file=$(grep --line-buffered --color=never -r "" * | fzf | sed 's/\(^[A-Za-z 0-9\-\./_]*\).*/\1/'); tmux send-keys -t 0 :e\ $file Enter
+  file=$(ag --ignore="node_modules" . | fzf --delimiter=":" --preview='bat --color always --line-range :3000 --highlight-line {2} {1}' --preview-window=":+{2}-1" | awk -F: '{ print $1 }');
+  tmux send -t {last} ":e $file" Enter;
+elif [[ $1 = 'files' ]]; then
+  file=$(ag -l --ignore="node_modules" . | fzf --delimiter=":" --preview='bat --color=always --style=header,grid --line-range :3000 {}');
+  tmux send -t {last} ":e $file" Enter;
+elif [[ $1 = 'buffers' ]]; then
+  buffer=$(echo "$2" | fzf --delimiter=":" --preview='bat --color always --line-range :3000 --highlight-line {3} {2}' --preview-window=":+{2}-1" --bind "j:down,k:up,l:execute(tmux send-keys -t {last} :b\ {1} Enter)" | awk -F: '{ print $1 }');
+  tmux send -t {last} :b\ $buffer Enter;
 else
-  file=$(fzf --preview='bat --color=always --style=header,grid --line-range :300 {}'); tmux send-keys -t 0 :e\ $file Enter
+  echo $1
 fi
