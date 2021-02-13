@@ -23,13 +23,12 @@ if has('nvim')
     Plug 'tpope/vim-commentary'
     Plug 'tpope/vim-repeat'
     Plug 'tpope/vim-surround'
-    Plug 'jiangmiao/auto-pairs'
     Plug 'mg979/vim-visual-multi'
     " Plug 'easymotion/vim-easymotion'
     Plug 'justinmk/vim-sneak'
 
     " Syntax and colours
-    Plug 'hardcoreplayers/gruvbox9'
+    Plug 'morhetz/gruvbox'
     Plug 'yuezk/vim-js'
     Plug 'HerringtonDarkholme/yats.vim'
     Plug 'jparise/vim-graphql'
@@ -55,7 +54,7 @@ let mapleader = " "
 
 syntax on
 filetype plugin indent on
-colorscheme gruvbox9
+colorscheme gruvbox
 hi Search cterm=NONE ctermfg=NONE ctermbg=Black
 " Stops vim error highlighting the second }} in JSX files.
 hi Error NONE
