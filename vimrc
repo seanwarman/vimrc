@@ -1,4 +1,4 @@
-autocmd BufWritePost ~/.vim/vimrc source ~/.vim/vimrc
+autocmd BufWritePre ~/.vim/vimrc source ~/.vim/vimrc
 
 if has('nvim')
   call plug#begin('~/.local/share/nvim/plugged')
@@ -142,7 +142,7 @@ autocmd BufLeave *.md set spell&
 autocmd BufLeave *.md set tw&
 
 " Makes syntax highlighting in the terminal (no ohmyzsh!)
-autocmd TermOpen,TermEnter zsh set filetype=sh 
+autocmd TermOpen,TermEnter zsh set filetype=posix
 
 "  ...then so the linting works I'm setting the coc to recognise javascript
 "  as typescriptreact
@@ -181,11 +181,15 @@ nnoremap <silent> <leader>gg :G<cr>
 nnoremap <silent> <leader>gd :Gdiff<cr>
 nnoremap <silent> <leader>gr :Gread<cr>
 
+" Colorizer is really slow on large files (for anything in :help for example)
+" Set it to off by default, you can toggle it with <leader>tc
+let g:colorizer_startup = 0
+
 
 " Custom Commands...
 "
 " Search for a search term in the given directory ':F term folder'
-command! -nargs=+ F :silent grep! -RHn <args> | copen | norm <c-w>L40<c-w><
+command! -nargs=+ -complete=dir F :silent grep! -RHn <args> | copen | norm <c-w>L40<c-w><
 
 " Redirects any message output to the " register
 command! -nargs=+ -complete=history Redir :redir => o | silent execute '<args>' | redir END | let @" = o
@@ -246,7 +250,7 @@ inoremap <C-a> <esc>ciWconsole.log('@SEAN <c-r>": ', <c-r>");
 inoremap <C-l> <esc>$v^cconsole.log(");
 
 " Toggle numbers...
-nnoremap <leader>rn :set relativenumber!<cr>
+nnoremap <leader>rn :set relativenumber! \| set nu!<cr>
 
 
 " Quick mapping for doing yarn tests
@@ -287,9 +291,9 @@ vnoremap <C-k> :m '<-2<CR>gv=gv
 
 " Maps Fuzzy Finder to ctrl+p
 "
-nnoremap <silent> <c-p> :GFiles<CR>
-nnoremap <silent> <c-s> :Ag<CR>
-nnoremap <silent> <c-b> :Buffers<CR>
+" nnoremap <silent> <c-p> :GFiles<CR>
+" nnoremap <silent> <c-s> :Ag<CR>
+" nnoremap <silent> <c-b> :Buffers<CR>
 " Quick search sexp in project
 nmap <silent> <leader>] yiw:Ag<cr><esc>pi
 
@@ -300,35 +304,6 @@ nnoremap <silent> <leader>. :RangerCurrentFile<cr>
 
 " Tabs
 map <c-w>gn :tabnew<CR>
-
-" Give this function any command (marks, tags, ls),
-" tell the cursor what position it should be in,
-" give it a mapping for the enter key...
-" also give it a filetype for syntax highlighting
-function! AnyList(cmd, ftype, position, onenter)
-  " TODO: prevent this function from being called inside itself
-  let g:anylistbuff = bufnr('buffer-list', 1)
-  call setbufvar(g:anylistbuff, "&buftype", "nofile")
-  execute "sbuffer" . g:anylistbuff
-  au! BufLeave buffer-list execute g:anylistbuff . "bwipeout"
-  silent! redir => o | execute 'silent ' . a:cmd | redir END | let @b = o
-  silent! set cursorline
-  execute "silent! set filetype=" . a:ftype
-  execute "norm \<c-w>J10\<c-w>-gg\"bpgg" . a:position
-  execute "map <silent> <buffer> <cr> " . a:onenter
-  map <buffer> dd <NOP>
-  " This works but if you delete the last buffer so the menu is the only one
-  " left it'll make that buffer undeletable.
-  " TODO: fix (as above).
-  map <buffer> dd "byiwV:g/./d<cr>:bd! <c-r>b<cr>
-  map <buffer> <esc> <c-w>c
-  map <buffer> h <NOP>
-  map <buffer> l <NOP>
-  map <buffer> <c-b> <NOP>
-endfunction
-
-" Buffers
-map <silent> <leader>bb :call AnyList("ls", "sh", "j2l", "\"byiw:b\<lt>c-r>b\<lt>cr>")<cr>
 
 map <leader>b<tab> q:ib <tab>
 map <leader>bp :bp<cr>
@@ -365,28 +340,136 @@ hi SignColumn guibg=NONE ctermbg=NONE
 
 
 
+
+
+
+" Hey you! All of the below is new stuff that I should put into 
+" seperate scripts...
+"
+"
+"
+" Custom Functions
+
+" Give this function any command (marks, tags, ls),
+" tell the cursor what position it should be in,
+" give it a mapping for the enter key...
+" also give it a filetype for syntax highlighting
+function! AnyList(cmd, ftype, position, onenter, ondelete)
+  if bufname("%") == "buffer-list" | return | endif
+
+  " Set up the buffer-list buffer (this makes it hidden)
+  let g:anylistbuff = bufnr('buffer-list', 1)
+  call setbufvar(g:anylistbuff, "&buftype", "nofile")
+  execute "sbuffer" . g:anylistbuff
+  " If we leave buffer-list it'll get deleted...
+  au! BufLeave buffer-list execute g:anylistbuff . "bwipeout"
+
+  " Copy the output of the given command (eg "ls") and paste it into
+  " buffer-list
+  silent! redir => o | execute 'silent ' . a:cmd | redir END | let @b = o
+  silent! set cursorline
+  execute "silent! set filetype=" . a:ftype
+  " TODO: make the window a fixed height...
+  " execute "bo 10split b"
+  execute "norm \<c-w>J10\<c-w>-gg\"bpggdd" . a:position
+  execute "map <silent> <buffer> <cr> :call " . a:onenter . "<cr>"
+  execute "map <buffer> dd :call " . a:ondelete . "<cr>"
+
+  " Limit movement, you can still do "w" etc, this is just to make it a bit
+  " like a menu...
+  map <buffer> h <NOP>
+  map <buffer> l <NOP>
+  map <buffer> <esc> <c-w>c
+endfunction
+
+function! AnyListOnEnterBuffer()
+  execute "norm \"byiw\<c-w>\<c-w>:b\<c-r>b\<cr>"
+endfunc
+
+function! AnyListDeleteBuffer()
+  if len(getbufinfo({'buflisted':1})) > 1
+    execute "norm \"byiwV:g/./d\<cr>:Bclose \<c-r>b\<cr>"
+  else
+    echo "Can't delete the last buffer"
+  endif
+endfunction
+
+" Buffers
+map <silent> <c-b> :call AnyList("ls", "sh", "0e", "AnyListOnEnterBuffer()", "AnyListDeleteBuffer()")<cr>
+
+
+
 " Tmux relevent settings
 "
 command! Tmuxrc e ~/.vim/tmux.conf
 autocmd BufWritePost ~/.vim/tmux.conf call system('tmux source-file ~/.vim/tmux.conf')
 
-" My own mappings for fzf...
-" command! FuzzyLs call system('tmux split-window "{ ' . join(map(getbufinfo({"buflisted":1}), { key, val -> "echo " . val.name . ";" })) . ' } | ~/./.vim/vimfzf"')
-" command! FuzzyJumps call system('tmux split-window "{ ' . join(reverse(map(getjumplist()[0], { key, val -> "echo Line:" . val.lnum . " Buffer:" . val.bufnr . ";" }))) . ' } | ~/./.vim/vimfzf"')
-
-" Fuzzy finds a file in the given dir
-" command! -nargs=+ -complete=dir FuzzyFile !tmux split-window "cd <args>; ~/./.vim/vimfzf"
-" Fuzzy grep search in a given directory (TODO: make one of these that pipes into the quickfix)
-" command! -nargs=+ -complete=dir FuzzyGrep !tmux split-window "cd <args>; ~/./.vim/vimfzf grep"
-
-" TODO: vimfzf is a bash command, we could probably just write it here...
-" map <c-p> :silent! !tmux split-window ~/./.vim/vimfzf<cr>
-" map <c-s> :silent! !tmux split-window ~/./.vim/vimfzf grep<cr>
-" map <c-b> :silent! FuzzyLs<cr>
-" map <c-j> :silent! FuzzyJumps<cr>
-
 " Calls any terminal command in a quick split...
-command! -nargs=+ Sh silent! call system('tmux split-window "<args>"')
+command! -nargs=+ -complete=function TmuxSplit silent! call system('tmux split-window ' . <args> . '')
+command! -nargs=+ -complete=function Tmux silent! call system('tmux ' . <args>)
+
+command! -nargs=+ -complete=function Sh silent! call system(join(<args>), ';'))
 map <leader>: :Sh 
-" Calls any terminal command (like ! but here we can concatinate function calls)
-command! -nargs=+ Sy silent! call system(<args>)
+map <leader>S :TmuxSplit ""<Left>
+
+function! System(...)
+  return system(join(a:000, ';'))
+endfunc
+
+function! TmuxSplit(height, ...)
+  return 'tmux split-window -l ' . a:height . ' "' . join(a:000, ' ') . '"'
+endfunc
+
+function! TmuxSend(...)
+  return 'tmux send "' . join(a:000, ' ') . '"'
+endfunc
+
+function! TmuxKeyPress(...)
+  return 'tmux send ' . join(a:000, ' ')
+endfunc
+
+function! FuzzyBuffers(buffers)
+  return "~/./.vim/vimfzf buffers " . shellescape(a:buffers)
+endfunc
+
+function! FuzzyFiles()
+  return "~/./.vim/vimfzf files"
+endfunc
+
+function! FuzzyGrep()
+  return "~/./.vim/vimfzf grep"
+endfunc
+
+function! GomoCd(socket)
+  return "gomo cd " . a:socket . ""
+endfunc 
+
+function! GomoRun(socket)
+  let l:socket ""
+  if a:socket | l:socket = " -s" . a:socket | endif
+  return "gomo run" . l:socket . ""
+endfunc
+
+function! WdioMobileLogin()
+  return "mobile.\\$('~passcode-input').addValue('111111')"
+endfunc
+
+command! Rn silent! silent! call system(join([TmuxSplit("50%", GomoCd("rn"))]))
+command! Wdio silent! silent! call system(join([TmuxSplit("50%", GomoCd("wdio"))]))
+command! Appium silent! silent! call system(join([TmuxSplit("50%", GomoCd("appium"))]))
+command! -nargs=+ GomoCd silent! silent! call system(join([TmuxSplit("50%", GomoCd(<args>))]))
+command! -nargs=+ GomoRun silent! silent! call system(join([TmuxSplit("50%", GomoRun(<args>))]))
+
+function! GetLs()
+  let l:BuffString = { key, val -> val.bufnr . ":" . (len(val.name) > 1 ? val.name : "[No Name]") . ":" . val.lnum }
+  return join(map(getbufinfo({'buflisted':1}), l:BuffString), "\n")
+endfunc
+
+map <c-p> :call system(TmuxSplit("50%", FuzzyFiles()))<cr>
+map <c-s> :call system(TmuxSplit("50%", FuzzyGrep()))<cr>
+map <c-b> :call system(TmuxSplit("20%", FuzzyBuffers(GetLs())))<cr>
+
+
+command! MobLogin silent! call system(join([TmuxSplit("50%", GomoCd("wdio")), TmuxSend(WdioMobileLogin()), TmuxKeyPress("Enter", "Escape")], ';'))
+
+map <leader>ml :MobLogin<cr>
