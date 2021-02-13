@@ -13,7 +13,7 @@ Make a vimrc that looks for any file called vimrc:
 runtime vimrc
 ```
 
-Also make a tmux conf (and install tmux) and add it to your home:
+Also make a .tmux.conf and add it to your home:
 
 ```
 source-file ~/.vim/tmux.conf
@@ -22,7 +22,7 @@ source-file ~/.vim/tmux.conf
 Open up vim, ignoring any errors, and run:
 
 ```
-:PlugInstall
+:PluginBaby
 ```
 
 And you're ready to go!
