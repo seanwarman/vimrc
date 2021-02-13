@@ -13,6 +13,12 @@ Make a vimrc that looks for any file called vimrc:
 runtime vimrc
 ```
 
+Also make a tmux conf (and install tmux) and add it to your home:
+
+```
+source-file ~/.vim/tmux.conf
+```
+
 Open up vim, ignoring any errors, and run:
 
 ```
