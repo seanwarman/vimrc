@@ -1,48 +1,46 @@
 autocmd BufWritePre ~/.vim/vimrc source ~/.vim/vimrc
 
-if has('nvim')
-  call plug#begin('~/.local/share/nvim/plugged')
-    Plug 'junegunn/vim-plug'
+call plug#begin('~/.local/share/vim/plugged')
+  Plug 'junegunn/vim-plug'
 
-    " Auto-completion and linting
-    Plug 'honza/vim-snippets'
-    Plug 'neoclide/coc.nvim', {'branch': 'release'}
-    Plug 'neomake/neomake'
+  " Auto-completion and linting
+  Plug 'honza/vim-snippets'
+  Plug 'neoclide/coc.nvim', {'branch': 'release'}
+  Plug 'neomake/neomake'
 
-    " Fuzzy finder
-    Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-    Plug 'junegunn/fzf.vim'
+  " Fuzzy finder
+  " Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+  " Plug 'junegunn/fzf.vim'
 
-    " Git and dir browsing
-    Plug 'tpope/vim-fugitive'
-    Plug 'francoiscabrol/ranger.vim'
-    Plug 'rbgrouleff/bclose.vim'
+  " Git and dir browsing
+  Plug 'tpope/vim-fugitive'
+  " Plug 'francoiscabrol/ranger.vim'
+  Plug 'rbgrouleff/bclose.vim'
 
-    " General utils
-    Plug 'kshenoy/vim-signature'
-    Plug 'tpope/vim-commentary'
-    Plug 'tpope/vim-repeat'
-    Plug 'tpope/vim-surround'
-    Plug 'mg979/vim-visual-multi'
-    " Plug 'easymotion/vim-easymotion'
-    Plug 'justinmk/vim-sneak'
+  " General utils
+  Plug 'kshenoy/vim-signature'
+  Plug 'tpope/vim-commentary'
+  Plug 'tpope/vim-repeat'
+  Plug 'tpope/vim-surround'
+  Plug 'mg979/vim-visual-multi'
+  " Plug 'easymotion/vim-easymotion'
+  Plug 'justinmk/vim-sneak'
 
-    " Syntax and colours
-    Plug 'morhetz/gruvbox'
-    Plug 'yuezk/vim-js'
-    Plug 'HerringtonDarkholme/yats.vim'
-    Plug 'jparise/vim-graphql'
-    Plug 'maxmellon/vim-jsx-pretty'
-    Plug 'peitalin/vim-jsx-typescript'
-    Plug 'KabbAmine/vCoolor.vim'
-    Plug 'lilydjwg/colorizer'
+  " Syntax and colours
+  Plug 'morhetz/gruvbox'
+  Plug 'yuezk/vim-js'
+  Plug 'HerringtonDarkholme/yats.vim'
+  Plug 'jparise/vim-graphql'
+  Plug 'maxmellon/vim-jsx-pretty'
+  Plug 'peitalin/vim-jsx-typescript'
+  Plug 'KabbAmine/vCoolor.vim'
+  Plug 'lilydjwg/colorizer'
 
-    " Markdown preview from Browser
-    Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
+  " Markdown preview from Browser
+  Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
 
-  call plug#end()
-  call neomake#configure#automake('nrwi', 500)
-endif
+call plug#end()
+call neomake#configure#automake('nrwi', 500)
 
 command! PluginBaby :PlugClean | PlugInstall 
 
@@ -54,11 +52,13 @@ let mapleader = " "
 
 syntax on
 filetype plugin indent on
-colorscheme gruvbox
 hi Search cterm=NONE ctermfg=NONE ctermbg=Black
 " Stops vim error highlighting the second }} in JSX files.
 hi Error NONE
-" vim-jsx-pretty
+
+" Colours
+let g:gruvbox_termcolors=16
+colorscheme gruvbox
 let g:vim_jsx_pretty_colorful_config = 1
 
 " Nicer diff colours
@@ -141,7 +141,7 @@ autocmd BufLeave *.md set spell&
 autocmd BufLeave *.md set tw&
 
 " Makes syntax highlighting in the terminal (no ohmyzsh!)
-autocmd TermOpen,TermEnter zsh set filetype=posix
+" autocmd TermOpen,TermEnter zsh set filetype=posix
 
 "  ...then so the linting works I'm setting the coc to recognise javascript
 "  as typescriptreact
@@ -299,7 +299,7 @@ nmap <silent> <leader>] yiw:Ag<cr><esc>pi
 " Quick switching registers
 nnoremap <silent> <leader>r :echo 'Choose registers by key: 1st <- 2nd' \| let regvar = nr2char(getchar()) \| call setreg(nr2char(getchar()), getreg(regvar))<cr>
 
-nnoremap <silent> <leader>. :RangerCurrentFile<cr>
+" nnoremap <silent> <leader>. :RangerCurrentFile<cr>
 
 " Tabs
 map <c-w>gn :tabnew<CR>
@@ -459,6 +459,9 @@ command! Appium silent! silent! call system(join([TmuxSplit("50%", GomoCd("appiu
 command! -nargs=+ GomoCd silent! silent! call system(join([TmuxSplit("50%", GomoCd(<args>))]))
 command! -nargs=+ GomoRun silent! silent! call system(join([TmuxSplit("50%", GomoRun(<args>))]))
 
+command! MobLogin silent! call system(join([TmuxSplit("50%", GomoCd("wdio")), TmuxSend(WdioMobileLogin()), TmuxKeyPress("Enter", "Escape")], ';'))
+map <leader>ml :MobLogin<cr>
+
 function! GetLs()
   let l:BuffString = { key, val -> val.bufnr . ":" . (len(val.name) > 1 ? val.name : "[No Name]") . ":" . val.lnum }
   return join(map(getbufinfo({'buflisted':1}), l:BuffString), "\n")
@@ -466,9 +469,21 @@ endfunc
 
 map <c-p> :call system(TmuxSplit("50%", FuzzyFiles()))<cr>
 map <c-s> :call system(TmuxSplit("50%", FuzzyGrep()))<cr>
-map <c-b> :call system(TmuxSplit("20%", FuzzyBuffers(GetLs())))<cr>
+" map <c-b> :call system(TmuxSplit("20%", FuzzyBuffers(GetLs())))<cr>
 
+function! RnR()
+  let l:name = getbufinfo(bufnr())[0].name
 
-command! MobLogin silent! call system(join([TmuxSplit("50%", GomoCd("wdio")), TmuxSend(WdioMobileLogin()), TmuxKeyPress("Enter", "Escape")], ';'))
+  " If this file is on some sort of server don't try and select it in
+  " ranger...
+  if len(matchstr(l:name, "://"))
+    return "tmux split -b \"ranger --confdir='" .$HOME . "/.vim/config/ranger' --choosedir='" . $HOME . "/.vim/.rangertargetfile'\""
+  elseif len(l:name)
+    return "tmux split -b \"ranger --confdir='" .$HOME . "/.vim/config/ranger' --choosedir='" . $HOME . "/.vim/.rangertargetfile' --selectfile='" . l:name . "'\""
+  else
+    return "tmux split -b \"ranger --confdir='" .$HOME . "/.vim/config/ranger' --choosedir='" . $HOME . "/.vim/.rangertargetfile'\""
+  endif
+endfunc
 
-map <leader>ml :MobLogin<cr>
+command! RnR call system(RnR())
+map <leader>. :RnR<cr>

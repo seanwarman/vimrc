@@ -1,11 +1,16 @@
+
 if [[ $1 = 'grep' ]]; then
-  file=$(ag --ignore="node_modules" . | fzf --delimiter=":" --preview='bat --color always --line-range :3000 --highlight-line {2} {1}' --preview-window=":+{2}-1" | awk -F: '{ print $1 }');
+  grepbindings="ctrl-l:execute(tmux send-keys -t {last} :e\ {1} Enter)"
+  file=$(ag --ignore="node_modules" . | fzf --delimiter=":" --preview='bat --color always --line-range :3000 --highlight-line {2} {1}' --bind "$grepbindings" --preview-window=":+{2}-1" | awk -F: '{ print $1 }');
   tmux send -t {last} ":e $file" Enter;
 elif [[ $1 = 'files' ]]; then
-  file=$(ag -l --ignore="node_modules" . | fzf --delimiter=":" --preview='bat --color=always --style=header,grid --line-range :3000 {}');
+  filebindings="ctrl-l:execute(tmux send-keys -t {last} :e\ {} Enter)"
+  file=$(ag -l --ignore="node_modules" . | fzf --delimiter=":" --preview='bat --color=always --style=header,grid --line-range :3000 {}' --bind "$filebindings");
   tmux send -t {last} ":e $file" Enter;
 elif [[ $1 = 'buffers' ]]; then
-  buffer=$(echo "$2" | fzf --delimiter=":" --preview='bat --color always --line-range :3000 --highlight-line {3} {2}' --preview-window=":+{2}-1" --bind "j:down,k:up,l:execute(tmux send-keys -t {last} :b\ {1} Enter)" | awk -F: '{ print $1 }');
+  args=$2
+  bufbindings="ctrl-d:execute(tmux send-keys -t {last} :bd!\ {1} Enter)+reload(echo \\"$args\\"),ctrl-l:execute(tmux send-keys -t {last} :b\ {1} Enter)"
+  buffer=$(echo "$args" | fzf --delimiter=":" --preview='bat --color always --line-range :3000 --highlight-line {3} {2}' --preview-window=":+{2}-1" --bind "$bufbindings" | awk -F: '{ print $1 }');
   tmux send -t {last} :b\ $buffer Enter;
 else
   echo $1
