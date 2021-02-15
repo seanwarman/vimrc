@@ -1,5 +1,5 @@
-source ./functions/tmux.vim
-source ./functions/buffer-selector.vim
+source ~/.vim/functions/tmux.vim
+source ~/.vim/functions/buffer-selector.vim
 
 autocmd BufWritePre ~/.vim/vimrc source ~/.vim/vimrc
 
@@ -59,10 +59,12 @@ hi Search cterm=NONE ctermfg=NONE ctermbg=Black
 hi Error NONE
 
 " Colours
-let g:gruvbox_termcolors=16
 colorscheme gruvbox
 let g:vim_jsx_pretty_colorful_config = 1
+let g:gruvbox_contrast_light = 'hard'
 set background=dark
+" let g:gruvbox_termcolors=16
+
 
 " Nicer diff colours
 hi DiffAdd cterm=reverse ctermfg=35 ctermbg=235 guibg=DarkBlue
@@ -360,7 +362,7 @@ command! FuzzyFiles call system(TmuxSplit("50%", FuzzyFiles()))
 command! FuzzyGrep call system(TmuxSplit("50%", FuzzyGrep()))
 
 map <c-p> :call system(TmuxSplit("50%", FuzzyFiles()))<cr>
-map <c-s> :call system(TmuxSplit("50%", FuzzyGrep()))<cr>
+map <c-h> :call system(TmuxSplit("50%", FuzzyGrep()))<cr>
 " Don't really need this...
 " map <c-b> :call system(TmuxSplit("20%", FuzzyBuffers(GetLs())))<cr>
 
