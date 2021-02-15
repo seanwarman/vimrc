@@ -1,17 +1,17 @@
+fzf=$HOME/.vim/dependencies/./fzf
+ag=$HOME/.vim/dependencies/./ag
+bat=$HOME/.vim/dependencies/./bat
 
 if [[ $1 = 'grep' ]]; then
-  grepbindings="ctrl-l:execute(tmux send-keys -t {last} :e\ {1} Enter)"
-  file=$(ag --ignore="node_modules" . | fzf --delimiter=":" --preview='bat --color always --line-range :3000 --highlight-line {2} {1}' --bind "$grepbindings" --preview-window=":+{2}-1" | awk -F: '{ print $1 }');
-  tmux send -t {last} ":e $file" Enter;
+  grepbindings="ctrl-l:execute(tmux send-keys -t {last} :e+{2}\ {1} Enter)"
+  search=$($ag --ignore="node_modules" . | $fzf --delimiter=":" --preview="$bat  --color always --line-range :3000 --highlight-line {2} {1}" --bind "$grepbindings" --preview-window=":+{2}-1");
+  file=$(echo $search | awk -F: '{ print $1 }')
+  line=$(echo $search | awk -F: '{ print $2 }')
+  tmux send -t {last} ":e+$line $file" Enter;
 elif [[ $1 = 'files' ]]; then
   filebindings="ctrl-l:execute(tmux send-keys -t {last} :e\ {} Enter)"
-  file=$(ag -l --ignore="node_modules" . | fzf --delimiter=":" --preview='bat --color=always --style=header,grid --line-range :3000 {}' --bind "$filebindings");
+  file=$($ag -l --ignore="node_modules" . | $fzf --delimiter=":" --preview="$bat --color=always --style=header,grid --line-range :3000 {}" --bind "$filebindings");
   tmux send -t {last} ":e $file" Enter;
-elif [[ $1 = 'buffers' ]]; then
-  args=$2
-  bufbindings="ctrl-d:execute(tmux send-keys -t {last} :bd!\ {1} Enter)+reload(echo \\"$args\\"),ctrl-l:execute(tmux send-keys -t {last} :b\ {1} Enter)"
-  buffer=$(echo "$args" | fzf --delimiter=":" --preview='bat --color always --line-range :3000 --highlight-line {3} {2}' --preview-window=":+{2}-1" --bind "$bufbindings" | awk -F: '{ print $1 }');
-  tmux send -t {last} :b\ $buffer Enter;
 else
   echo $1
 fi

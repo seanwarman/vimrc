@@ -1,5 +1,6 @@
-source ~/.vim/functions/tmux.vim
-source ~/.vim/functions/buffer-selector.vim
+set directory^=$HOME/.vim/.vimswap//
+source $HOME/.vim/functions/tmux.vim
+source $HOME/.vim/functions/buffer-selector.vim
 
 autocmd BufWritePre ~/.vim/vimrc source ~/.vim/vimrc
 
@@ -182,7 +183,6 @@ nnoremap <silent> <leader>gr :Gread<cr>
 " Set it to off by default, you can toggle it with <leader>tc
 let g:colorizer_startup = 0
 
-
 " Custom Commands...
 "
 " Search for a search term in the given directory ':F term folder'
@@ -224,22 +224,8 @@ command! Cchanges :silent call setqflist(map(getchangelist(bufnr())[0], {key, va
 command! Ctagstack :silent call setqflist(gettagstack().items) | copen
 
 
-
-" Terminal mode mappings
-"
-" emulates <c-r> like insert mode for terminal mode
-tnoremap <expr> <c-r> '<c-\><c-n>"'.nr2char(getchar()).'pi'
-" Switch buffers in terminal mode
-tnoremap <expr> <c-^> '<c-\><c-n><c-^>'
-
-
-
 " Custom mappings
 "
-" hover over any word and press leader twice to console log it
-" with a string to id it as well...
-" nnoremap <leader><leader> yiWoconsole.log('<c-r>" : ', <c-r>")<esc>
-
 " type any word then press ctrl-z in insert mode to console log it
 " with an id string...
 inoremap <C-z> <esc>ciWconsole.log('<c-r>": ', <c-r>");
@@ -350,7 +336,7 @@ command! Rn silent! silent! call system(join([TmuxSplit("50%", GomoCd("rn"))]))
 command! Wdio silent! silent! call system(join([TmuxSplit("50%", GomoCd("wdio"))]))
 command! Appium silent! silent! call system(join([TmuxSplit("50%", GomoCd("appium"))]))
 command! -nargs=+ GomoCd silent! silent! call system(join([TmuxSplit("50%", GomoCd(<args>))]))
-command! -nargs=+ GomoRun silent! silent! call system(join([TmuxSplit("50%", GomoRun(<args>))]))
+command! -nargs=* GomoRun silent! silent! call system(join([TmuxSplit("50%", GomoRun(<args>))]))
 
 command! MobLogin silent! call system(join([TmuxSplit("50%", GomoCd("wdio")), TmuxSend(WdioMobileLogin()), TmuxKeyPress("Enter", "Escape")], ';'))
 map <leader>ml :MobLogin<cr>
@@ -358,8 +344,10 @@ map <leader>ml :MobLogin<cr>
 
 " Fuzzy Finder Settings
 
+command! Vimfzf e $HOME/.vim/vimfzf
+
 command! FuzzyFiles call system(TmuxSplit("50%", FuzzyFiles()))
-command! FuzzyGrep call system(TmuxSplit("50%", FuzzyGrep()))
+" command! FuzzyGrep call system(TmuxSplit("50%", FuzzyGrep()))
 
 map <c-p> :call system(TmuxSplit("50%", FuzzyFiles()))<cr>
 map <c-h> :call system(TmuxSplit("50%", FuzzyGrep()))<cr>
