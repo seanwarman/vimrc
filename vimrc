@@ -1,3 +1,6 @@
+source ./functions/tmux.vim
+source ./functions/buffer-selector.vim
+
 autocmd BufWritePre ~/.vim/vimrc source ~/.vim/vimrc
 
 call plug#begin('~/.local/share/vim/plugged')
@@ -15,7 +18,6 @@ call plug#begin('~/.local/share/vim/plugged')
   " Git and dir browsing
   Plug 'tpope/vim-fugitive'
   " Plug 'francoiscabrol/ranger.vim'
-  Plug 'rbgrouleff/bclose.vim'
 
   " General utils
   Plug 'kshenoy/vim-signature'
@@ -23,8 +25,8 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'tpope/vim-repeat'
   Plug 'tpope/vim-surround'
   Plug 'mg979/vim-visual-multi'
-  " Plug 'easymotion/vim-easymotion'
   Plug 'justinmk/vim-sneak'
+  Plug 'rbgrouleff/bclose.vim'
 
   " Syntax and colours
   Plug 'morhetz/gruvbox'
@@ -60,6 +62,7 @@ hi Error NONE
 let g:gruvbox_termcolors=16
 colorscheme gruvbox
 let g:vim_jsx_pretty_colorful_config = 1
+set background=dark
 
 " Nicer diff colours
 hi DiffAdd cterm=reverse ctermfg=35 ctermbg=235 guibg=DarkBlue
@@ -67,24 +70,20 @@ hi DiffChange cterm=reverse ctermfg=76 ctermbg=235 guibg=DarkMagenta
 hi DiffDelete cterm=reverse ctermfg=166 ctermbg=235 gui=bold guifg=Blue guibg=DarkCyan
 hi DiffText cterm=reverse ctermfg=37 ctermbg=235 gui=bold guibg=Red
 
+
 set smartcase
 
 " Sets statusline to [buffer-number -- filename [-/+] -- filetype]
-set statusline=\ %n%=%t\ %m%=%y\ 
+set statusline=\ %n\ %t\ %m%=%y\ 
 set laststatus=2
 set autoindent
 set smartindent
 set breakindent
 set nowrap
-set guicursor+=a:blinkon1
+set wildmenu
 
 " Set tabs to indent 2 spaces
 set tabstop=2 softtabstop=0 expandtab shiftwidth=2 smarttab
-
-" set breakindent
-" set breakindentopt=sbr
-" I use a unicode curly array with a <backslash><space>
-" set showbreak=↪>\
 
 " This amazing setting allows buffers to stay unsaved in the background
 " vim will prompt you if you want to quit to save them.
@@ -121,9 +120,6 @@ set updatetime=100
 
 
 
-
-" Easymotion settings
-" map <Leader> <Plug>(easymotion-prefix)
 
 " Auto commands
 "
@@ -336,122 +332,17 @@ hi Normal guibg=NONE ctermbg=NONE
 " Transparent signcolumn (left hand padding)
 hi SignColumn guibg=NONE ctermbg=NONE
 
-
-
-
-
-
-
-" Hey you! All of the below is new stuff that I should put into 
-" seperate scripts...
-"
-"
-"
-" Custom Functions
-
-" Give this function any command (marks, tags, ls),
-" tell the cursor what position it should be in,
-" give it a mapping for the enter key...
-" also give it a filetype for syntax highlighting
-function! AnyList(cmd, ftype, position, onenter, ondelete)
-  if bufname("%") == "buffer-list" | return | endif
-
-  " Set up the buffer-list buffer (this makes it hidden)
-  let g:anylistbuff = bufnr('buffer-list', 1)
-  call setbufvar(g:anylistbuff, "&buftype", "nofile")
-  execute "sbuffer" . g:anylistbuff
-  " If we leave buffer-list it'll get deleted...
-  au! BufLeave buffer-list execute g:anylistbuff . "bwipeout"
-
-  " Copy the output of the given command (eg "ls") and paste it into
-  " buffer-list
-  silent! redir => o | execute 'silent ' . a:cmd | redir END | let @b = o
-  silent! set cursorline
-  execute "silent! set filetype=" . a:ftype
-  " TODO: make the window a fixed height...
-  " execute "bo 10split b"
-  execute "norm \<c-w>J10\<c-w>-gg\"bpggdd" . a:position
-  execute "map <silent> <buffer> <cr> :call " . a:onenter . "<cr>"
-  execute "map <buffer> dd :call " . a:ondelete . "<cr>"
-
-  " Limit movement, you can still do "w" etc, this is just to make it a bit
-  " like a menu...
-  map <buffer> h <NOP>
-  map <buffer> l <NOP>
-  map <buffer> <esc> <c-w>c
-endfunction
-
-function! AnyListOnEnterBuffer()
-  execute "norm \"byiw\<c-w>\<c-w>:b\<c-r>b\<cr>"
-endfunc
-
-function! AnyListDeleteBuffer()
-  if len(getbufinfo({'buflisted':1})) > 1
-    execute "norm \"byiwV:g/./d\<cr>:Bclose \<c-r>b\<cr>"
-  else
-    echo "Can't delete the last buffer"
-  endif
-endfunction
-
 " Buffers
 map <silent> <c-b> :call AnyList("ls", "sh", "0e", "AnyListOnEnterBuffer()", "AnyListDeleteBuffer()")<cr>
 
 
+" Tmux commands and options from here on.
 
-" Tmux relevent settings
-"
 command! Tmuxrc e ~/.vim/tmux.conf
 autocmd BufWritePost ~/.vim/tmux.conf call system('tmux source-file ~/.vim/tmux.conf')
 
-" Calls any terminal command in a quick split...
-command! -nargs=+ -complete=function TmuxSplit silent! call system('tmux split-window ' . <args> . '')
-command! -nargs=+ -complete=function Tmux silent! call system('tmux ' . <args>)
 
-command! -nargs=+ -complete=function Sh silent! call system(join(<args>), ';'))
-map <leader>: :Sh 
-map <leader>S :TmuxSplit ""<Left>
-
-function! System(...)
-  return system(join(a:000, ';'))
-endfunc
-
-function! TmuxSplit(height, ...)
-  return 'tmux split-window -l ' . a:height . ' "' . join(a:000, ' ') . '"'
-endfunc
-
-function! TmuxSend(...)
-  return 'tmux send "' . join(a:000, ' ') . '"'
-endfunc
-
-function! TmuxKeyPress(...)
-  return 'tmux send ' . join(a:000, ' ')
-endfunc
-
-function! FuzzyBuffers(buffers)
-  return "~/./.vim/vimfzf buffers " . shellescape(a:buffers)
-endfunc
-
-function! FuzzyFiles()
-  return "~/./.vim/vimfzf files"
-endfunc
-
-function! FuzzyGrep()
-  return "~/./.vim/vimfzf grep"
-endfunc
-
-function! GomoCd(socket)
-  return "gomo cd " . a:socket . ""
-endfunc 
-
-function! GomoRun(socket)
-  let l:socket ""
-  if a:socket | l:socket = " -s" . a:socket | endif
-  return "gomo run" . l:socket . ""
-endfunc
-
-function! WdioMobileLogin()
-  return "mobile.\\$('~passcode-input').addValue('111111')"
-endfunc
+" Mobo Settings
 
 command! Rn silent! silent! call system(join([TmuxSplit("50%", GomoCd("rn"))]))
 command! Wdio silent! silent! call system(join([TmuxSplit("50%", GomoCd("wdio"))]))
@@ -462,28 +353,19 @@ command! -nargs=+ GomoRun silent! silent! call system(join([TmuxSplit("50%", Gom
 command! MobLogin silent! call system(join([TmuxSplit("50%", GomoCd("wdio")), TmuxSend(WdioMobileLogin()), TmuxKeyPress("Enter", "Escape")], ';'))
 map <leader>ml :MobLogin<cr>
 
-function! GetLs()
-  let l:BuffString = { key, val -> val.bufnr . ":" . (len(val.name) > 1 ? val.name : "[No Name]") . ":" . val.lnum }
-  return join(map(getbufinfo({'buflisted':1}), l:BuffString), "\n")
-endfunc
+
+" Fuzzy Finder Settings
+
+command! FuzzyFiles call system(TmuxSplit("50%", FuzzyFiles()))
+command! FuzzyGrep call system(TmuxSplit("50%", FuzzyGrep()))
 
 map <c-p> :call system(TmuxSplit("50%", FuzzyFiles()))<cr>
 map <c-s> :call system(TmuxSplit("50%", FuzzyGrep()))<cr>
+" Don't really need this...
 " map <c-b> :call system(TmuxSplit("20%", FuzzyBuffers(GetLs())))<cr>
 
-function! RnR()
-  let l:name = getbufinfo(bufnr())[0].name
 
-  " If this file is on some sort of server don't try and select it in
-  " ranger...
-  if len(matchstr(l:name, "://"))
-    return "tmux split -b \"ranger --confdir='" .$HOME . "/.vim/config/ranger' --choosedir='" . $HOME . "/.vim/.rangertargetfile'\""
-  elseif len(l:name)
-    return "tmux split -b \"ranger --confdir='" .$HOME . "/.vim/config/ranger' --choosedir='" . $HOME . "/.vim/.rangertargetfile' --selectfile='" . l:name . "'\""
-  else
-    return "tmux split -b \"ranger --confdir='" .$HOME . "/.vim/config/ranger' --choosedir='" . $HOME . "/.vim/.rangertargetfile'\""
-  endif
-endfunc
+" Ranger Settings
 
 command! RnR call system(RnR())
 map <leader>. :RnR<cr>
