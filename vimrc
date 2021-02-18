@@ -1,8 +1,9 @@
-set directory^=$HOME/.vim/.vimswap//
+source $HOME/.vim/functions/fuzzyfinder.vim
+source $HOME/.vim/functions/gomo.vim
+source $HOME/.vim/functions/jtags.vim
+source $HOME/.vim/functions/menues.vim
+source $HOME/.vim/functions/ranger.vim
 source $HOME/.vim/functions/tmux.vim
-source $HOME/.vim/functions/buffer-selector.vim
-
-autocmd BufWritePre ~/.vim/vimrc source ~/.vim/vimrc
 
 call plug#begin('~/.local/share/vim/plugged')
   Plug 'junegunn/vim-plug'
@@ -12,13 +13,10 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
   Plug 'neomake/neomake'
 
-  " Fuzzy finder
-  " Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-  " Plug 'junegunn/fzf.vim'
-
-  " Git and dir browsing
+  " Git
   Plug 'tpope/vim-fugitive'
-  " Plug 'francoiscabrol/ranger.vim'
+
+  Plug 'francoiscabrol/ranger.vim'
 
   " General utils
   Plug 'kshenoy/vim-signature'
@@ -39,8 +37,8 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'KabbAmine/vCoolor.vim'
   Plug 'lilydjwg/colorizer'
 
-  " Markdown preview from Browser
-  Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
+  " Manual page lookup
+  Plug 'vim-utils/vim-man'
 
 call plug#end()
 call neomake#configure#automake('nrwi', 500)
@@ -64,7 +62,7 @@ colorscheme gruvbox
 let g:vim_jsx_pretty_colorful_config = 1
 let g:gruvbox_contrast_light = 'hard'
 set background=dark
-" let g:gruvbox_termcolors=16
+let g:gruvbox_termcolors=16
 
 
 " Nicer diff colours
@@ -95,8 +93,7 @@ set hidden
 " Allows me to "gf" a node import without ".js" on the end.
 set suffixesadd=.js,.ts,.tsx
 
-" iterm does the line for us, and indent line plugin does the columns.
-set nocursorline
+set cursorline
 set nocursorcolumn
 
 " stop showing the swap file error
@@ -208,10 +205,6 @@ command! Gsesh :execute "mksession! ~/code/vimsessions/" . substitute(substitute
 " Clears my terminal history
 command! Clear set scrollback=1 | sleep 100m | set scrollback=10000
 
-" Creates a ctags file, with ignoring defaults
-command! Ctags silent !ctags -R --exclude=__tests__ --exclude=ios --exclude=android --exclude=firebase_environments --exclude=coverage --exclude=.github --exclude=.jest --exclude=.circleci --exclude=node_modules
-map <silent> <leader>ct :silent !ctags -R --exclude=__tests__ --exclude=ios --exclude=android --exclude=firebase_environments --exclude=coverage --exclude=.github --exclude=.jest --exclude=.circleci --exclude=node_modules<cr>
-
 " Adds any command output to the quickfix buffer
 command! -nargs=+ -complete=function Cex :silent redir => o | silent execute '<args>' | silent redir END | silent cex split(o, '\n') | copen
 " Allows any simple of list of files to be selectable
@@ -228,19 +221,24 @@ command! Ctagstack :silent call setqflist(gettagstack().items) | copen
 "
 " type any word then press ctrl-z in insert mode to console log it
 " with an id string...
-inoremap <C-z> <esc>ciWconsole.log('<c-r>": ', <c-r>");
-inoremap <C-a> <esc>ciWconsole.log('@SEAN <c-r>": ', <c-r>");
-inoremap <C-l> <esc>$v^cconsole.log(");
+inoremap <C-z> <esc>v'.cconsole.log('<c-r>": ', <c-r>")
+inoremap <C-a> <esc>v'.cconsole.log('@SEAN <c-r>": ', <c-r>")
+inoremap <C-l> <esc>v'.cconsole.log(<c-r>");
 
 " Toggle numbers...
 nnoremap <leader>rn :set relativenumber! \| set nu!<cr>
 
+" Toggle cursor line
+nnoremap <leader>cl :set cursorline!<cr>
 
 " Quick mapping for doing yarn tests
 map <leader>yt <c-w>n<c-w>o:term<cr>iyarn test -u --watch<cr>
 
 " re-maps capital Yank to yank till the end of the line
 map Y y$
+
+map <leader>S: :%s/
+map <leader>s: :s/
 
 " Closes a whole tab including all splits. 
 map <silent> <c-w>C :tabclose<cr>
@@ -283,7 +281,7 @@ nmap <silent> <leader>] yiw:Ag<cr><esc>pi
 " Quick switching registers
 nnoremap <silent> <leader>r :echo 'Choose registers by key: 1st <- 2nd' \| let regvar = nr2char(getchar()) \| call setreg(nr2char(getchar()), getreg(regvar))<cr>
 
-" nnoremap <silent> <leader>. :RangerCurrentFile<cr>
+nnoremap <silent> <leader>. :RangerCurrentFile<cr>
 
 " Tabs
 map <c-w>gn :tabnew<CR>
@@ -321,16 +319,22 @@ hi Normal guibg=NONE ctermbg=NONE
 hi SignColumn guibg=NONE ctermbg=NONE
 
 " Buffers
-map <silent> <c-b> :call AnyList("ls", "sh", "0e", "AnyListOnEnterBuffer()", "AnyListDeleteBuffer()")<cr>
+command! Buffers call AnyList("ls", "sh", "0e", "AnyListOnEnterBuffer()", "AnyListDeleteBuffer()")
+map <silent> <c-b> :Buffers<cr>
 
+" function AnyListOnEnterJump()
+"   return 'norm "' . expand('<cword>') . '"'
+" endfunc
 
-" Tmux commands and options from here on.
+" command! Jumps call AnyList("jumps", "sh", "yy/>\<cr>pNkej", "AnyListOnEnterJump()", "")
 
-command! Tmuxrc e ~/.vim/tmux.conf
-autocmd BufWritePost ~/.vim/tmux.conf call system('tmux source-file ~/.vim/tmux.conf')
+" " Tmux commands and options from here on.
+if len(system("echo $TMUX")) > 1
+  comman! Tmuxrc e ~/.vim/tmux.conf
+  autocm BufWritePost ~/.vim/tmux.conf call system('tmux source-file ~/.vim/tmux.conf')
+endif
 
-
-" Mobo Settings
+" " Mobo Settings
 
 command! Rn silent! silent! call system(join([TmuxSplit("50%", GomoCd("rn"))]))
 command! Wdio silent! silent! call system(join([TmuxSplit("50%", GomoCd("wdio"))]))
@@ -338,24 +342,41 @@ command! Appium silent! silent! call system(join([TmuxSplit("50%", GomoCd("appiu
 command! -nargs=+ GomoCd silent! silent! call system(join([TmuxSplit("50%", GomoCd(<args>))]))
 command! -nargs=* GomoRun silent! silent! call system(join([TmuxSplit("50%", GomoRun(<args>))]))
 
-command! MobLogin silent! call system(join([TmuxSplit("50%", GomoCd("wdio")), TmuxSend(WdioMobileLogin()), TmuxKeyPress("Enter", "Escape")], ';'))
+command! MobLogin silent! call system(join([TmuxSplit("50%", GomoCd("wdio")), TmuxKeyPress("Enter"), TmuxSend(WdioMobileLogin()), TmuxKeyPress("Enter", "Escape")], ';'))
 map <leader>ml :MobLogin<cr>
+command! LaunchApp silent! call system(join([TmuxSplit("50%", GomoCd("wdio")), TmuxKeyPress("Enter"), TmuxSend(WdioMobileLaunchApp()), TmuxKeyPress("Enter", "Escape")], ';'))
+map <leader>la :LaunchApp<cr>
 
 
-" Fuzzy Finder Settings
+" " Fuzzy Finder Settings
 
-command! Vimfzf e $HOME/.vim/vimfzf
+" command! Vimfzf e $HOME/.vim/vimfzf
+if len(system("echo $TMUX")) > 1
+  command! FuzzyFiles call system(TmuxSplit("50%", FuzzyFiles()))
+  command! FuzzyGrep call system(TmuxSplit("50%", FuzzyGrep()))
+  command! -nargs=+ -complete=dir FuzzyGrepCd call system(TmuxSplit("50%", "cd <args>;", FuzzyGrep()))
+  command! FuzzyGrepModules call system(TmuxSplit("50%", "cd node_modules;", FuzzyGrep()))
+else
+  command! FuzzyFiles call RawFzF('files')
+  command! FuzzyGrep call RawFzF('grep')
+endif
 
-command! FuzzyFiles call system(TmuxSplit("50%", FuzzyFiles()))
-" command! FuzzyGrep call system(TmuxSplit("50%", FuzzyGrep()))
-
-map <c-p> :call system(TmuxSplit("50%", FuzzyFiles()))<cr>
-map <c-h> :call system(TmuxSplit("50%", FuzzyGrep()))<cr>
-" Don't really need this...
-" map <c-b> :call system(TmuxSplit("20%", FuzzyBuffers(GetLs())))<cr>
+map <c-p> :FuzzyFiles<cr>
+map <c-h> :FuzzyGrep<cr>
+map <leader>] "+yiw:FuzzyGrep<cr>
+map <c-m> :FuzzyGrepCd node_modules<cr>
 
 
-" Ranger Settings
+" " Ranger Settings
 
-command! RnR call system(RnR())
-map <leader>. :RnR<cr>
+" command! RnR call system(RnR())
+" map <leader>. :RnR<cr>
+
+
+" Jtags!
+
+" This seems to work with normal help tags as well, which is lucky!
+map <c-]> :<C-U>call Jtags()<cr>
+
+" TODO: make a command that does importing
+
