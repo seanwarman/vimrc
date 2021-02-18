@@ -11,12 +11,12 @@ if [[ $1 = 'grep' ]]; then
   file=$(echo $search | awk -F: '{ print $1 }')
   line=$(echo $search | awk -F: '{ print $2 }')
   echo $line $file > $filefile
-  # tmux send -t {last} ":e+$line $file" Enter;
+  tmux send -t {last} ":e+$line $file" Enter;
 elif [[ $1 = 'files' ]]; then
   filebindings="ctrl-l:execute(tmux send-keys -t {last} :e\ {} Enter),ctrl-u:preview-page-up,ctrl-y:preview-up,ctrl-e:preview-down,ctrl-d:preview-page-down"
   file=$($ag -l --ignore="node_modules" . | $fzf --delimiter=":" --preview="$bat --color=always --style=header,grid --line-range :3000 {}" --bind "$filebindings")
   echo $file > $filefile
-  # tmux send -t {last} ":e $file" Enter;
+  tmux send -t {last} ":e $file" Enter;
 else
   echo $1
 fi

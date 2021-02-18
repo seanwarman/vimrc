@@ -61,8 +61,9 @@ hi Error NONE
 colorscheme gruvbox
 let g:vim_jsx_pretty_colorful_config = 1
 let g:gruvbox_contrast_light = 'hard'
+let g:gruvbox_contrast_dark = 'soft'
 set background=dark
-let g:gruvbox_termcolors=16
+" let g:gruvbox_termcolors=16
 
 
 " Nicer diff colours
@@ -98,6 +99,9 @@ set nocursorcolumn
 
 " stop showing the swap file error
 set shortmess+=A
+set noswapfile
+" Put .swp files into here...
+set dir=$HOME/.vim/tmp
 
 " Maintain undo
 set undofile 
@@ -281,8 +285,6 @@ nmap <silent> <leader>] yiw:Ag<cr><esc>pi
 " Quick switching registers
 nnoremap <silent> <leader>r :echo 'Choose registers by key: 1st <- 2nd' \| let regvar = nr2char(getchar()) \| call setreg(nr2char(getchar()), getreg(regvar))<cr>
 
-nnoremap <silent> <leader>. :RangerCurrentFile<cr>
-
 " Tabs
 map <c-w>gn :tabnew<CR>
 
@@ -342,15 +344,22 @@ command! Appium silent! silent! call system(join([TmuxSplit("50%", GomoCd("appiu
 command! -nargs=+ GomoCd silent! silent! call system(join([TmuxSplit("50%", GomoCd(<args>))]))
 command! -nargs=* GomoRun silent! silent! call system(join([TmuxSplit("50%", GomoRun(<args>))]))
 
+
+function! GomoLoginRaw()
+  silent execute "!gomo cd wdio; thing"
+  redraw!
+endfunc
+
 command! MobLogin silent! call system(join([TmuxSplit("50%", GomoCd("wdio")), TmuxKeyPress("Enter"), TmuxSend(WdioMobileLogin()), TmuxKeyPress("Enter", "Escape")], ';'))
 map <leader>ml :MobLogin<cr>
+
 command! LaunchApp silent! call system(join([TmuxSplit("50%", GomoCd("wdio")), TmuxKeyPress("Enter"), TmuxSend(WdioMobileLaunchApp()), TmuxKeyPress("Enter", "Escape")], ';'))
 map <leader>la :LaunchApp<cr>
 
 
 " " Fuzzy Finder Settings
 
-" command! Vimfzf e $HOME/.vim/vimfzf
+command! Vimfzf e $HOME/.vim/vimfzf
 if len(system("echo $TMUX")) > 1
   command! FuzzyFiles call system(TmuxSplit("50%", FuzzyFiles()))
   command! FuzzyGrep call system(TmuxSplit("50%", FuzzyGrep()))
@@ -369,14 +378,20 @@ map <c-m> :FuzzyGrepCd node_modules<cr>
 
 " " Ranger Settings
 
-" command! RnR call system(RnR())
-" map <leader>. :RnR<cr>
+if len(system("echo $TMUX")) > 1
+  command! RnR call system(RnR())
+  map <leader>. :RnR<cr>
+else
+  nnoremap <silent> <leader>. :RangerCurrentFile<cr>
+endif
+
 
 
 " Jtags!
 
 " This seems to work with normal help tags as well, which is lucky!
 map <c-]> :<C-U>call Jtags()<cr>
+map <leader><c-]> :<C-U>call JtagsSearchless()<cr>
 
 " TODO: make a command that does importing
 
