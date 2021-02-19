@@ -1,31 +1,39 @@
-source $HOME/.vim/functions/fuzzyfinder.vim
-source $HOME/.vim/functions/gomo.vim
-source $HOME/.vim/functions/jtags.vim
-source $HOME/.vim/functions/menues.vim
-source $HOME/.vim/functions/ranger.vim
-source $HOME/.vim/functions/tmux.vim
+source $HOME/.vim/functions/functions.vim
 
 call plug#begin('~/.local/share/vim/plugged')
   Plug 'junegunn/vim-plug'
 
-  " Auto-completion and linting
+  " Auto-completion and linting (necessary evils)
   Plug 'honza/vim-snippets'
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
   Plug 'neomake/neomake'
 
-  " Git
+  " Best plugin ever
+  Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+  Plug 'junegunn/fzf.vim'
+
+  " Best git plugin ever
   Plug 'tpope/vim-fugitive'
 
+  " Second best plugin ever
   Plug 'francoiscabrol/ranger.vim'
 
   " General utils
   Plug 'kshenoy/vim-signature'
+
+  " Lord Tim pope's plugs
   Plug 'tpope/vim-commentary'
   Plug 'tpope/vim-repeat'
   Plug 'tpope/vim-surround'
-  Plug 'mg979/vim-visual-multi'
+
+  " Not sold on this yet
   Plug 'justinmk/vim-sneak'
+
+  " Really useful, super simple (how :bd should work)
   Plug 'rbgrouleff/bclose.vim'
+
+  " Manual page lookup (don't need but really nice to have)
+  Plug 'vim-utils/vim-man'
 
   " Syntax and colours
   Plug 'morhetz/gruvbox'
@@ -36,9 +44,6 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'peitalin/vim-jsx-typescript'
   Plug 'KabbAmine/vCoolor.vim'
   Plug 'lilydjwg/colorizer'
-
-  " Manual page lookup
-  Plug 'vim-utils/vim-man'
 
 call plug#end()
 call neomake#configure#automake('nrwi', 500)
@@ -164,12 +169,17 @@ nmap <leader>ec :CocEnable<cr>
 nmap <leader>dc :CocDisable<cr>
 nmap <leader>gc :CocDiagnostics<cr>
 
+" Colorizer is really slow on large files (for anything in :help for example)
+" Set it to off by default, you can toggle it with <leader>tc
+let g:colorizer_startup = 0
 
 
-" Ranger Settings (Find mappings further down)
+" Ranger Settings
 "
 let g:ranger_replace_netrw = 1 " open ranger when vim open a directory
 let g:ranger_map_keys = 0
+nnoremap <silent> <leader>. :RangerCurrentFile<cr>
+
 
 " Fugitive mappings
 "
@@ -180,12 +190,29 @@ nnoremap <silent> <leader>gg :G<cr>
 nnoremap <silent> <leader>gd :Gdiff<cr>
 nnoremap <silent> <leader>gr :Gread<cr>
 
-" Colorizer is really slow on large files (for anything in :help for example)
-" Set it to off by default, you can toggle it with <leader>tc
-let g:colorizer_startup = 0
 
 " Custom Commands...
 "
+
+
+" Buffers
+command! Buffers call AnyList("ls", "sh", "0e", "AnyListOnEnterBuffer()", "AnyListDeleteBuffer()")
+map <silent> <c-b> :Buffers<cr>
+
+
+" Mdn Lookup
+command! -nargs=+ MDN call MdnSplit("<args>")
+
+
+" Jtags!
+
+" This seems to work with normal help tags as well, which is lucky!
+map <c-]> :<C-U>call Jtags()<cr>
+map <leader><c-]> :<C-U>call JtagsSearchless()<cr>
+
+
+
+
 " Search for a search term in the given directory ':F term folder'
 command! -nargs=+ -complete=dir F :silent grep! -RHn <args> | copen | norm <c-w>L40<c-w><
 
@@ -276,8 +303,8 @@ vnoremap <C-k> :m '<-2<CR>gv=gv
 
 " Maps Fuzzy Finder to ctrl+p
 "
-" nnoremap <silent> <c-p> :GFiles<CR>
-" nnoremap <silent> <c-s> :Ag<CR>
+nnoremap <silent> <c-p> :GFiles<CR>
+nnoremap <silent> <c-h> :Ag<CR>
 " nnoremap <silent> <c-b> :Buffers<CR>
 " Quick search sexp in project
 nmap <silent> <leader>] yiw:Ag<cr><esc>pi
@@ -320,21 +347,14 @@ hi Normal guibg=NONE ctermbg=NONE
 " Transparent signcolumn (left hand padding)
 hi SignColumn guibg=NONE ctermbg=NONE
 
-" Buffers
-command! Buffers call AnyList("ls", "sh", "0e", "AnyListOnEnterBuffer()", "AnyListDeleteBuffer()")
-map <silent> <c-b> :Buffers<cr>
-
-" function AnyListOnEnterJump()
-"   return 'norm "' . expand('<cword>') . '"'
-" endfunc
-
-" command! Jumps call AnyList("jumps", "sh", "yy/>\<cr>pNkej", "AnyListOnEnterJump()", "")
 
 " " Tmux commands and options from here on.
+
 if len(system("echo $TMUX")) > 1
   comman! Tmuxrc e ~/.vim/tmux.conf
   autocm BufWritePost ~/.vim/tmux.conf call system('tmux source-file ~/.vim/tmux.conf')
 endif
+
 
 " " Mobo Settings
 
@@ -355,45 +375,6 @@ map <leader>ml :MobLogin<cr>
 
 command! LaunchApp silent! call system(join([TmuxSplit("50%", GomoCd("wdio")), TmuxKeyPress("Enter"), TmuxSend(WdioMobileLaunchApp()), TmuxKeyPress("Enter", "Escape")], ';'))
 map <leader>la :LaunchApp<cr>
-
-
-" " Fuzzy Finder Settings
-
-command! Vimfzf e $HOME/.vim/vimfzf
-if len(system("echo $TMUX")) > 1
-  command! FuzzyFiles call system(TmuxSplit("50%", FuzzyFiles()))
-  command! FuzzyGrep call system(TmuxSplit("50%", FuzzyGrep()))
-  command! -nargs=+ -complete=dir FuzzyGrepCd call system(TmuxSplit("50%", "cd <args>;", FuzzyGrep()))
-  command! FuzzyGrepModules call system(TmuxSplit("50%", "cd node_modules;", FuzzyGrep()))
-else
-  command! FuzzyFiles call RawFzF('files')
-  command! FuzzyGrep call RawFzF('grep')
-endif
-
-map <c-p> :FuzzyFiles<cr>
-map <c-h> :FuzzyGrep<cr>
-map <leader>] "+yiw:FuzzyGrep<cr>
-map <c-m> :FuzzyGrepCd node_modules<cr>
-
-
-" " Ranger Settings
-
-if len(system("echo $TMUX")) > 1
-  command! RnR call system(RnR())
-  map <leader>. :RnR<cr>
-else
-  nnoremap <silent> <leader>. :RangerCurrentFile<cr>
-endif
-
-" Mdn Lookup
-command! -nargs=+ MDN call MdnSplit("<args>")
-
-" Jtags!
-
-" This seems to work with normal help tags as well, which is lucky!
-map <c-]> :<C-U>call Jtags()<cr>
-map <leader><c-]> :<C-U>call JtagsSearchless()<cr>
-
 
 " TODO: make a command that does importing
 
