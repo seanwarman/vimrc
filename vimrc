@@ -385,7 +385,8 @@ else
   nnoremap <silent> <leader>. :RangerCurrentFile<cr>
 endif
 
-
+" Mdn Lookup
+command! -nargs=+ MDN call MdnSplit("<args>")
 
 " Jtags!
 
@@ -393,5 +394,36 @@ endif
 map <c-]> :<C-U>call Jtags()<cr>
 map <leader><c-]> :<C-U>call JtagsSearchless()<cr>
 
+
 " TODO: make a command that does importing
 
+" Lundo
+" This could be really useful
+function! LundoDiff()
+  let l:bufname = 'lundo-buffer'
+  let l:undofile = undofile(expand("%:t"))
+  let g:filecontent = systemlist("cat " . expand("%"))
+
+  " Set up the buffer (this makes it hidden)
+  let g:lundobuf = bufnr(l:bufname, 1)
+  call setbufvar(g:lundobuf, "&buftype", "nofile")
+  " au! BufLeave lundo-buffer execute g:lundobuf . "bwipeout"
+
+  let lnum = 0
+  for line in g:filecontent
+    let lnum = lnum + 1
+    call setbufline(g:lundobuf, lnum, line)
+  endfor
+
+  execute "sbuffer" . g:lundobuf
+
+  silent execute "rundo " . fnameescape(l:undofile)
+
+  close
+
+  execute "vert diffsplit " . l:bufname
+  norm zR
+  map > :diffput<cr>
+  map < :diffget<cr>
+
+endfunc

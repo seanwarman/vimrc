@@ -52,7 +52,7 @@ function! EasySplit(filetype, ...)
   call setbufvar(g:easysplit, "&buftype", "nofile")
   execute "sbuffer" . g:easysplit
   " If we leave buffer-list it'll get deleted...
-  au! BufLeave easysplit execute g:easysplit . "bwipeout"
+  " au! BufLeave easysplit execute g:easysplit . "bwipeout"
   execute "set filetype=".a:filetype
   execute "norm \<c-w>J10\<c-w>-gg"
 
@@ -68,6 +68,10 @@ function! FormatMdn()
   return 'norm ggd/See also\<cr>dd}2d}gg'
 endfunc
 
-function! Mdn(query)
-  return '0read !curl https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/'.a:query[0].'/'.a:query[1].' | w3m -dump -T text/html'
+function! Mdn(queryarr)
+  return '0read !curl https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/'.a:queryarr[0].'/'.a:queryarr[1].' | w3m -dump -T text/html'
+endfunc
+
+function! MdnSplit(query)
+  call EasySplit("asm", Mdn(split(a:query, "\\.")), FormatMdn())
 endfunc
