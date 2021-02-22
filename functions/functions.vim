@@ -126,31 +126,36 @@ function! TmuxKeyPress(...)
 endfunc
 
 " Lundo
-function! LundoDiff()
-  let g:bufname = 'lundo-buffer'
+function! LundoBuffer()
+  let g:lundobufname = 'lundo-buffer'
 
   " Set up the buffer (this makes it hidden)
-  let g:lundobuf = bufnr(g:bufname, 1)
+  let g:lundobuf = bufnr(g:lundobufname, 1)
   call setbufvar(g:lundobuf, "&buftype", "nofile")
   au! BufLeave lundo-buffer execute g:lundobuf . "bwipeout"
   execute "au! BufEnter " . expand("%") . " diffof"
 
-  let g:undofile = undofile(expand("%:t"))
+  let g:undofile = undofile(expand("%"))
   let g:filecontent = systemlist("cat " . expand("%"))
 
   " setbufline only works on loaded buffers
-  call bufload(g:bufname)
+  call bufload(g:lundobufname)
   let lnum = 0
   for line in g:filecontent
     let lnum = lnum + 1
     call setbufline(g:lundobuf, lnum, line)
   endfor
   
-  execute "vert diffsplit " . g:bufname
+endfunc
+
+function! LundoDiff()
+  call LundoBuffer()
+
+  execute "vert diffsplit " . g:lundobufname
+
+  silent execute 'rundo ' fnameescape(g:undofile)
 
   norm zR
-
-  silent execute "rundo " . fnameescape(g:undofile)
 
   map > :diffput<cr>
   map < :diffget<cr>
