@@ -380,4 +380,3 @@ map <leader>la :LaunchApp<cr>
 
 command! LundoDiff :call LundoDiff()
 map <leader>ld :LundoDiff<cr>
-
