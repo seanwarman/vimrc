@@ -56,7 +56,7 @@ set nocompatible
 nnoremap <space> <Nop>
 let mapleader = " "
 
-syntax on
+au! BufEnter * syntax on
 filetype plugin indent on
 hi Search cterm=NONE ctermfg=NONE ctermbg=Black
 " Stops vim error highlighting the second }} in JSX files.
@@ -307,7 +307,7 @@ nnoremap <silent> <c-p> :GFiles<CR>
 nnoremap <silent> <c-h> :Ag<CR>
 " nnoremap <silent> <c-b> :Buffers<CR>
 " Quick search sexp in project
-nmap <silent> <leader>] yiw:Ag<cr><esc>pi
+nmap <silent> <leader>] "ayiw:Ag <c-r>a<cr>
 
 " Quick switching registers
 nnoremap <silent> <leader>r :echo 'Choose registers by key: 1st <- 2nd' \| let regvar = nr2char(getchar()) \| call setreg(nr2char(getchar()), getreg(regvar))<cr>
