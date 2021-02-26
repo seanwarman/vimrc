@@ -35,6 +35,8 @@ call plug#begin('~/.local/share/vim/plugged')
   " Manual page lookup (don't need but really nice to have)
   Plug 'vim-utils/vim-man'
 
+  Plug 'christoomey/vim-tmux-navigator'
+
   " Syntax and colours
   Plug 'morhetz/gruvbox'
   Plug 'yuezk/vim-js'
@@ -210,10 +212,11 @@ command! -nargs=+ MDN call MdnSplit("<args>")
 " Jtags!
 
 " This seems to work with normal help tags as well, which is lucky!
-map <c-]> :<C-U>call Jtags()<cr>
+map <silent> <c-]> :<C-U>call Jtags()<cr>
 map <leader><c-]> :<C-U>call JtagsSearchless()<cr>
 
 
+command! W :w | So
 
 
 " Search for a search term in the given directory ':F term folder'
