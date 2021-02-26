@@ -62,7 +62,7 @@ function! AnyList(cmd, ftype, cursorposition, onenter, ondelete)
   execute "silent! set filetype=" . a:ftype
   execute "norm \<c-w>J10\<c-w>-gg\"bpggdd" . a:cursorposition
   execute "map <silent> <buffer> <cr> :call " . a:onenter . "<cr>"
-  execute "map <buffer> dd :call " . a:ondelete . "<cr>"
+  execute "map <buffer> dd :call " . a:ondelete . "<cr>0e"
 
   call MenuMovement()
 endfunction
@@ -110,9 +110,7 @@ endfunc
 function! MdnSplit(query)
   call EasySplit("asm", Mdn(split(a:query, "\\.")), FormatMdn())
 endfunc
-" Ranger settings
 
-"
 function! TmuxSplit(height, ...)
   return 'tmux split-window -l ' . a:height . ' "' . join(a:000, ' ') . '"'
 endfunc
@@ -126,8 +124,9 @@ function! TmuxKeyPress(...)
 endfunc
 
 " Lundo
-function! LundoBuffer()
-  let g:lundobufname = 'lundo-buffer'
+
+function! LundoDiff()
+  let g:lundobufname = 'lundo-diff'
 
   " Set up the buffer (this makes it hidden)
   let g:lundobuf = bufnr(g:lundobufname, 1)
@@ -143,47 +142,52 @@ function! LundoBuffer()
     let lnum = lnum + 1
     call setbufline(g:lundobuf, lnum, line)
   endfor
-endfunc
 
-function! LundoOnLeaveDo(...)
-  let g:dos = a:000
-  for g:doer in g:dos
-    au BufLeave lundo-buffer execute g:doer
-  endfor
-endfunc
-
-function! LundoWipeOnLeave()
-  au! BufLeave lundo-buffer execute g:lundobuf . "bwipeout"
-endfunc
-
-function! LundoDiff()
-  call LundoBuffer()
-  call LundoWipeOnLeave()
-
-  execute "au! BufEnter " . expand("%") . " diffof"
+  au! BufLeave lundo-diff execute "diffoff! |" . g:lundobuf . "bwipeout"
 
   execute "vert diffsplit " . g:lundobufname
   silent execute 'rundo ' fnameescape(g:undofile)
-
   norm zR
 
-  map > :diffput<cr>
-  map < :diffget<cr>
-  " TODO: this doesn't work, these need unmapping after mode is done
-  " au! BufLeave * execute "unmap < | unmap >"
+  map <buffer> > :diffput<cr>
+  map <buffer> < :diffget<cr>
+endfunc
+
+function! TotalDiffFiller()
+  let l:l = 0
+  let l:filler = 0
+  while l:l <= line('.')
+    let l:filler = l:filler + diff_filler(l)
+    let l:l = l:l + 1
+  endwhile
+
+  return l:filler
+endfunc
+
+function! LundoThisLine()
+  let g:cwline = line('.') + TotalDiffFiller()
+
+  undo
+
+  " TODO: prevent this from looping forever if there's no undos
+  " read the messages somehow they should say something like
+  " 'No more undo to do'
+  while line('.') != g:cwline && line('$') != 0
+    undo
+  endwhile
+
 endfunc
 
 
-
 function! LundoSelect()
-  exe "norm \<esc>"
-  exe "norm gv"
-  let l:top = line('.')
-  exe "norm o"
-  let l:bottom = line('.')
-  exe "norm o"
-  echo l:top
-  echo l:bottom
+  " exe "norm \<esc>"
+  " exe "norm gv"
+  " let l:top = line('.')
+  " exe "norm o"
+  " let l:bottom = line('.')
+  " exe "norm o"
+  " echo l:top
+  " echo l:bottom
 
   " Here's how itll work:
   " We do a LundoDiff which does
@@ -194,5 +198,32 @@ function! LundoSelect()
   " use diff_filler() to find the missing lines above so we can
   " track we're on the right line even when the lines above have been
   " deleted/added.
-endfunc
 
+  let g:lundobufname = 'lundo-select'
+
+  " Set up the buffer (this makes it hidden)
+  let g:lundobuf = bufnr(g:lundobufname, 1)
+  call setbufvar(g:lundobuf, "&buftype", "nofile")
+
+  let g:undofile = undofile(expand("%"))
+  let g:filecontent = systemlist("cat " . expand("%"))
+
+  " setbufline only works on loaded buffers
+  call bufload(g:lundobufname)
+  let lnum = 0
+  for line in g:filecontent
+    let lnum = lnum + 1
+    call setbufline(g:lundobuf, lnum, line)
+  endfor
+
+  execute "vert diffsplit " . g:lundobufname
+  " set noscrollbind
+  silent execute 'rundo ' fnameescape(g:undofile)
+  norm zR
+  " close
+  " diffoff
+
+  " call LundoThisLine()
+
+endfunc
+map <leader>ls :call LundoSelect()<cr>

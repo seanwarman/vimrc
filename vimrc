@@ -68,9 +68,10 @@ hi Error NONE
 colorscheme gruvbox
 let g:vim_jsx_pretty_colorful_config = 1
 let g:gruvbox_contrast_light = 'hard'
+let g:gruvbox_italic = 1
 let g:gruvbox_contrast_dark = 'soft'
 set background=dark
-" let g:gruvbox_termcolors=16
+let g:gruvbox_termcolors=256
 
 
 " Nicer diff colours
@@ -97,7 +98,7 @@ set wildmenu
 " Set tabs to indent 2 spaces
 set tabstop=2 softtabstop=0 expandtab shiftwidth=2 smarttab
 
-" This amazing setting allows buffers to stay unsaved in the background
+" Allows buffers to stay unsaved in the background
 " vim will prompt you if you want to quit to save them.
 set hidden
 
@@ -349,7 +350,7 @@ set rtp+=~/.fzf
 
 " transparent background (this doesn't have to go last but it's keeping
 " SignColumn company)
-hi Normal guibg=NONE ctermbg=NONE
+" hi Normal guibg=NONE ctermbg=NONE
 " Transparent signcolumn (left hand padding)
 hi SignColumn guibg=NONE ctermbg=NONE
 
