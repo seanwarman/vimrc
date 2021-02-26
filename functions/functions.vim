@@ -29,8 +29,8 @@ endfunc
 
 function! Jtags()
   let l:pattern = expand('<cword>')
-  call system("$HOME/.vim/scripts/./jtags " . l:pattern)
-  silent execute v:count . 'tag! ' . l:pattern
+  silent! call system("$HOME/.vim/scripts/./jtags " . l:pattern)
+  silent! execute v:count . 'tag! ' . l:pattern
 endfunc
 
 " Give this function any command (marks, tags, ls),
@@ -132,8 +132,6 @@ function! LundoBuffer()
   " Set up the buffer (this makes it hidden)
   let g:lundobuf = bufnr(g:lundobufname, 1)
   call setbufvar(g:lundobuf, "&buftype", "nofile")
-  au! BufLeave lundo-buffer execute g:lundobuf . "bwipeout"
-  execute "au! BufEnter " . expand("%") . " diffof"
 
   let g:undofile = undofile(expand("%"))
   let g:filecontent = systemlist("cat " . expand("%"))
@@ -145,20 +143,56 @@ function! LundoBuffer()
     let lnum = lnum + 1
     call setbufline(g:lundobuf, lnum, line)
   endfor
-  
+endfunc
+
+function! LundoOnLeaveDo(...)
+  let g:dos = a:000
+  for g:doer in g:dos
+    au BufLeave lundo-buffer execute g:doer
+  endfor
+endfunc
+
+function! LundoWipeOnLeave()
+  au! BufLeave lundo-buffer execute g:lundobuf . "bwipeout"
 endfunc
 
 function! LundoDiff()
   call LundoBuffer()
+  call LundoWipeOnLeave()
+
+  execute "au! BufEnter " . expand("%") . " diffof"
 
   execute "vert diffsplit " . g:lundobufname
-
   silent execute 'rundo ' fnameescape(g:undofile)
 
   norm zR
 
   map > :diffput<cr>
   map < :diffget<cr>
+  " TODO: this doesn't work, these need unmapping after mode is done
+  " au! BufLeave * execute "unmap < | unmap >"
+endfunc
 
+
+
+function! LundoSelect()
+  exe "norm \<esc>"
+  exe "norm gv"
+  let l:top = line('.')
+  exe "norm o"
+  let l:bottom = line('.')
+  exe "norm o"
+  echo l:top
+  echo l:bottom
+
+  " Here's how itll work:
+  " We do a LundoDiff which does
+  " an undo then does getline() or get line number
+  " if the line number maches the current one we want
+  " yank the line then overwirte the line in the current file
+  " if it doesn't undo again untill it does.
+  " use diff_filler() to find the missing lines above so we can
+  " track we're on the right line even when the lines above have been
+  " deleted/added.
 endfunc
 
