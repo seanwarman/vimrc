@@ -4,10 +4,6 @@
 #                                                                                                                                                                                  ^ I've removed this end of line search pattern 
 #                                                                                                                                                                                    because ag doesnt print the whole line
 #                                                                                                                                                                                    remember! In case it breaks later on.
-dir="$HOME/.vim/dependencies/osx"
-if [[ $(uname) = "Linux" ]]; then
-  dir="$HOME/.vim/dependencies/linux"
-fi
 
 ag="ag"
 

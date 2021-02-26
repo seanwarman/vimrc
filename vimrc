@@ -92,7 +92,7 @@ set nowrap
 set wildmenu
 "
 " Turns on filepath autocompletion (CTRL-x-f)
-set autochdir
+" set autochdir
 
 " Set tabs to indent 2 spaces
 set tabstop=2 softtabstop=0 expandtab shiftwidth=2 smarttab
