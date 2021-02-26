@@ -68,12 +68,12 @@ function! AnyList(cmd, ftype, cursorposition, onenter, ondelete)
 endfunction
 
 function! AnyListOnEnterBuffer()
-  execute "norm \"byiw\<c-w>\<c-w>:b\<c-r>b\<cr>"
+  execute "b " . expand("<cword>")
 endfunc
 
 function! AnyListDeleteBuffer()
   if len(getbufinfo({'buflisted':1})) > 1
-    execute "norm \"byiwV:g/./d\<cr>:Bclose \<c-r>b\<cr>"
+    execute "norm V:g/./d\<cr>:Bclose " . expand("<cword>")
   else
     echo "Can't delete the last buffer"
   endif

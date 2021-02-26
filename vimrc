@@ -88,6 +88,9 @@ set smartindent
 set breakindent
 set nowrap
 set wildmenu
+"
+" Turns on filepath autocompletion (CTRL-x-f)
+set autochdir
 
 " Set tabs to indent 2 spaces
 set tabstop=2 softtabstop=0 expandtab shiftwidth=2 smarttab
@@ -197,7 +200,7 @@ nnoremap <silent> <leader>gr :Gread<cr>
 
 " Buffers
 command! Buffers call AnyList("ls", "sh", "0e", "AnyListOnEnterBuffer()", "AnyListDeleteBuffer()")
-map <silent> <c-b> :Buffers<cr>
+map <silent> <c-l> :Buffers<cr>
 
 
 " Mdn Lookup
