@@ -68,7 +68,7 @@ hi Error NONE
 colorscheme gruvbox
 let g:vim_jsx_pretty_colorful_config = 1
 let g:gruvbox_contrast_light = 'hard'
-let g:gruvbox_italic = 1
+let g:gruvbox_italic = 0
 let g:gruvbox_contrast_dark = 'soft'
 set background=dark
 let g:gruvbox_termcolors=256
@@ -202,7 +202,7 @@ nnoremap <silent> <leader>gr :Gread<cr>
 
 
 " Buffers
-command! Buffers call AnyList("ls", "sh", "0e", "AnyListOnEnterBuffer()", "AnyListDeleteBuffer()")
+command! Buffers call AnyList("ls", "sh", "0", "AnyListOnEnterBuffer()", "AnyListDeleteBuffer()")
 map <silent> <c-l> :Buffers<cr>
 
 
@@ -301,6 +301,8 @@ nnoremap [] [M
 
 " select last pasted text
 nnoremap gp `[v`]
+" paste with auto indent
+nnoremap p p`[v`]=
 
 " Moving lines up and down
 nnoremap <C-j> :m .+1<CR>==

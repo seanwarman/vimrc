@@ -60,9 +60,9 @@ function! AnyList(cmd, ftype, cursorposition, onenter, ondelete)
   silent! redir => o | execute 'silent ' . a:cmd | redir END | let @b = o
   silent! set cursorline
   execute "silent! set filetype=" . a:ftype
-  execute "norm \<c-w>J10\<c-w>-gg\"bpggdd" . a:cursorposition
+  execute "norm \<c-w>J10\<c-w>-gg\"bpgg\"_dd" . a:cursorposition
   execute "map <silent> <buffer> <cr> :call " . a:onenter . "<cr>"
-  execute "map <buffer> dd :call " . a:ondelete . "<cr>0e"
+  execute "map <buffer> \"_dd :call " . a:ondelete . "<cr>" . a:cursorposition
 
   call MenuMovement()
 endfunction
@@ -165,15 +165,14 @@ function! TotalDiffFiller()
 endfunc
 
 function! LundoThisLine()
-  let g:cwline = line('.') + TotalDiffFiller()
+  let l:cwline = line('.') + TotalDiffFiller()
+  silent undo
 
-  undo
-
-  " TODO: prevent this from looping forever if there's no undos
-  " read the messages somehow they should say something like
-  " 'No more undo to do'
-  while line('.') != g:cwline && line('$') != 0
-    undo
+  " TODO: We need to keep better track of the line numbers
+  " both buffer's lines change as we go so we have to keep
+  " up with both of them at the same time
+  while line('.') != l:cwline && v:errmsg != 'Already at oldest change'
+    silent undo
   endwhile
 
 endfunc
@@ -223,7 +222,7 @@ function! LundoSelect()
   " close
   " diffoff
 
-  " call LundoThisLine()
+  call LundoThisLine()
 
 endfunc
 map <leader>ls :call LundoSelect()<cr>
