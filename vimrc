@@ -35,8 +35,6 @@ call plug#begin('~/.local/share/vim/plugged')
   " Manual page lookup (don't need but really nice to have)
   Plug 'vim-utils/vim-man'
 
-  Plug 'christoomey/vim-tmux-navigator'
-
   " Syntax and colours
   Plug 'morhetz/gruvbox'
   Plug 'yuezk/vim-js'
@@ -364,7 +362,7 @@ hi SignColumn guibg=NONE ctermbg=NONE
 " " Tmux commands and options from here on.
 
 if len(system("echo $TMUX")) > 1
-  comman! Tmuxrc e ~/.vim/tmux.conf
+  command! Tmuxrc e ~/.vim/tmux.conf
   autocm BufWritePost ~/.vim/tmux.conf call system('tmux source-file ~/.vim/tmux.conf')
 endif
 
