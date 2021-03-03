@@ -91,9 +91,14 @@ set smartindent
 set breakindent
 set nowrap
 set wildmenu
+set relativenumber
+set nu
 "
 " Turns on filepath autocompletion (CTRL-x-f)
 " set autochdir
+
+" Allows the backspace to work in insert mode
+set backspace=indent,eol,start
 
 " Set tabs to indent 2 spaces
 set tabstop=2 softtabstop=0 expandtab shiftwidth=2 smarttab
@@ -202,8 +207,7 @@ nnoremap <silent> <leader>gr :Gread<cr>
 
 
 " Buffers
-command! Buffers call AnyList("ls", "sh", "0", "AnyListOnEnterBuffer()", "AnyListDeleteBuffer()")
-map <silent> <c-l> :Buffers<cr>
+" command! Buffers call AnyList("ls", "sh", "0", "AnyListOnEnterBuffer()", "AnyListDeleteBuffer()")
 
 
 " Mdn Lookup
@@ -217,8 +221,6 @@ map <silent> <c-]> :<C-U>call Jtags()<cr>
 map <leader><c-]> :<C-U>call JtagsSearchless()<cr>
 
 
-command! W :w | So
-
 
 " Search for a search term in the given directory ':F term folder'
 command! -nargs=+ -complete=dir F :silent grep! -RHn <args> | copen | norm <c-w>L40<c-w><
@@ -231,6 +233,8 @@ command! Vimrc e ~/.vim/vimrc
 
 " sources my vimrc
 command! So so ~/.vimrc
+
+command! W :w | So
 
 " Another command to quickly delete the current buffer
 command! B bd!
@@ -261,7 +265,7 @@ command! Ctagstack :silent call setqflist(gettagstack().items) | copen
 " with an id string...
 inoremap <C-z> <esc>v'.cconsole.log('<c-r>": ', <c-r>")
 inoremap <C-a> <esc>v'.cconsole.log('@SEAN <c-r>": ', <c-r>")
-inoremap <C-l> <esc>v'.cconsole.log(<c-r>");
+inoremap <C-l> <esc>v'.cconsole.log(<c-r>")
 
 " Toggle numbers...
 nnoremap <leader>rn :set relativenumber! \| set nu!<cr>
@@ -302,7 +306,7 @@ nnoremap [] [M
 " select last pasted text
 nnoremap gp `[v`]
 " paste with auto indent
-nnoremap p p`[v`]=
+nnoremap <leader>p p`[v`]=
 
 " Moving lines up and down
 nnoremap <C-j> :m .+1<CR>==
@@ -314,7 +318,7 @@ vnoremap <C-k> :m '<-2<CR>gv=gv
 "
 nnoremap <silent> <c-p> :GFiles<CR>
 nnoremap <silent> <c-h> :Ag<CR>
-" nnoremap <silent> <c-b> :Buffers<CR>
+nnoremap <silent> <c-l> :Buffers<cr>
 " Quick search sexp in project
 nmap <silent> <leader>] "ayiw:Ag <c-r>a<cr>
 
