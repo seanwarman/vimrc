@@ -45,24 +45,34 @@ function! MenuMovement()
   map <buffer> <esc> <c-w>c
 endfunc
 
-function! AnyList(cmd, ftype, cursorposition, onenter, ondelete)
+function! AnyList(cmd, ftype, cursorposition)
   if bufname("%") == "menu-list" | return | endif
+
+  silent! redir => o | execute 'silent ' . a:cmd | redir END | let l:list = o
 
   " Set up the buffer-list buffer (this makes it hidden)
   let g:anylistbuff = bufnr('menu-list', 1)
   call setbufvar(g:anylistbuff, "&buftype", "nofile")
-  execute "sbuffer" . g:anylistbuff
+
+  call bufload('menu-list')
+  let lnum = 0
+  for line in split(l:list, '\n')
+    let lnum += 1
+    call setbufline(g:anylistbuff, lnum, line)
+  endfor
+
   " If we leave buffer-list it'll get deleted...
   au! BufLeave menu-list execute g:anylistbuff . "bwipeout"
+
+  execute "sbuffer" . g:anylistbuff
   
   " Copy the output of the given command (eg "ls") and paste it into
   " buffer-list
-  silent! redir => o | execute 'silent ' . a:cmd | redir END | let @b = o
   silent! set cursorline
-  execute "silent! set filetype=" . a:ftype
-  execute "norm \<c-w>J10\<c-w>-gg\"bpgg\"_dd" . a:cursorposition
-  execute "map <silent> <buffer> <cr> :call " . a:onenter . "<cr>"
-  execute "map <buffer> \"_dd :call " . a:ondelete . "<cr>" . a:cursorposition
+  exe "silent! set filetype=" . a:ftype
+  exe "norm " . a:cursorposition
+  exe "map <silent> <buffer> <cr> :b " . expand("<cword>") . "<cr>"
+  exe "map <silent> <buffer> dd :bd " . expand("<cword>") . "<cr>V:g/./d\<cr>" . a:cursorposition
 
   call MenuMovement()
 endfunction

@@ -205,7 +205,7 @@ nnoremap <silent> <leader>gr :Gread<cr>
 
 
 " Buffers
-" command! Buffers call AnyList("ls", "sh", "0", "AnyListOnEnterBuffer()", "AnyListDeleteBuffer()")
+" command! Buffers call AnyList("ls", "sh", "0e")
 
 
 " Mdn Lookup
