@@ -45,6 +45,9 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'KabbAmine/vCoolor.vim'
   Plug 'lilydjwg/colorizer'
 
+  Plug 'jsit/toast.vim'
+  Plug 'sainnhe/sonokai'
+
 call plug#end()
 call neomake#configure#automake('nrwi', 500)
 
@@ -62,14 +65,29 @@ hi Search cterm=NONE ctermfg=NONE ctermbg=Black
 " Stops vim error highlighting the second }} in JSX files.
 hi Error NONE
 
+" Get rid of weird commment colours
+if has('termguicolors')
+    set termguicolors
+endif
+if has('gui_running')
+    set background=light
+else
+    set background=dark
+endif
+let &t_ZH="\e[3m"
+let &t_ZR="\e[23m"
+
 " Colours
-colorscheme gruvbox
+" colorscheme gruvbox
 let g:vim_jsx_pretty_colorful_config = 1
 let g:gruvbox_contrast_light = 'hard'
 let g:gruvbox_italic = 0
 let g:gruvbox_contrast_dark = 'soft'
 set background=dark
 let g:gruvbox_termcolors=256
+colorscheme sonokai
+command! Light :colorscheme toast | set background=light
+command! Dark :colorscheme sonokai | set background=dark
 
 
 " Nicer diff colours
@@ -144,9 +162,9 @@ set updatetime=100
 " My syntax highlighting only works properly for the javascript filetype
 " so we have to set various typescript and react filetypes to javascript
 " here...
-autocmd BufNewFile,BufRead *.jsx set filetype=javascript
-autocmd BufNewFile,BufRead *.tsx set filetype=javascript
-autocmd BufNewFile,BufRead *.ts set filetype=javascript
+autocmd BufNewFile,BufRead,BufEnter *.jsx set filetype=javascript
+autocmd BufNewFile,BufRead,BufEnter *.tsx set filetype=javascript
+autocmd BufNewFile,BufRead,BufEnter *.ts set filetype=javascript
 
 " Defaults only for markdown files
 autocmd BufNewFile,BufEnter *.md set tw=73
@@ -166,22 +184,12 @@ let g:coc_filetype_map = {
 
 " General Settings
 
-" coc Settings
-" Use `[g` and `]g` to navigate between errors
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
-" Expand a snippet suggestion with CTRL-e
-imap <expr> <c-e> pumvisible() ? "<Plug>(coc-snippets-expand)" : "<CR>"
-nmap ga <Plug>(coc-codeaction)
-vmap ga <Plug>(coc-codeaction-selected)
-nmap <leader>ec :CocEnable<cr>
-nmap <leader>dc :CocDisable<cr>
-nmap <leader>gc :CocDiagnostics<cr>
-
 " Colorizer is really slow on large files (for anything in :help for example)
 " Set it to off by default, you can toggle it with <leader>tc
 let g:colorizer_startup = 0
 
+" fzf Settings
+let g:fzf_layout = { 'down': '40%' }
 
 " Ranger Settings
 "
@@ -189,15 +197,6 @@ let g:ranger_replace_netrw = 1 " open ranger when vim open a directory
 let g:ranger_map_keys = 0
 nnoremap <silent> <leader>. :RangerCurrentFile<cr>
 
-
-" Fugitive mappings
-"
-" Add a commit or branch name to the "d" register then you can use
-" it to diff any file from the current branch...
-map <leader>pd :Gdiff <c-r>d<cr>
-nnoremap <silent> <leader>gg :G<cr>
-nnoremap <silent> <leader>gd :Gdiff<cr>
-nnoremap <silent> <leader>gr :Gread<cr>
 
 
 " Custom Commands...
@@ -210,13 +209,6 @@ nnoremap <silent> <leader>gr :Gread<cr>
 
 " Mdn Lookup
 command! -nargs=+ MDN call MdnSplit("<args>")
-
-
-" Jtags!
-
-" This seems to work with normal help tags as well, which is lucky!
-map <silent> <c-]> :<C-U>call Jtags()<cr>
-map <leader><c-]> :<C-U>call JtagsSearchless()<cr>
 
 
 
@@ -258,7 +250,52 @@ command! Ctagstack :silent call setqflist(gettagstack().items) | copen
 
 
 " Custom mappings
+
+" fzf Mappings
 "
+nnoremap <silent> <c-p> :GFiles<CR>
+nnoremap <silent> <c-h> :Ag<CR>
+nnoremap <silent> <c-l> :Buffers<cr>
+" Quick search sexp in project
+nmap <silent> <leader>] "ayiw:Ag <c-r>a<cr>
+
+
+" coc Mappings
+"
+" Use `[g` and `]g` to navigate between errors
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+" Expand a snippet suggestion with CTRL-e
+imap <expr> <c-e> pumvisible() ? "<Plug>(coc-snippets-expand)" : "<CR>"
+nmap ga <Plug>(coc-codeaction)
+vmap ga <Plug>(coc-codeaction-selected)
+nmap <leader>ce :CocEnable<cr>
+nmap <leader>cd :CocDisable<cr>
+nmap <leader>cg :CocDiagnostics<cr>
+nmap <leader>cc <Plug>(coc-fix-current)
+nmap <leader>ch <Plug>(coc-float-hide)
+nmap <leader>cf <Plug>(coc-definition)
+nmap <leader>ct <Plug>(coc-type-definition)
+
+
+" Fugitive mappings
+"
+" Add a commit or branch name to the "d" register then you can use
+" it to diff any file from the current branch...
+map <leader>pd :Gdiff <c-r>d<cr>
+nnoremap <silent> <leader>gg :G<cr>
+nnoremap <silent> <leader>gd :Gdiff<cr>
+nnoremap <silent> <leader>gr :Gread<cr>
+
+" Jtags mappings
+
+" This seems to work with normal help tags as well, which is lucky!
+map <silent> <c-]> :<C-U>call Jtags()<cr>
+map <leader><c-]> :<C-U>call JtagsSearchless()<cr>
+
+
+" General Mappings
+
 " type any word then press ctrl-z in insert mode to console log it
 " with an id string...
 inoremap <C-z> <esc>v'.cconsole.log('<c-r>": ', <c-r>")
@@ -270,6 +307,9 @@ nnoremap <leader>rn :set relativenumber! \| set nu!<cr>
 
 " Toggle cursor line
 nnoremap <leader>cl :set cursorline!<cr>
+
+" Reformat the autom import from coc
+map <leader>im gdcs{{f'wcw
 
 " Quick mapping for doing yarn tests
 map <leader>yt <c-w>n<c-w>o:term<cr>iyarn test -u --watch<cr>
@@ -311,14 +351,6 @@ nnoremap <C-j> :m .+1<CR>==
 nnoremap <C-k> :m .-2<CR>==
 vnoremap <C-j> :m '>+1<CR>gv=gv
 vnoremap <C-k> :m '<-2<CR>gv=gv
-
-" Maps Fuzzy Finder to ctrl+p
-"
-nnoremap <silent> <c-p> :GFiles<CR>
-nnoremap <silent> <c-h> :Ag<CR>
-nnoremap <silent> <c-l> :Buffers<cr>
-" Quick search sexp in project
-nmap <silent> <leader>] "ayiw:Ag <c-r>a<cr>
 
 " Quick switching registers
 nnoremap <silent> <leader>r :echo 'Choose registers by key: 1st <- 2nd' \| let regvar = nr2char(getchar()) \| call setreg(nr2char(getchar()), getreg(regvar))<cr>
