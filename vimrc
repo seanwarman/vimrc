@@ -295,6 +295,13 @@ nnoremap <silent> <leader>gr :Gread<cr>
 map <silent> <c-]> :<C-U>call Jtags()<cr>
 map <leader><c-]> :<C-U>call JtagsSearchless()<cr>
 
+" vim-sneak Mappings
+" Remaps f and t to work over multi lines
+map f <Plug>Sneak_f
+map F <Plug>Sneak_F
+map t <Plug>Sneak_t
+map T <Plug>Sneak_T
+
 
 " General Mappings
 
