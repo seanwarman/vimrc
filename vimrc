@@ -48,6 +48,8 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'jsit/toast.vim'
   Plug 'sainnhe/sonokai'
 
+  Plug 'itchyny/vim-cursorword'
+
 call plug#end()
 call neomake#configure#automake('nrwi', 500)
 
@@ -61,9 +63,9 @@ let mapleader = " "
 
 au! BufEnter * syntax on
 filetype plugin indent on
-hi Search cterm=NONE ctermfg=NONE ctermbg=Black
+" hi Search cterm=NONE ctermfg=NONE ctermbg=Black
 " Stops vim error highlighting the second }} in JSX files.
-hi Error NONE
+" hi Error NONE
 
 " Get rid of weird commment colours
 if has('termguicolors')
@@ -91,10 +93,10 @@ command! Dark :colorscheme sonokai | set background=dark
 
 
 " Nicer diff colours
-hi DiffAdd cterm=reverse ctermfg=35 ctermbg=235 guibg=DarkBlue
-hi DiffChange cterm=reverse ctermfg=76 ctermbg=235 guibg=DarkMagenta
-hi DiffDelete cterm=reverse ctermfg=166 ctermbg=235 gui=bold guifg=Blue guibg=DarkCyan
-hi DiffText cterm=reverse ctermfg=37 ctermbg=235 gui=bold guibg=Red
+" hi DiffAdd cterm=reverse ctermfg=35 ctermbg=235 guibg=DarkBlue
+" hi DiffChange cterm=reverse ctermfg=76 ctermbg=235 guibg=DarkMagenta
+" hi DiffDelete cterm=reverse ctermfg=166 ctermbg=235 gui=bold guifg=Blue guibg=DarkCyan
+" hi DiffText cterm=reverse ctermfg=37 ctermbg=235 gui=bold guibg=Red
 
 
 set smartcase
@@ -388,7 +390,7 @@ set rtp+=~/.fzf
 " SignColumn company)
 " hi Normal guibg=NONE ctermbg=NONE
 " Transparent signcolumn (left hand padding)
-hi SignColumn guibg=NONE ctermbg=NONE
+" hi SignColumn guibg=NONE ctermbg=NONE
 
 
 " " Tmux commands and options from here on.
