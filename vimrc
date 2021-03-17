@@ -36,7 +36,6 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'vim-utils/vim-man'
 
   " Syntax and colours
-  Plug 'morhetz/gruvbox'
   Plug 'yuezk/vim-js'
   Plug 'HerringtonDarkholme/yats.vim'
   Plug 'jparise/vim-graphql'
@@ -80,13 +79,10 @@ let &t_ZH="\e[3m"
 let &t_ZR="\e[23m"
 
 " Colours
-" colorscheme gruvbox
 let g:vim_jsx_pretty_colorful_config = 1
-let g:gruvbox_contrast_light = 'hard'
-let g:gruvbox_italic = 0
-let g:gruvbox_contrast_dark = 'soft'
+let g:sonokai_enable_italic = 1
+let g:sonokai_current_word = 'underline'
 set background=dark
-let g:gruvbox_termcolors=256
 colorscheme sonokai
 command! Light :colorscheme toast | set background=light
 command! Dark :colorscheme sonokai | set background=dark
