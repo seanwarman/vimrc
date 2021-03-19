@@ -20,13 +20,14 @@ call plug#begin('~/.local/share/vim/plugged')
 
   " General utils
   Plug 'kshenoy/vim-signature'
+  Plug 'itchyny/vim-cursorword'
+  Plug 'adelarsq/vim-matchit'
 
   " Lord Tim pope's plugs
   Plug 'tpope/vim-commentary'
   Plug 'tpope/vim-repeat'
   Plug 'tpope/vim-surround'
 
-  " Not sold on this yet
   Plug 'justinmk/vim-sneak'
 
   " Really useful, super simple (how :bd should work)
@@ -44,10 +45,8 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'KabbAmine/vCoolor.vim'
   Plug 'lilydjwg/colorizer'
 
-  Plug 'jsit/toast.vim'
   Plug 'sainnhe/sonokai'
-
-  Plug 'itchyny/vim-cursorword'
+  Plug 'kaicataldo/material.vim', { 'branch': 'main' }
 
 call plug#end()
 call neomake#configure#automake('nrwi', 500)
@@ -82,10 +81,10 @@ let &t_ZR="\e[23m"
 let g:vim_jsx_pretty_colorful_config = 1
 let g:sonokai_enable_italic = 1
 let g:sonokai_current_word = 'underline'
-set background=dark
-colorscheme sonokai
-command! Light :colorscheme toast | set background=light
+command! Light :colorscheme material | let g:material_theme_style = 'lighter' | set background=light
 command! Dark :colorscheme sonokai | set background=dark
+" Set default to Dark...
+Dark
 
 
 " Nicer diff colours
