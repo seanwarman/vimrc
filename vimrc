@@ -29,10 +29,9 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'tpope/vim-surround'
 
   Plug 'justinmk/vim-sneak'
-
   Plug 'mhinz/vim-startify'
-
   Plug 'easymotion/vim-easymotion'
+  Plug 'airblade/vim-gitgutter'
 
   " Really useful, super simple (how :bd should work)
   Plug 'rbgrouleff/bclose.vim'
@@ -108,8 +107,8 @@ set smartindent
 set breakindent
 set nowrap
 set wildmenu
-set relativenumber
-set nu
+" set relativenumber
+" set nu
 set incsearch
 "
 " Turns on filepath autocompletion (CTRL-x-f)
@@ -185,6 +184,11 @@ let g:coc_filetype_map = {
 
 
 " General Settings
+
+" Easymotion
+" Turn on case-insensitive feature
+let g:EasyMotion_smartcase = 1
+map <Leader> <Plug>(easymotion-prefix)
 
 " Colorizer is really slow on large files (for anything in :help for example)
 " Set it to off by default, you can toggle it with <leader>tc
@@ -263,7 +267,6 @@ command! W :w | so ~/.vimrc
 
 " Saves a session
 command! Sesh mksession! ../sesh
-map <leader>se :mksession! ../sesh<cr>
 command! Gsesh :execute "mksession! ~/code/vimsessions/" . substitute(substitute(FugitiveHead(), "/", "-", "g"), " ", "", "g")
 
 " Adds any command output to the quickfix buffer
