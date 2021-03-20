@@ -16,7 +16,7 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'tpope/vim-fugitive'
 
   " Second best plugin ever
-  Plug 'francoiscabrol/ranger.vim'
+  " Plug 'francoiscabrol/ranger.vim'
 
   " General utils
   Plug 'kshenoy/vim-signature'
@@ -106,6 +106,7 @@ set nowrap
 set wildmenu
 set relativenumber
 set nu
+set incsearch
 "
 " Turns on filepath autocompletion (CTRL-x-f)
 " set autochdir
@@ -190,11 +191,34 @@ let g:fzf_layout = { 'down': '40%' }
 
 " Ranger Settings
 "
-let g:ranger_replace_netrw = 1 " open ranger when vim open a directory
-let g:ranger_map_keys = 0
-nnoremap <silent> <leader>. :RangerCurrentFile<cr>
+" let g:ranger_replace_netrw = 1 " open ranger when vim open a directory
+" let g:ranger_map_keys = 0
+" nnoremap <silent> <leader>. :RangerCurrentFile<cr>
 
+func Open(isLocal)
+  let l:netrwbufnr = bufnr()
+  exe "norm \<cr>"
+  silent! wincmd o
+  exe "bwipeout! " l:netrwbufnr
+endfunc
 
+let g:Netrw_UserMaps = [["o", "Open"]]
+let g:netrw_bufsettings = "relativenumber nu"
+let g:netrw_preview = 1
+let g:netrw_liststyle = 3
+let g:netrw_winsize = 30
+let g:netrw_use_errorwindow = 0
+nnoremap <silent> <leader>. :Explore .<cr>
+
+au! BufWinEnter * call HidePreviewBuf()
+let g:listedbufs = map(getbufinfo({'buflisted':1}), { key, val ->  val.bufnr })
+func HidePreviewBuf()
+  let l:previewbuf = bufnr()
+  if win_gettype(win_getid()) == 'preview' && l:previewbuf > -1 && match(g:listedbufs, l:previewbuf) == -1
+    call setbufvar(l:previewbuf, "&buflisted", 0)
+  endif
+  let g:listedbufs = map(getbufinfo({'buflisted':1}), { key, val ->  val.bufnr })
+endfunc
 
 " Custom Commands...
 "
@@ -212,27 +236,17 @@ command! -nargs=+ MDN call MdnSplit("<args>")
 " Search for a search term in the given directory ':F term folder'
 command! -nargs=+ -complete=dir F :silent grep! -RHn <args> | copen | norm <c-w>L40<c-w><
 
-" Redirects any message output to the " register
-command! -nargs=+ -complete=history Redir :redir => o | silent execute '<args>' | redir END | let @" = o
-
 " Goes to my vimrc
 command! Vimrc e ~/.vim/vimrc
 
 " sources my vimrc
 command! So so ~/.vimrc
-
-command! W :w | So
-
-" Another command to quickly delete the current buffer
-command! B bd!
+command! W :w | so ~/.vimrc
 
 " Saves a session
 command! Sesh mksession! ../sesh
 map <leader>se :mksession! ../sesh<cr>
 command! Gsesh :execute "mksession! ~/code/vimsessions/" . substitute(substitute(FugitiveHead(), "/", "-", "g"), " ", "", "g")
-
-" Clears my terminal history
-command! Clear set scrollback=1 | sleep 100m | set scrollback=10000
 
 " Adds any command output to the quickfix buffer
 command! -nargs=+ -complete=function Cex :silent redir => o | silent execute '<args>' | silent redir END | silent cex split(o, '\n') | copen
