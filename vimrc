@@ -30,6 +30,10 @@ call plug#begin('~/.local/share/vim/plugged')
 
   Plug 'justinmk/vim-sneak'
 
+  Plug 'mhinz/vim-startify'
+
+  Plug 'easymotion/vim-easymotion'
+
   " Really useful, super simple (how :bd should work)
   Plug 'rbgrouleff/bclose.vim'
 
