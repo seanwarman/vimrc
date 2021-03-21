@@ -1,0 +1,16 @@
+#!/bin/bash
+# This almost works but the format for a tags file is wrong, tags files use the invisible "	" (do ":set list" to see this") as a field seperator (OFS)
+# tags=$(ag --ignore tags --vimgrep --nomultiline "const $1[: ]|let $1[: ]|var $1[: ]|function $1[: ]|function $1[: ]\*" . | sed "s/^/$1:/g" | awk -F: '{ OFS="	"; line = "/^" $5 "$/;\""; append = "C"; print $1, $2, line, append }')
+#                                                                                                                                                                                  ^ I've removed this end of line search pattern 
+#                                                                                                                                                                                    because ag doesnt print the whole line
+#                                                                                                                                                                                    remember! In case it breaks later on.
+
+ag="ag"
+
+tags=$($ag --ignore tags --vimgrep --nomultiline "class $1[: <]|interface $1[: <]|type $1[: <]|const $1[: <]|let $1[: <]|var $1[: <]|function $1[: <]|function\* $1[: <]|function! $1" . | sed "s/^/$1:/g" | awk -F: '{ OFS="	"; line = "/^" $5 "/;\""; append = "C"; print $1, $2, line, append }')
+
+if [[ ${#tags} -lt 1 ]]; then
+  tags=$($ag --ignore tags --vimgrep --nomultiline "class $1[: <]|interface $1[: <]|type $1[: <]|const $1[: <]|let $1[: <]|var $1[: <]|function $1[: <]|function\* $1[: <]|function! $1" node_modules | sed "s/^/$1:/g" | awk -F: '{ OFS="	"; line = "/^" $5 "/;\""; append = "C"; print $1, $2, line, append }')
+fi
+
+echo "$tags" > $PWD/tags

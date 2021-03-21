@@ -1,48 +1,58 @@
-autocmd BufWritePre ~/.vim/vimrc source ~/.vim/vimrc
+source $HOME/.vim/functions/functions.vim
 
-if has('nvim')
-  call plug#begin('~/.local/share/nvim/plugged')
-    Plug 'junegunn/vim-plug'
+call plug#begin('~/.local/share/vim/plugged')
+  Plug 'junegunn/vim-plug'
 
-    " Auto-completion and linting
-    Plug 'honza/vim-snippets'
-    Plug 'neoclide/coc.nvim', {'branch': 'release'}
-    Plug 'neomake/neomake'
+  " Auto-completion and linting (necessary evils)
+  Plug 'honza/vim-snippets'
+  Plug 'neoclide/coc.nvim', {'branch': 'release'}
+  Plug 'neomake/neomake'
 
-    " Fuzzy finder
-    Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-    Plug 'junegunn/fzf.vim'
+  " Best plugin ever
+  Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+  Plug 'junegunn/fzf.vim'
 
-    " Git and dir browsing
-    Plug 'tpope/vim-fugitive'
-    Plug 'francoiscabrol/ranger.vim'
-    Plug 'rbgrouleff/bclose.vim'
+  " Best git plugin ever
+  Plug 'tpope/vim-fugitive'
 
-    " General utils
-    Plug 'kshenoy/vim-signature'
-    Plug 'tpope/vim-commentary'
-    Plug 'tpope/vim-repeat'
-    Plug 'tpope/vim-surround'
-    Plug 'mg979/vim-visual-multi'
-    " Plug 'easymotion/vim-easymotion'
-    Plug 'justinmk/vim-sneak'
+  " Second best plugin ever
+  Plug 'francoiscabrol/ranger.vim'
 
-    " Syntax and colours
-    Plug 'morhetz/gruvbox'
-    Plug 'yuezk/vim-js'
-    Plug 'HerringtonDarkholme/yats.vim'
-    Plug 'jparise/vim-graphql'
-    Plug 'maxmellon/vim-jsx-pretty'
-    Plug 'peitalin/vim-jsx-typescript'
-    Plug 'KabbAmine/vCoolor.vim'
-    Plug 'lilydjwg/colorizer'
+  " General utils
+  Plug 'kshenoy/vim-signature'
+  Plug 'itchyny/vim-cursorword'
+  Plug 'adelarsq/vim-matchit'
 
-    " Markdown preview from Browser
-    Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
+  " Lord Tim pope's plugs
+  Plug 'tpope/vim-commentary'
+  Plug 'tpope/vim-repeat'
+  Plug 'tpope/vim-surround'
 
-  call plug#end()
-  call neomake#configure#automake('nrwi', 500)
-endif
+  Plug 'justinmk/vim-sneak'
+  Plug 'mhinz/vim-startify'
+  Plug 'easymotion/vim-easymotion'
+  Plug 'airblade/vim-gitgutter'
+
+  " Really useful, super simple (how :bd should work)
+  Plug 'rbgrouleff/bclose.vim'
+
+  " Manual page lookup (don't need but really nice to have)
+  Plug 'vim-utils/vim-man'
+
+  " Syntax and colours
+  Plug 'yuezk/vim-js'
+  Plug 'HerringtonDarkholme/yats.vim'
+  Plug 'jparise/vim-graphql'
+  Plug 'maxmellon/vim-jsx-pretty'
+  Plug 'peitalin/vim-jsx-typescript'
+  Plug 'KabbAmine/vCoolor.vim'
+  Plug 'lilydjwg/colorizer'
+
+  Plug 'sainnhe/sonokai'
+  Plug 'kaicataldo/material.vim', { 'branch': 'main' }
+
+call plug#end()
+call neomake#configure#automake('nrwi', 500)
 
 command! PluginBaby :PlugClean | PlugInstall 
 
@@ -52,53 +62,79 @@ set nocompatible
 nnoremap <space> <Nop>
 let mapleader = " "
 
-syntax on
+au! BufEnter * syntax on
 filetype plugin indent on
-colorscheme gruvbox
-hi Search cterm=NONE ctermfg=NONE ctermbg=Black
+" hi Search cterm=NONE ctermfg=NONE ctermbg=Black
 " Stops vim error highlighting the second }} in JSX files.
-hi Error NONE
-" vim-jsx-pretty
+" hi Error NONE
+
+" Get rid of weird commment colours
+if has('termguicolors')
+    set termguicolors
+endif
+if has('gui_running')
+    set background=light
+else
+    set background=dark
+endif
+let &t_ZH="\e[3m"
+let &t_ZR="\e[23m"
+
+" Colours
 let g:vim_jsx_pretty_colorful_config = 1
+let g:sonokai_enable_italic = 1
+let g:sonokai_current_word = 'underline'
+command! Light :colorscheme material | let g:material_theme_style = 'lighter' | set background=light
+command! Dark :colorscheme sonokai | set background=dark
+" Set default to Dark...
+Dark
+
 
 " Nicer diff colours
-hi DiffAdd cterm=reverse ctermfg=35 ctermbg=235 guibg=DarkBlue
-hi DiffChange cterm=reverse ctermfg=76 ctermbg=235 guibg=DarkMagenta
-hi DiffDelete cterm=reverse ctermfg=166 ctermbg=235 gui=bold guifg=Blue guibg=DarkCyan
-hi DiffText cterm=reverse ctermfg=37 ctermbg=235 gui=bold guibg=Red
+" hi DiffAdd cterm=reverse ctermfg=35 ctermbg=235 guibg=DarkBlue
+" hi DiffChange cterm=reverse ctermfg=76 ctermbg=235 guibg=DarkMagenta
+" hi DiffDelete cterm=reverse ctermfg=166 ctermbg=235 gui=bold guifg=Blue guibg=DarkCyan
+" hi DiffText cterm=reverse ctermfg=37 ctermbg=235 gui=bold guibg=Red
+
 
 set smartcase
 
 " Sets statusline to [buffer-number -- filename [-/+] -- filetype]
-set statusline=\ %n%=%t\ %m%=%y\ 
+set statusline=\ %n\ %t\ %m%=%y\ 
 set laststatus=2
 set autoindent
 set smartindent
 set breakindent
 set nowrap
-set guicursor+=a:blinkon1
+set wildmenu
+" set relativenumber
+" set nu
+set incsearch
+"
+" Turns on filepath autocompletion (CTRL-x-f)
+" set autochdir
+
+" Allows the backspace to work in insert mode
+set backspace=indent,eol,start
 
 " Set tabs to indent 2 spaces
 set tabstop=2 softtabstop=0 expandtab shiftwidth=2 smarttab
 
-" set breakindent
-" set breakindentopt=sbr
-" I use a unicode curly array with a <backslash><space>
-" set showbreak=↪>\
-
-" This amazing setting allows buffers to stay unsaved in the background
+" Allows buffers to stay unsaved in the background
 " vim will prompt you if you want to quit to save them.
 set hidden
 
 " Allows me to "gf" a node import without ".js" on the end.
 set suffixesadd=.js,.ts,.tsx
 
-" iterm does the line for us, and indent line plugin does the columns.
-set nocursorline
+set cursorline
 set nocursorcolumn
 
 " stop showing the swap file error
 set shortmess+=A
+set noswapfile
+" Put .swp files into here...
+set dir=$HOME/.vim/tmp
 
 " Maintain undo
 set undofile 
@@ -122,17 +158,14 @@ set updatetime=100
 
 
 
-" Easymotion settings
-" map <Leader> <Plug>(easymotion-prefix)
-
 " Auto commands
 "
 " My syntax highlighting only works properly for the javascript filetype
 " so we have to set various typescript and react filetypes to javascript
 " here...
-autocmd BufNewFile,BufRead *.jsx set filetype=javascript
-autocmd BufNewFile,BufRead *.tsx set filetype=javascript
-autocmd BufNewFile,BufRead *.ts set filetype=javascript
+autocmd BufNewFile,BufRead,BufEnter *.jsx set filetype=javascript
+autocmd BufNewFile,BufRead,BufEnter *.tsx set filetype=javascript
+autocmd BufNewFile,BufRead,BufEnter *.ts set filetype=javascript
 
 " Defaults only for markdown files
 autocmd BufNewFile,BufEnter *.md set tw=73
@@ -141,7 +174,7 @@ autocmd BufLeave *.md set spell&
 autocmd BufLeave *.md set tw&
 
 " Makes syntax highlighting in the terminal (no ohmyzsh!)
-autocmd TermOpen,TermEnter zsh set filetype=posix
+" autocmd TermOpen,TermEnter zsh set filetype=posix
 
 "  ...then so the linting works I'm setting the coc to recognise javascript
 "  as typescriptreact
@@ -152,67 +185,89 @@ let g:coc_filetype_map = {
 
 " General Settings
 
-" coc Settings
-" Use `[g` and `]g` to navigate between errors
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
-" Expand a snippet suggestion with CTRL-e
-imap <expr> <c-e> pumvisible() ? "<Plug>(coc-snippets-expand)" : "<CR>"
-nmap ga <Plug>(coc-codeaction)
-vmap ga <Plug>(coc-codeaction-selected)
-nmap <leader>ec :CocEnable<cr>
-nmap <leader>dc :CocDisable<cr>
-nmap <leader>gc :CocDiagnostics<cr>
-
-
-
-" Ranger Settings (Find mappings further down)
-"
-let g:ranger_replace_netrw = 1 " open ranger when vim open a directory
-let g:ranger_map_keys = 0
-
-" Fugitive mappings
-"
-" Add a commit or branch name to the "d" register then you can use
-" it to diff any file from the current branch...
-map <leader>pd :Gdiff <c-r>d<cr>
-nnoremap <silent> <leader>gg :G<cr>
-nnoremap <silent> <leader>gd :Gdiff<cr>
-nnoremap <silent> <leader>gr :Gread<cr>
+" Easymotion
+" Turn on case-insensitive feature
+let g:EasyMotion_smartcase = 1
+map <Leader> <Plug>(easymotion-prefix)
 
 " Colorizer is really slow on large files (for anything in :help for example)
 " Set it to off by default, you can toggle it with <leader>tc
 let g:colorizer_startup = 0
 
+" fzf Settings
+let g:fzf_layout = { 'down': '40%' }
+
+" Ranger Settings
+"
+let g:ranger_replace_netrw = 1 " open ranger when vim open a directory
+let g:ranger_map_keys = 0
+nnoremap <silent> <leader>. :RangerCurrentFile<cr>
+
+" func Open(isLocal)
+"   let l:netrwbufnr = bufnr()
+"   exe "norm \<cr>"
+"   silent! wincmd o
+"   exe "bd! " l:netrwbufnr
+" endfunc
+
+" func Quit(isLocal)
+"   let l:netrwbufnr = bufnr()
+"   silent! wincmd o
+"   exe "bd! " l:netrwbufnr
+" endfunc
+
+
+" let g:Netrw_UserMaps = [["o", "Open"], ["q", "Quit"], ["<Esc>", "Quit"], ["<c-g>", "Quit"]]
+" let g:netrw_bufsettings = "relativenumber nu"
+" let g:netrw_preview = 1
+" let g:netrw_liststyle = 3
+" let g:netrw_winsize = 30
+" let g:netrw_use_errorwindow = 0
+
+" func ExploreHidden()
+"   Explore
+"   silent! call setbufvar("NetrwTreeListing", "&buflisted", 0)
+" endfunc
+
+" command! ExploreHidden call ExploreHidden()
+" nnoremap <silent> <leader>. :ExploreHidden<cr>
+
+" au! BufWinEnter * call HidePreviewBuf()
+" let g:listedbufs = map(getbufinfo({'buflisted':1}), { key, val ->  val.bufnr })
+" func HidePreviewBuf()
+"   let l:previewbuf = bufnr()
+"   if win_gettype(win_getid()) == 'preview' && l:previewbuf > -1 && match(g:listedbufs, l:previewbuf) == -1
+"     call setbufvar(l:previewbuf, "&buflisted", 0)
+"   endif
+"   let g:listedbufs = map(getbufinfo({'buflisted':1}), { key, val ->  val.bufnr })
+" endfunc
 
 " Custom Commands...
 "
+
+
+" Buffers
+" command! Buffers call AnyList("ls", "sh", "0e")
+
+
+" Mdn Lookup
+command! -nargs=+ MDN call MdnSplit("<args>")
+
+
+
 " Search for a search term in the given directory ':F term folder'
 command! -nargs=+ -complete=dir F :silent grep! -RHn <args> | copen | norm <c-w>L40<c-w><
-
-" Redirects any message output to the " register
-command! -nargs=+ -complete=history Redir :redir => o | silent execute '<args>' | redir END | let @" = o
 
 " Goes to my vimrc
 command! Vimrc e ~/.vim/vimrc
 
 " sources my vimrc
 command! So so ~/.vimrc
-
-" Another command to quickly delete the current buffer
-command! B bd!
+command! W :w | so ~/.vimrc
 
 " Saves a session
 command! Sesh mksession! ../sesh
-map <leader>se :mksession! ../sesh<cr>
 command! Gsesh :execute "mksession! ~/code/vimsessions/" . substitute(substitute(FugitiveHead(), "/", "-", "g"), " ", "", "g")
-
-" Clears my terminal history
-command! Clear set scrollback=1 | sleep 100m | set scrollback=10000
-
-" Creates a ctags file, with ignoring defaults
-command! Ctags silent !ctags -R --exclude=__tests__ --exclude=ios --exclude=android --exclude=firebase_environments --exclude=coverage --exclude=.github --exclude=.jest --exclude=.circleci --exclude=node_modules
-map <silent> <leader>ct :silent !ctags -R --exclude=__tests__ --exclude=ios --exclude=android --exclude=firebase_environments --exclude=coverage --exclude=.github --exclude=.jest --exclude=.circleci --exclude=node_modules<cr>
 
 " Adds any command output to the quickfix buffer
 command! -nargs=+ -complete=function Cex :silent redir => o | silent execute '<args>' | silent redir END | silent cex split(o, '\n') | copen
@@ -226,37 +281,83 @@ command! Cchanges :silent call setqflist(map(getchangelist(bufnr())[0], {key, va
 command! Ctagstack :silent call setqflist(gettagstack().items) | copen
 
 
-
-" Terminal mode mappings
-"
-" emulates <c-r> like insert mode for terminal mode
-tnoremap <expr> <c-r> '<c-\><c-n>"'.nr2char(getchar()).'pi'
-" Switch buffers in terminal mode
-tnoremap <expr> <c-^> '<c-\><c-n><c-^>'
-
-
-
 " Custom mappings
+
+" fzf Mappings
 "
-" hover over any word and press leader twice to console log it
-" with a string to id it as well...
-" nnoremap <leader><leader> yiWoconsole.log('<c-r>" : ', <c-r>")<esc>
+nnoremap <silent> <c-p> :GFiles<CR>
+nnoremap <silent> <c-h> :Ag<CR>
+nnoremap <silent> <c-l> :Buffers<cr>
+" Quick search sexp in project
+nmap <silent> <leader>] "ayiw:Ag <c-r>a<cr>
+
+
+" coc Mappings
+"
+" Use `[g` and `]g` to navigate between errors
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+" Expand a snippet suggestion with CTRL-e
+imap <expr> <c-e> pumvisible() ? "<Plug>(coc-snippets-expand)" : "<CR>"
+nmap ga <Plug>(coc-codeaction)
+vmap ga <Plug>(coc-codeaction-selected)
+nmap <leader>ce :CocEnable<cr>
+nmap <leader>cd :CocDisable<cr>
+nmap <leader>cg :CocDiagnostics<cr>
+nmap <leader>cc <Plug>(coc-fix-current)
+nmap <leader>ch <Plug>(coc-float-hide)
+nmap <leader>cf <Plug>(coc-definition)
+nmap <leader>ct <Plug>(coc-type-definition)
+
+
+" Fugitive mappings
+"
+" Add a commit or branch name to the "d" register then you can use
+" it to diff any file from the current branch...
+map <leader>pd :Gdiff <c-r>d<cr>
+nnoremap <silent> <leader>gg :G<cr>
+nnoremap <silent> <leader>gd :Gdiff<cr>
+nnoremap <silent> <leader>gr :Gread<cr>
+
+" Jtags mappings
+
+" This seems to work with normal help tags as well, which is lucky!
+map <silent> <c-]> :<C-U>call Jtags()<cr>
+map <leader><c-]> :<C-U>call JtagsSearchless()<cr>
+
+" vim-sneak Mappings
+" Remaps f and t to work over multi lines
+map f <Plug>Sneak_f
+map F <Plug>Sneak_F
+map t <Plug>Sneak_t
+map T <Plug>Sneak_T
+
+
+" General Mappings
 
 " type any word then press ctrl-z in insert mode to console log it
 " with an id string...
-inoremap <C-z> <esc>ciWconsole.log('<c-r>": ', <c-r>");
-inoremap <C-a> <esc>ciWconsole.log('@SEAN <c-r>": ', <c-r>");
-inoremap <C-l> <esc>$v^cconsole.log(");
+inoremap <C-z> <esc>v'.cconsole.log('<c-r>": ', <c-r>")
+inoremap <C-a> <esc>v'.cconsole.log('@SEAN <c-r>": ', <c-r>")
+inoremap <C-l> <esc>v'.cconsole.log(<c-r>")
 
 " Toggle numbers...
 nnoremap <leader>rn :set relativenumber! \| set nu!<cr>
 
+" Toggle cursor line
+nnoremap <leader>cl :set cursorline!<cr>
+
+" Reformat the autom import from coc
+map <leader>im gdcs{{f'wcw
 
 " Quick mapping for doing yarn tests
 map <leader>yt <c-w>n<c-w>o:term<cr>iyarn test -u --watch<cr>
 
 " re-maps capital Yank to yank till the end of the line
 map Y y$
+
+map <leader>S: :%s/
+map <leader>s: :s/
 
 " Closes a whole tab including all splits. 
 map <silent> <c-w>C :tabclose<cr>
@@ -281,6 +382,8 @@ nnoremap [] [M
 
 " select last pasted text
 nnoremap gp `[v`]
+" paste with auto indent
+nnoremap <leader>p p`[v`]=
 
 " Moving lines up and down
 nnoremap <C-j> :m .+1<CR>==
@@ -288,18 +391,8 @@ nnoremap <C-k> :m .-2<CR>==
 vnoremap <C-j> :m '>+1<CR>gv=gv
 vnoremap <C-k> :m '<-2<CR>gv=gv
 
-" Maps Fuzzy Finder to ctrl+p
-"
-" nnoremap <silent> <c-p> :GFiles<CR>
-" nnoremap <silent> <c-s> :Ag<CR>
-" nnoremap <silent> <c-b> :Buffers<CR>
-" Quick search sexp in project
-nmap <silent> <leader>] yiw:Ag<cr><esc>pi
-
 " Quick switching registers
 nnoremap <silent> <leader>r :echo 'Choose registers by key: 1st <- 2nd' \| let regvar = nr2char(getchar()) \| call setreg(nr2char(getchar()), getreg(regvar))<cr>
-
-nnoremap <silent> <leader>. :RangerCurrentFile<cr>
 
 " Tabs
 map <c-w>gn :tabnew<CR>
@@ -332,143 +425,40 @@ set rtp+=~/.fzf
 
 " transparent background (this doesn't have to go last but it's keeping
 " SignColumn company)
-hi Normal guibg=NONE ctermbg=NONE
+" hi Normal guibg=NONE ctermbg=NONE
 " Transparent signcolumn (left hand padding)
-hi SignColumn guibg=NONE ctermbg=NONE
+" hi SignColumn guibg=NONE ctermbg=NONE
 
 
+" " Tmux commands and options from here on.
+
+if len(system("echo $TMUX")) > 1
+  command! Tmuxrc e ~/.vim/tmux.conf
+  autocm BufWritePost ~/.vim/tmux.conf call system('tmux source-file ~/.vim/tmux.conf')
+endif
 
 
-
-
-
-" Hey you! All of the below is new stuff that I should put into 
-" seperate scripts...
-"
-"
-"
-" Custom Functions
-
-" Give this function any command (marks, tags, ls),
-" tell the cursor what position it should be in,
-" give it a mapping for the enter key...
-" also give it a filetype for syntax highlighting
-function! AnyList(cmd, ftype, position, onenter, ondelete)
-  if bufname("%") == "buffer-list" | return | endif
-
-  " Set up the buffer-list buffer (this makes it hidden)
-  let g:anylistbuff = bufnr('buffer-list', 1)
-  call setbufvar(g:anylistbuff, "&buftype", "nofile")
-  execute "sbuffer" . g:anylistbuff
-  " If we leave buffer-list it'll get deleted...
-  au! BufLeave buffer-list execute g:anylistbuff . "bwipeout"
-
-  " Copy the output of the given command (eg "ls") and paste it into
-  " buffer-list
-  silent! redir => o | execute 'silent ' . a:cmd | redir END | let @b = o
-  silent! set cursorline
-  execute "silent! set filetype=" . a:ftype
-  " TODO: make the window a fixed height...
-  " execute "bo 10split b"
-  execute "norm \<c-w>J10\<c-w>-gg\"bpggdd" . a:position
-  execute "map <silent> <buffer> <cr> :call " . a:onenter . "<cr>"
-  execute "map <buffer> dd :call " . a:ondelete . "<cr>"
-
-  " Limit movement, you can still do "w" etc, this is just to make it a bit
-  " like a menu...
-  map <buffer> h <NOP>
-  map <buffer> l <NOP>
-  map <buffer> <esc> <c-w>c
-endfunction
-
-function! AnyListOnEnterBuffer()
-  execute "norm \"byiw\<c-w>\<c-w>:b\<c-r>b\<cr>"
-endfunc
-
-function! AnyListDeleteBuffer()
-  if len(getbufinfo({'buflisted':1})) > 1
-    execute "norm \"byiwV:g/./d\<cr>:Bclose \<c-r>b\<cr>"
-  else
-    echo "Can't delete the last buffer"
-  endif
-endfunction
-
-" Buffers
-map <silent> <c-b> :call AnyList("ls", "sh", "0e", "AnyListOnEnterBuffer()", "AnyListDeleteBuffer()")<cr>
-
-
-
-" Tmux relevent settings
-"
-command! Tmuxrc e ~/.vim/tmux.conf
-autocmd BufWritePost ~/.vim/tmux.conf call system('tmux source-file ~/.vim/tmux.conf')
-
-" Calls any terminal command in a quick split...
-command! -nargs=+ -complete=function TmuxSplit silent! call system('tmux split-window ' . <args> . '')
-command! -nargs=+ -complete=function Tmux silent! call system('tmux ' . <args>)
-
-command! -nargs=+ -complete=function Sh silent! call system(join(<args>), ';'))
-map <leader>: :Sh 
-map <leader>S :TmuxSplit ""<Left>
-
-function! System(...)
-  return system(join(a:000, ';'))
-endfunc
-
-function! TmuxSplit(height, ...)
-  return 'tmux split-window -l ' . a:height . ' "' . join(a:000, ' ') . '"'
-endfunc
-
-function! TmuxSend(...)
-  return 'tmux send "' . join(a:000, ' ') . '"'
-endfunc
-
-function! TmuxKeyPress(...)
-  return 'tmux send ' . join(a:000, ' ')
-endfunc
-
-function! FuzzyBuffers(buffers)
-  return "~/./.vim/vimfzf buffers " . shellescape(a:buffers)
-endfunc
-
-function! FuzzyFiles()
-  return "~/./.vim/vimfzf files"
-endfunc
-
-function! FuzzyGrep()
-  return "~/./.vim/vimfzf grep"
-endfunc
-
-function! GomoCd(socket)
-  return "gomo cd " . a:socket . ""
-endfunc 
-
-function! GomoRun(socket)
-  let l:socket ""
-  if a:socket | l:socket = " -s" . a:socket | endif
-  return "gomo run" . l:socket . ""
-endfunc
-
-function! WdioMobileLogin()
-  return "mobile.\\$('~passcode-input').addValue('111111')"
-endfunc
+" " Mobo Settings
 
 command! Rn silent! silent! call system(join([TmuxSplit("50%", GomoCd("rn"))]))
 command! Wdio silent! silent! call system(join([TmuxSplit("50%", GomoCd("wdio"))]))
 command! Appium silent! silent! call system(join([TmuxSplit("50%", GomoCd("appium"))]))
 command! -nargs=+ GomoCd silent! silent! call system(join([TmuxSplit("50%", GomoCd(<args>))]))
-command! -nargs=+ GomoRun silent! silent! call system(join([TmuxSplit("50%", GomoRun(<args>))]))
+command! -nargs=* GomoRun silent! silent! call system(join([TmuxSplit("50%", GomoRun(<args>))]))
 
-function! GetLs()
-  let l:BuffString = { key, val -> val.bufnr . ":" . (len(val.name) > 1 ? val.name : "[No Name]") . ":" . val.lnum }
-  return join(map(getbufinfo({'buflisted':1}), l:BuffString), "\n")
+
+function! GomoLoginRaw()
+  silent execute "!gomo cd wdio; thing"
+  redraw!
 endfunc
 
-map <c-p> :call system(TmuxSplit("50%", FuzzyFiles()))<cr>
-map <c-s> :call system(TmuxSplit("50%", FuzzyGrep()))<cr>
-map <c-b> :call system(TmuxSplit("20%", FuzzyBuffers(GetLs())))<cr>
-
-
-command! MobLogin silent! call system(join([TmuxSplit("50%", GomoCd("wdio")), TmuxSend(WdioMobileLogin()), TmuxKeyPress("Enter", "Escape")], ';'))
-
+command! MobLogin silent! call system(join([TmuxSplit("50%", GomoCd("wdio")), TmuxKeyPress("Enter"), TmuxSend(WdioMobileLogin()), TmuxKeyPress("Enter", "Escape")], ';'))
 map <leader>ml :MobLogin<cr>
+
+command! LaunchApp silent! call system(join([TmuxSplit("50%", GomoCd("wdio")), TmuxKeyPress("Enter"), TmuxSend(WdioMobileLaunchApp()), TmuxKeyPress("Enter", "Escape")], ';'))
+map <leader>la :LaunchApp<cr>
+
+" TODO: make a command that does importing
+
+command! LundoDiff :call LundoDiff()
+map <leader>ld :LundoDiff<cr>
