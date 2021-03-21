@@ -14,6 +14,7 @@ call plug#begin('~/.local/share/vim/plugged')
 
   " Best git plugin ever
   Plug 'tpope/vim-fugitive'
+  Plug 'tommcdo/vim-fugitive-blame-ext'
 
   " Second best plugin ever
   Plug 'francoiscabrol/ranger.vim'
@@ -51,6 +52,7 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'sainnhe/sonokai'
   Plug 'kaicataldo/material.vim', { 'branch': 'main' }
 
+  Plug 'vim-airline/vim-airline'
 call plug#end()
 call neomake#configure#automake('nrwi', 500)
 
@@ -100,7 +102,7 @@ Dark
 set smartcase
 
 " Sets statusline to [buffer-number -- filename [-/+] -- filetype]
-set statusline=\ %n\ %t\ %m%=%y\ 
+" set statusline=\ %n\ %t\ %m%=%y\ 
 set laststatus=2
 set autoindent
 set smartindent
@@ -318,6 +320,7 @@ map <leader>pd :Gdiff <c-r>d<cr>
 nnoremap <silent> <leader>gg :G<cr>
 nnoremap <silent> <leader>gd :Gdiff<cr>
 nnoremap <silent> <leader>gr :Gread<cr>
+nnoremap <silent> <leader>gb :Gblame<cr>
 
 " Jtags mappings
 
