@@ -103,7 +103,8 @@ let &t_ZR="\e[23m"
 " Colours
 let g:vim_jsx_pretty_colorful_config = 1
 let g:sonokai_enable_italic = 1
-let g:sonokai_current_word = 'underline'
+let g:sonokai_current_word = 'bold'
+let g:sonokai_disable_italic_comment = 1
 command! Light :colorscheme material | let g:material_theme_style = 'lighter' | set background=light
 command! Dark :colorscheme sonokai | set background=dark
 " Set default to Dark...
