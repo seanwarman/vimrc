@@ -29,7 +29,7 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'tpope/vim-surround'
 
   Plug 'justinmk/vim-sneak'
-  Plug 'mhinz/vim-startify'
+  Plug 'seanwarman/vim-startify'
   Plug 'easymotion/vim-easymotion'
   Plug 'airblade/vim-gitgutter'
 
@@ -53,6 +53,24 @@ call plug#begin('~/.local/share/vim/plugged')
 
 call plug#end()
 call neomake#configure#automake('nrwi', 500)
+
+let g:startify_custom_art = [
+      \"        ________ ++     ________",
+      \"       /VVVVVVVV\\++++  /VVVVVVVV\\",
+      \"       \\VVVVVVVV/++++++\\VVVVVVVV/",
+      \"        |VVVVVV|++++++++/VVVVV/\'",
+      \"        |VVVVVV|++++++/VVVVV/\'",
+      \"       +|VVVVVV|++++/VVVVV/\'+",
+      \"     +++|VVVVVV|++/VVVVV/\'+++++",
+      \"   +++++|VVVVVV|/VVVVV/\'+++++++++",
+      \"     +++|VVVVVVVVVVV/\'+++++++++",
+      \"       +|VVVVVVVVV/\'+++++++++",
+      \"        |VVVVVVV/\'+++++++++",
+      \"        |VVVVV/\'+++++++++",
+      \"        |VVV/\'+++++++++",
+      \"        \'V/\'   ++++++",
+      \"                 ++",
+\]
 
 command! PluginBaby :PlugClean | PlugInstall 
 
