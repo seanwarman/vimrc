@@ -30,7 +30,7 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'tpope/vim-surround'
 
   Plug 'justinmk/vim-sneak'
-  Plug 'mhinz/vim-startify'
+  Plug 'seanwarman/vim-startify'
   Plug 'easymotion/vim-easymotion'
   Plug 'airblade/vim-gitgutter'
 
@@ -55,6 +55,24 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'vim-airline/vim-airline'
 call plug#end()
 call neomake#configure#automake('nrwi', 500)
+
+let g:startify_custom_art = [
+      \"        ________ ++     ________",
+      \"       /VVVVVVVV\\++++  /VVVVVVVV\\",
+      \"       \\VVVVVVVV/++++++\\VVVVVVVV/",
+      \"        |VVVVVV|++++++++/VVVVV/\'",
+      \"        |VVVVVV|++++++/VVVVV/\'",
+      \"       +|VVVVVV|++++/VVVVV/\'+",
+      \"     +++|VVVVVV|++/VVVVV/\'+++++",
+      \"   +++++|VVVVVV|/VVVVV/\'+++++++++",
+      \"     +++|VVVVVVVVVVV/\'+++++++++",
+      \"       +|VVVVVVVVV/\'+++++++++",
+      \"        |VVVVVVV/\'+++++++++",
+      \"        |VVVVV/\'+++++++++",
+      \"        |VVV/\'+++++++++",
+      \"        \'V/\'   ++++++",
+      \"                 ++",
+\]
 
 command! PluginBaby :PlugClean | PlugInstall 
 
@@ -109,12 +127,20 @@ set smartindent
 set breakindent
 set nowrap
 set wildmenu
-" set relativenumber
-" set nu
 set incsearch
-"
-" Turns on filepath autocompletion (CTRL-x-f)
-" set autochdir
+set hlsearch
+" Clears the hlsearch on most movements
+nmap <silent> h h:noh<cr>
+nmap <silent> j j:noh<cr>
+nmap <silent> k k:noh<cr>
+nmap <silent> l l:noh<cr>
+nmap <silent> l l:noh<cr>
+nmap <silent> b b:noh<cr>
+nmap <silent> w w:noh<cr>
+nmap <silent> W W:noh<cr>
+nmap <silent> B B:noh<cr>
+nmap <silent> E E:noh<cr>
+nmap <silent> e e:noh<cr>
 
 " Allows the backspace to work in insert mode
 set backspace=indent,eol,start
@@ -158,7 +184,15 @@ endif
 set updatetime=100
 
 
-
+" Persist folds
+" TODO: add `if expand("%")` to this...
+" augroup AutoSaveFolds
+"   if expand("%")
+"     autocmd!
+"     autocmd BufWinLeave * mkview
+"     autocmd BufWinEnter * silent loadview
+"   endif
+" augroup END
 
 " Auto commands
 "
@@ -204,45 +238,6 @@ let g:fzf_layout = { 'down': '40%' }
 let g:ranger_replace_netrw = 1 " open ranger when vim open a directory
 let g:ranger_map_keys = 0
 nnoremap <silent> <leader>. :RangerCurrentFile<cr>
-
-" func Open(isLocal)
-"   let l:netrwbufnr = bufnr()
-"   exe "norm \<cr>"
-"   silent! wincmd o
-"   exe "bd! " l:netrwbufnr
-" endfunc
-
-" func Quit(isLocal)
-"   let l:netrwbufnr = bufnr()
-"   silent! wincmd o
-"   exe "bd! " l:netrwbufnr
-" endfunc
-
-
-" let g:Netrw_UserMaps = [["o", "Open"], ["q", "Quit"], ["<Esc>", "Quit"], ["<c-g>", "Quit"]]
-" let g:netrw_bufsettings = "relativenumber nu"
-" let g:netrw_preview = 1
-" let g:netrw_liststyle = 3
-" let g:netrw_winsize = 30
-" let g:netrw_use_errorwindow = 0
-
-" func ExploreHidden()
-"   Explore
-"   silent! call setbufvar("NetrwTreeListing", "&buflisted", 0)
-" endfunc
-
-" command! ExploreHidden call ExploreHidden()
-" nnoremap <silent> <leader>. :ExploreHidden<cr>
-
-" au! BufWinEnter * call HidePreviewBuf()
-" let g:listedbufs = map(getbufinfo({'buflisted':1}), { key, val ->  val.bufnr })
-" func HidePreviewBuf()
-"   let l:previewbuf = bufnr()
-"   if win_gettype(win_getid()) == 'preview' && l:previewbuf > -1 && match(g:listedbufs, l:previewbuf) == -1
-"     call setbufvar(l:previewbuf, "&buflisted", 0)
-"   endif
-"   let g:listedbufs = map(getbufinfo({'buflisted':1}), { key, val ->  val.bufnr })
-" endfunc
 
 " Custom Commands...
 "
