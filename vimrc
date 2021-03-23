@@ -12,29 +12,23 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
   Plug 'junegunn/fzf.vim'
 
+  " Second best plugin ever
+  Plug 'francoiscabrol/ranger.vim'
+
   " Best git plugin ever
   Plug 'tpope/vim-fugitive'
   Plug 'tommcdo/vim-fugitive-blame-ext'
 
-  " Second best plugin ever
-  Plug 'francoiscabrol/ranger.vim'
-
   " General utils
-  Plug 'kshenoy/vim-signature'
   Plug 'itchyny/vim-cursorword'
   Plug 'adelarsq/vim-matchit'
-
-  " Lord Tim pope's plugs
   Plug 'tpope/vim-commentary'
   Plug 'tpope/vim-repeat'
   Plug 'tpope/vim-surround'
-
   Plug 'justinmk/vim-sneak'
   Plug 'seanwarman/vim-startify'
   Plug 'easymotion/vim-easymotion'
   Plug 'airblade/vim-gitgutter'
-
-  " Really useful, super simple (how :bd should work)
   Plug 'rbgrouleff/bclose.vim'
 
   " Manual page lookup (don't need but really nice to have)
@@ -48,14 +42,14 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'peitalin/vim-jsx-typescript'
   Plug 'KabbAmine/vCoolor.vim'
   Plug 'lilydjwg/colorizer'
-
   Plug 'sainnhe/sonokai'
   Plug 'kaicataldo/material.vim', { 'branch': 'main' }
-
   Plug 'vim-airline/vim-airline'
+  Plug 'vim-airline/vim-airline-themes'
 call plug#end()
 call neomake#configure#automake('nrwi', 500)
 
+let g:startify_change_to_dir = 0
 let g:startify_custom_art = [
       \"        ________ ++     ________",
       \"       /VVVVVVVV\\++++  /VVVVVVVV\\",
@@ -73,8 +67,6 @@ let g:startify_custom_art = [
       \"        \'V/\'   ++++++",
       \"                 ++",
 \]
-
-command! PluginBaby :PlugClean | PlugInstall 
 
 set nocompatible
 
@@ -101,30 +93,28 @@ let &t_ZH="\e[3m"
 let &t_ZR="\e[23m"
 
 " Colours
+let g:airline_theme = 'base16_adwaita'
 let g:vim_jsx_pretty_colorful_config = 1
 let g:sonokai_enable_italic = 1
-let g:sonokai_current_word = 'bold'
+let g:sonokai_current_word = 'underline'
 let g:sonokai_disable_italic_comment = 1
 command! Light :colorscheme material | let g:material_theme_style = 'lighter' | set background=light
 command! Dark :colorscheme sonokai | set background=dark
 " Set default to Dark...
 Dark
 
-
-" Nicer diff colours
+" " Nicer diff colours
 " hi DiffAdd cterm=reverse ctermfg=35 ctermbg=235 guibg=DarkBlue
 " hi DiffChange cterm=reverse ctermfg=76 ctermbg=235 guibg=DarkMagenta
 " hi DiffDelete cterm=reverse ctermfg=166 ctermbg=235 gui=bold guifg=Blue guibg=DarkCyan
 " hi DiffText cterm=reverse ctermfg=37 ctermbg=235 gui=bold guibg=Red
-
-
-set smartcase
 
 " Sets statusline to [buffer-number -- filename [-/+] -- filetype]
 " set statusline=\ %n\ %t\ %m%=%y\ 
 set laststatus=2
 set autoindent
 set smartindent
+set smartcase
 set breakindent
 set nowrap
 set wildmenu
@@ -157,7 +147,7 @@ set hidden
 set suffixesadd=.js,.ts,.tsx
 
 set cursorline
-set nocursorcolumn
+" set nocursorcolumn
 
 " stop showing the swap file error
 set shortmess+=A
@@ -173,17 +163,21 @@ set mouse=a
 
 " Always show the signcolumn, otherwise it would shift the text each time
 " diagnostics appear/become resolved.
-if has("patch-8.1.1564")
-  " Recently vim can merge signcolumn and number column into one
-  set signcolumn=number
-else
-  set signcolumn=yes
-endif
+" if has("patch-8.1.1564")
+"   " Recently vim can merge signcolumn and number column into one
+"   set signcolumn=number
+" else
+"   set signcolumn=yes
+" endif
 
 " Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
 " delays and poor user experience.
 set updatetime=100
 
+" Transparent signcolumn (left hand padding)
+" hi SignColumn guibg=NONE ctermbg=NONE
+" let g:gitgutter_set_sign_backgrounds = 1
+let g:gitgutter_close_preview_on_escape = 1
 
 " Persist folds
 " TODO: add `if expand("%")` to this...
@@ -224,6 +218,7 @@ let g:coc_filetype_map = {
 
 " Easymotion
 " Turn on case-insensitive feature
+let g:EasyMotion_keys = 'asdfghjkl'
 let g:EasyMotion_smartcase = 1
 map <Leader> <Plug>(easymotion-prefix)
 
@@ -247,11 +242,11 @@ nnoremap <silent> <leader>. :RangerCurrentFile<cr>
 " Buffers
 " command! Buffers call AnyList("ls", "sh", "0e")
 
+" Shortcut to clean and install new plugins
+command! PluginBaby :PlugClean | PlugInstall 
 
 " Mdn Lookup
 command! -nargs=+ MDN call MdnSplit("<args>")
-
-
 
 " Search for a search term in the given directory ':F term folder'
 command! -nargs=+ -complete=dir F :silent grep! -RHn <args> | copen | norm <c-w>L40<c-w><
@@ -340,6 +335,16 @@ inoremap <C-z> <esc>v'.cconsole.log('<c-r>": ', <c-r>")
 inoremap <C-a> <esc>v'.cconsole.log('@SEAN <c-r>": ', <c-r>")
 inoremap <C-l> <esc>v'.cconsole.log(<c-r>")
 
+inoremap {<cr> {<cr>}<esc>O
+inoremap {{<cr> {{<cr>}}<esc>O
+inoremap ({<cr> ({<cr>})<esc>O
+inoremap [{<cr> [{<cr>}]<esc>O
+inoremap (<cr> (<cr>)<esc>O
+inoremap ((<cr> ((<cr>))<esc>O
+inoremap ([<cr> ([<cr>])<esc>O
+inoremap [<cr> [<cr>]<esc>O
+inoremap [[<cr> [[<cr>]]<esc>O
+
 " Toggle numbers...
 nnoremap <leader>rn :set relativenumber! \| set nu!<cr>
 
@@ -421,12 +426,6 @@ nnoremap <silent> <leader>+% :let @+ = @%<cr>
 " These settings have to go last...
 
 set rtp+=~/.fzf
-
-" transparent background (this doesn't have to go last but it's keeping
-" SignColumn company)
-" hi Normal guibg=NONE ctermbg=NONE
-" Transparent signcolumn (left hand padding)
-" hi SignColumn guibg=NONE ctermbg=NONE
 
 
 " " Tmux commands and options from here on.
