@@ -1,0 +1,15 @@
+#!/bin/bash
+
+function fuzd () {
+  dir=`ls -a | awk 'NR>1 {print}' | fzf --layout=reverse-list --bind="ctrl-l:accept,ctrl-e:preview-down,ctrl-y:preview-up,ctrl-d:preview-page-down,ctrl-u:preview-page-up" --border=rounded --preview-window=right:70% --preview="if [ -f {} ]; then; bat --color always {}; else ls -a {} | awk 'NR>1 {print}'; fi"`
+  if [[ -d $dir ]]; then
+    cd $dir
+    fuzd
+  elif [[ -f $dir ]]; then
+    vim $dir
+    fuzd
+  fi
+  exit
+}
+
+fuzd

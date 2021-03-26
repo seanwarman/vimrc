@@ -1,4 +1,5 @@
-source $HOME/.vim/functions/functions.vim
+source $HOME/.vim/custom/functions.vim
+source $HOME/.vim/custom/snippets.vim
 
 call plug#begin('~/.local/share/vim/plugged')
   Plug 'junegunn/vim-plug'
@@ -26,7 +27,7 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'tpope/vim-repeat'
   Plug 'tpope/vim-surround'
   Plug 'justinmk/vim-sneak'
-  Plug 'seanwarman/vim-startify'
+  Plug 'mhinz/vim-startify'
   Plug 'easymotion/vim-easymotion'
   Plug 'airblade/vim-gitgutter'
   Plug 'rbgrouleff/bclose.vim'
@@ -44,13 +45,11 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'lilydjwg/colorizer'
   Plug 'sainnhe/sonokai'
   Plug 'kaicataldo/material.vim', { 'branch': 'main' }
-  Plug 'vim-airline/vim-airline'
-  Plug 'vim-airline/vim-airline-themes'
 call plug#end()
 call neomake#configure#automake('nrwi', 500)
 
 let g:startify_change_to_dir = 0
-let g:startify_custom_art = [
+let g:startify_custom_header = [
       \"        ________ ++     ________",
       \"       /VVVVVVVV\\++++  /VVVVVVVV\\",
       \"       \\VVVVVVVV/++++++\\VVVVVVVV/",
@@ -110,7 +109,7 @@ Dark
 " hi DiffText cterm=reverse ctermfg=37 ctermbg=235 gui=bold guibg=Red
 
 " Sets statusline to [buffer-number -- filename [-/+] -- filetype]
-" set statusline=\ %n\ %t\ %m%=%y\ 
+set statusline=\ b%n\ •\ %{FugitiveHead()}\ •\ %t\ %m%=%y\ •\ %p%%\ 
 set laststatus=2
 set autoindent
 set smartindent
@@ -120,6 +119,7 @@ set nowrap
 set wildmenu
 set incsearch
 set hlsearch
+set autoread
 " Clears the hlsearch on most movements
 nmap <silent> h h:noh<cr>
 nmap <silent> j j:noh<cr>
@@ -231,9 +231,9 @@ let g:fzf_layout = { 'down': '40%' }
 
 " Ranger Settings
 "
-let g:ranger_replace_netrw = 1 " open ranger when vim open a directory
-let g:ranger_map_keys = 0
-nnoremap <silent> <leader>. :RangerCurrentFile<cr>
+" let g:ranger_replace_netrw = 1 " open ranger when vim open a directory
+" let g:ranger_map_keys = 0
+" nnoremap <silent> <leader>. :RangerCurrentFile<cr>
 
 " Custom Commands...
 "
@@ -334,6 +334,7 @@ map T <Plug>Sneak_T
 inoremap <C-z> <esc>v'.cconsole.log('<c-r>": ', <c-r>")
 inoremap <C-a> <esc>v'.cconsole.log('@SEAN <c-r>": ', <c-r>")
 inoremap <C-l> <esc>v'.cconsole.log(<c-r>")
+inoremap <c-y> <esc>v'.cconsole.log('@SEAN <c-r>"')
 
 inoremap {<cr> {<cr>}<esc>O
 inoremap {{<cr> {{<cr>}}<esc>O
@@ -344,6 +345,9 @@ inoremap ((<cr> ((<cr>))<esc>O
 inoremap ([<cr> ([<cr>])<esc>O
 inoremap [<cr> [<cr>]<esc>O
 inoremap [[<cr> [[<cr>]]<esc>O
+
+nnoremap q: q:i
+au CmdwinEnter * inoremap <buffer> <esc> <esc><c-w>c
 
 " Toggle numbers...
 nnoremap <leader>rn :set relativenumber! \| set nu!<cr>
@@ -460,3 +464,6 @@ map <leader>la :LaunchApp<cr>
 
 command! LundoDiff :call LundoDiff()
 map <leader>ld :LundoDiff<cr>
+
+command! Fuzd :silent! exe "!$HOME/.vim/scripts/./fuzd4vim " expand("%:p:h") | let fuzd_filename = system("cat $HOME/.vim/.vimfile") | if len(fuzd_filename) > 1 | exe "e " fuzd_filename | endif | redraw!
+map <leader>. :Fuzd<cr>
