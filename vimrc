@@ -465,5 +465,8 @@ map <leader>la :LaunchApp<cr>
 command! LundoDiff :call LundoDiff()
 map <leader>ld :LundoDiff<cr>
 
+
+" These both do the same except FuzDo adds the file to copen which makes it a bit slower
+command! FuzdCo :silent! exe "!$HOME/.vim/scripts/./fuzd4vim " expand("%:p:h") | cf $HOME/.vim/.vimfile | cdo e | redraw! 
 command! Fuzd :silent! exe "!$HOME/.vim/scripts/./fuzd4vim " expand("%:p:h") | let fuzd_filename = system("cat $HOME/.vim/.vimfile") | if len(fuzd_filename) > 1 | exe "e " fuzd_filename | endif | redraw!
 map <leader>. :Fuzd<cr>
