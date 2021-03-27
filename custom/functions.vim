@@ -240,9 +240,9 @@ map <leader>ls :call LundoSelect()<cr>
 " Fuzzy Finder file browser
 func Fuzd(dir)
   let bindings = 'ctrl-l:accept,ctrl-e:preview-down,ctrl-y:preview-up,ctrl-d:preview-page-down,ctrl-u:preview-page-up,ctrl-p:up,ctrl-n:down' 
-  let preview = 'if [ -f {} ]; then bat --color always {}; else ls -ap {}; fi'
+  let preview = 'if [ -f {} ]; then bat --color always {}; else ls -Ap {}; fi'
   let options = '--reverse --header=$PWD --border=rounded --preview-window=right:70% --bind="' . bindings . '" --preview="' . preview . '"'
-  let paths = fzf#run({'source': 'ls -ap', 'options': options, 'dir': a:dir, 'sink': 'silent!'})
+  let paths = fzf#run({'source': 'echo "..\n$(ls -Ap)"', 'options': options, 'dir': a:dir, 'sink': 'silent!'})
 
   if !len(paths) | return | endif
 
