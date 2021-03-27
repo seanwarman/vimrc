@@ -336,15 +336,18 @@ inoremap <C-a> <esc>v'.cconsole.log('@SEAN <c-r>": ', <c-r>")
 inoremap <C-l> <esc>v'.cconsole.log(<c-r>")
 inoremap <c-y> <esc>v'.cconsole.log('@SEAN <c-r>"')
 
+inoremap {<Space> {}<Left>
+inoremap (<Space> ()<Left>
+inoremap [<Space> []<Left>
 inoremap {<cr> {<cr>}<esc>O
-inoremap {{<cr> {{<cr>}}<esc>O
-inoremap ({<cr> ({<cr>})<esc>O
-inoremap [{<cr> [{<cr>}]<esc>O
 inoremap (<cr> (<cr>)<esc>O
-inoremap ((<cr> ((<cr>))<esc>O
-inoremap ([<cr> ([<cr>])<esc>O
 inoremap [<cr> [<cr>]<esc>O
-inoremap [[<cr> [[<cr>]]<esc>O
+" inoremap {{<cr> {{<cr>}}<esc>O
+" inoremap ({<cr> ({<cr>})<esc>O
+" inoremap [{<cr> [{<cr>}]<esc>O
+" inoremap ((<cr> ((<cr>))<esc>O
+" inoremap ([<cr> ([<cr>])<esc>O
+" inoremap [[<cr> [[<cr>]]<esc>O
 
 nnoremap q: q:i
 au CmdwinEnter * inoremap <buffer> <esc> <esc><c-w>c
@@ -468,5 +471,7 @@ map <leader>ld :LundoDiff<cr>
 
 " These both do the same except FuzDo adds the file to copen which makes it a bit slower
 command! FuzdCo :silent! exe "!$HOME/.vim/scripts/./fuzd4vim " expand("%:p:h") | cf $HOME/.vim/.vimfile | cdo e | redraw! 
-command! Fuzd :silent! exe "!$HOME/.vim/scripts/./fuzd4vim " expand("%:p:h") | let fuzd_filename = system("cat $HOME/.vim/.vimfile") | if len(fuzd_filename) > 1 | exe "e " fuzd_filename | endif | redraw!
+" command! Fuzd :silent! exe "!$HOME/.vim/scripts/./fuzd4vim " expand("%:p:h") | let fuzd_filename = system("cat $HOME/.vim/.vimfile") | if len(fuzd_filename) > 1 | exe "e " fuzd_filename | endif | redraw!
+
+command! Fuzd :call Fuzd(expand("%:p:h"))
 map <leader>. :Fuzd<cr>

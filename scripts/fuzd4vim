@@ -1,7 +1,7 @@
 #!/bin/bash
 
 bindings="ctrl-l:accept,ctrl-e:preview-down,ctrl-y:preview-up,ctrl-d:preview-page-down,ctrl-u:preview-page-up" 
-preview="if [ -f {} ]; then; bat --color always {}; else ls -ApG {} | awk 'NR>1 {print}'; fi"
+preview="if [ -f {} ]; then bat --color always {}; else ls -ApG {}; fi"
 
 function fuzd () {
   cd $1
