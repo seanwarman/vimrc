@@ -11,7 +11,7 @@ call plug#begin('~/.local/share/vim/plugged')
 
   " Best plugin ever
   Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-  Plug 'junegunn/fzf.vim'
+  Plug 'seanwarman/fzf.vim'
 
   " Second best plugin ever
   Plug 'francoiscabrol/ranger.vim'
