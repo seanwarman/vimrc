@@ -292,8 +292,10 @@ nmap <silent> <leader>] "ayiw:Ag <c-r>a<cr>
 " Use `[g` and `]g` to navigate between errors
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
-" Expand a snippet suggestion with CTRL-e
-imap <expr> <c-e> pumvisible() ? "<Plug>(coc-snippets-expand)" : "<CR>"
+" Expand a snippet suggestion with enter
+imap <expr> <cr> pumvisible() ? "<Plug>(coc-snippets-expand)" : "<CR>"
+let g:coc_snippet_next = '<c-n>'
+let g:coc_snippet_prev = '<c-p>'
 nmap ga <Plug>(coc-codeaction)
 vmap ga <Plug>(coc-codeaction-selected)
 nmap <leader>ce :CocEnable<cr>
@@ -444,27 +446,6 @@ if len(system("echo $TMUX")) > 1
   autocm BufWritePost ~/.vim/tmux.conf call system('tmux source-file ~/.vim/tmux.conf')
 endif
 
-
-" " Mobo Settings
-
-command! Rn silent! silent! call system(join([TmuxSplit("50%", GomoCd("rn"))]))
-command! Wdio silent! silent! call system(join([TmuxSplit("50%", GomoCd("wdio"))]))
-command! Appium silent! silent! call system(join([TmuxSplit("50%", GomoCd("appium"))]))
-command! -nargs=+ GomoCd silent! silent! call system(join([TmuxSplit("50%", GomoCd(<args>))]))
-command! -nargs=* GomoRun silent! silent! call system(join([TmuxSplit("50%", GomoRun(<args>))]))
-
-
-function! GomoLoginRaw()
-  silent execute "!gomo cd wdio; thing"
-  redraw!
-endfunc
-
-command! MobLogin silent! call system(join([TmuxSplit("50%", GomoCd("wdio")), TmuxKeyPress("Enter"), TmuxSend(WdioMobileLogin()), TmuxKeyPress("Enter", "Escape")], ';'))
-map <leader>ml :MobLogin<cr>
-
-command! LaunchApp silent! call system(join([TmuxSplit("50%", GomoCd("wdio")), TmuxKeyPress("Enter"), TmuxSend(WdioMobileLaunchApp()), TmuxKeyPress("Enter", "Escape")], ';'))
-map <leader>la :LaunchApp<cr>
-
 " TODO: make a command that does importing
 
 command! LundoDiff :call LundoDiff()
@@ -476,3 +457,6 @@ command! FuzdCo :silent! exe "!$HOME/.vim/scripts/./fuzd4vim " expand("%:p:h") |
 " command! Fuzd :silent! exe "!$HOME/.vim/scripts/./fuzd4vim " expand("%:p:h") | let fuzd_filename = system("cat $HOME/.vim/.vimfile") | if len(fuzd_filename) > 1 | exe "e " fuzd_filename | endif | redraw!
 
 map <leader>. :Browse<cr>
+
+noremap <leader>ac <esc>:call ActionCreator()<cr>
+command! AC call ActionCreator()

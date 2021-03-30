@@ -10,6 +10,3 @@ func ActionCreator()
   call execute("norm iexport interface " . action_type . " {\ntype: typeof " .  type_const . ";\npayload: " . payload_type . ";\n}\n")
    
 endfunc
-noremap <leader>ac <esc>:call ActionCreator()<cr>
-
-
