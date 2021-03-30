@@ -31,6 +31,7 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'easymotion/vim-easymotion'
   Plug 'airblade/vim-gitgutter'
   Plug 'rbgrouleff/bclose.vim'
+  Plug 'mattn/emmet-vim'
 
   " Manual page lookup (don't need but really nice to have)
   Plug 'vim-utils/vim-man'
@@ -45,6 +46,7 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'lilydjwg/colorizer'
   Plug 'sainnhe/sonokai'
   Plug 'kaicataldo/material.vim', { 'branch': 'main' }
+  Plug 'rakr/vim-one'
 call plug#end()
 call neomake#configure#automake('nrwi', 500)
 
@@ -97,7 +99,7 @@ let g:vim_jsx_pretty_colorful_config = 1
 let g:sonokai_enable_italic = 1
 let g:sonokai_current_word = 'underline'
 let g:sonokai_disable_italic_comment = 1
-command! Light :colorscheme material | let g:material_theme_style = 'lighter' | set background=light
+command! Light :colorscheme one | set background=light
 command! Dark :colorscheme sonokai | set background=dark
 " Set default to Dark...
 Dark
