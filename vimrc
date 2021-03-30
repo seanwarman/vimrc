@@ -11,7 +11,7 @@ call plug#begin('~/.local/share/vim/plugged')
 
   " Best plugin ever
   Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-  Plug 'junegunn/fzf.vim'
+  Plug 'seanwarman/fzf.vim'
 
   " Second best plugin ever
   Plug 'francoiscabrol/ranger.vim'
@@ -475,5 +475,4 @@ map <leader>ld :LundoDiff<cr>
 command! FuzdCo :silent! exe "!$HOME/.vim/scripts/./fuzd4vim " expand("%:p:h") | cf $HOME/.vim/.vimfile | cdo e | redraw! 
 " command! Fuzd :silent! exe "!$HOME/.vim/scripts/./fuzd4vim " expand("%:p:h") | let fuzd_filename = system("cat $HOME/.vim/.vimfile") | if len(fuzd_filename) > 1 | exe "e " fuzd_filename | endif | redraw!
 
-command! Fuzd :call Fuzd(expand("%:p:h"))
-map <leader>. :Fuzd<cr>
+map <leader>. :Browse<cr>
