@@ -28,13 +28,14 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'tpope/vim-surround'
   Plug 'justinmk/vim-sneak'
   Plug 'mhinz/vim-startify'
-  Plug 'easymotion/vim-easymotion'
   Plug 'airblade/vim-gitgutter'
   Plug 'rbgrouleff/bclose.vim'
   Plug 'mattn/emmet-vim'
 
   " Manual page lookup (don't need but really nice to have)
   Plug 'vim-utils/vim-man'
+
+  Plug 'Galooshi/vim-import-js'
 
   " Syntax and colours
   Plug 'yuezk/vim-js'
@@ -45,8 +46,9 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'KabbAmine/vCoolor.vim'
   Plug 'lilydjwg/colorizer'
   Plug 'sainnhe/sonokai'
-  Plug 'kaicataldo/material.vim', { 'branch': 'main' }
-  Plug 'rakr/vim-one'
+  Plug 'reedes/vim-colors-pencil'
+
+  Plug 'vim-scripts/Txtfmt-The-Vim-Highlighter'
 call plug#end()
 call neomake#configure#automake('nrwi', 500)
 
@@ -68,6 +70,17 @@ let g:startify_custom_header = [
       \"        \'V/\'   ++++++",
       \"                 ++",
 \]
+let g:startify_skiplist = [
+      \ $HOME . "/.vim/vimrc",
+      \ $HOME . "/code/mobileapp-react-two/active.env.js",
+\]
+
+let g:startify_lists = [
+      \ { 'type': 'sessions',  'header': ['   Sessions']       },
+      \ { 'type': 'files',     'header': ['   Recent Files']   },
+      \ { 'type': 'bookmarks', 'header': ['   Bookmarks']      },
+      \ { 'type': 'commands',  'header': ['   Commands']       },
+      \ ]
 
 set nocompatible
 
@@ -94,12 +107,11 @@ let &t_ZH="\e[3m"
 let &t_ZR="\e[23m"
 
 " Colours
-let g:airline_theme = 'base16_adwaita'
 let g:vim_jsx_pretty_colorful_config = 1
 let g:sonokai_enable_italic = 1
 let g:sonokai_current_word = 'underline'
 let g:sonokai_disable_italic_comment = 1
-command! Light :colorscheme one | set background=light
+command! Light :colorscheme pencil | set background=light
 command! Dark :colorscheme sonokai | set background=dark
 " Set default to Dark...
 Dark
@@ -115,6 +127,7 @@ set statusline=\ b%n\ •\ %{FugitiveHead()}\ •\ %t\ %m%=%y\ •\ %p%%\
 set laststatus=2
 set autoindent
 set smartindent
+set ignorecase
 set smartcase
 set breakindent
 set nowrap
@@ -122,6 +135,8 @@ set wildmenu
 set incsearch
 set hlsearch
 set autoread
+set relativenumber
+set nu
 " Clears the hlsearch on most movements
 nmap <silent> h h:noh<cr>
 nmap <silent> j j:noh<cr>
@@ -218,12 +233,6 @@ let g:coc_filetype_map = {
 
 " General Settings
 
-" Easymotion
-" Turn on case-insensitive feature
-let g:EasyMotion_keys = 'asdfghjkl'
-let g:EasyMotion_smartcase = 1
-map <Leader> <Plug>(easymotion-prefix)
-
 " Colorizer is really slow on large files (for anything in :help for example)
 " Set it to off by default, you can toggle it with <leader>tc
 let g:colorizer_startup = 0
@@ -261,7 +270,7 @@ command! So so ~/.vimrc
 command! W :w | so ~/.vimrc
 
 " Saves a session
-command! Sesh mksession! ../sesh
+" command! Sesh mksession! ../sesh
 command! Gsesh :execute "mksession! ~/code/vimsessions/" . substitute(substitute(FugitiveHead(), "/", "-", "g"), " ", "", "g")
 
 " Adds any command output to the quickfix buffer
@@ -274,6 +283,16 @@ command! Cls :silent call setqflist(map(getbufinfo({'buflisted':1}), { key, val 
 command! Cjumps :silent call setqflist(getjumplist()[0]) | copen
 command! Cchanges :silent call setqflist(map(getchangelist(bufnr())[0], {key, val -> {"bufnr": bufnr(), "col": val.col, "lnum": val.lnum}})) | copen
 command! Ctagstack :silent call setqflist(gettagstack().items) | copen
+
+function Test()
+  new
+  set filetype=sh
+  file tests
+  silent let @t = system("yarn test")
+  norm "tPggdj
+endfunction
+
+command! Test :call Test()
 
 
 " Custom mappings
@@ -306,6 +325,11 @@ nmap <leader>ch <Plug>(coc-float-hide)
 nmap <leader>cf <Plug>(coc-definition)
 nmap <leader>ct <Plug>(coc-type-definition)
 
+" ImportJS Mappings
+
+map <leader>iw :ImportJSWord<cr>
+map <leader>if :ImportJSFix<cr>
+map <leader>ig :ImportJSGoto<cr>
 
 " Fugitive mappings
 "
@@ -333,12 +357,20 @@ map T <Plug>Sneak_T
 
 " General Mappings
 
+" Jump preview
+map <leader>* <c-w>s15<c-w>-*zz
+map <leader># <c-w>s15<c-w>-#zz
+map <leader>£ <c-w>s15<c-w>-£zz
+map n nzz
+map N Nzz
+
 " type any word then press ctrl-z in insert mode to console log it
 " with an id string...
 inoremap <C-z> <esc>v'.cconsole.log('<c-r>": ', <c-r>")
 inoremap <C-a> <esc>v'.cconsole.log('@SEAN <c-r>": ', <c-r>")
 inoremap <C-l> <esc>v'.cconsole.log(<c-r>")
-inoremap <c-y> <esc>v'.cconsole.log('@SEAN <c-r>"')
+inoremap <c-f> <esc>v'.cconsole.log('@SEAN <c-r>"')
+
 
 inoremap {<Space> {}<Left>
 inoremap (<Space> ()<Left>
@@ -352,9 +384,6 @@ inoremap [<cr> [<cr>]<esc>O
 " inoremap ((<cr> ((<cr>))<esc>O
 " inoremap ([<cr> ([<cr>])<esc>O
 " inoremap [[<cr> [[<cr>]]<esc>O
-
-nnoremap q: q:i
-au CmdwinEnter * inoremap <buffer> <esc> <esc><c-w>c
 
 " Toggle numbers...
 nnoremap <leader>rn :set relativenumber! \| set nu!<cr>
@@ -385,7 +414,7 @@ map <silent> <leader>- /[}\])]<cr>v%J<esc>:s/,\([ ]\?}\)/\1/g<cr>
 " map <silent> <leader>if yiw:let @f = taglist('<c-r><c-w>')[0].filename \| echo @f<cr>
 
 " grep the word under the cursor
-map <leader>* :F <cword> * <CR>
+" map <leader>* :F <cword> * <CR>
 
 " JSX Element commenting, relies on vim commentary ('S')
 vmap K S{%i*/<Esc>l%a/*<Esc>
@@ -458,5 +487,12 @@ command! FuzdCo :silent! exe "!$HOME/.vim/scripts/./fuzd4vim " expand("%:p:h") |
 
 map <leader>. :Browse<cr>
 
+augroup ReplaceNetrwByFzfBrowser
+  autocmd VimEnter * silent! autocmd! Browse
+  autocmd BufEnter * if isdirectory(expand("%")) | call fzf#vim#browse(expand("%:p:h")) | endif
+augroup END
+
 noremap <leader>ac <esc>:call ActionCreator()<cr>
 command! AC call ActionCreator()
+
+command! Sesh exec 'SSave ' FugitiveHead()
