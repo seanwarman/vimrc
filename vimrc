@@ -30,7 +30,6 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'mhinz/vim-startify'
   Plug 'airblade/vim-gitgutter'
   Plug 'rbgrouleff/bclose.vim'
-  Plug 'mattn/emmet-vim'
 
   " Manual page lookup (don't need but really nice to have)
   Plug 'vim-utils/vim-man'
@@ -137,6 +136,9 @@ set hlsearch
 set autoread
 set relativenumber
 set nu
+let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+let &t_SR = "\<Esc>]50;CursorShape=2\x7"
+let &t_EI = "\<Esc>]50;CursorShape=0\x7"
 " Clears the hlsearch on most movements
 nmap <silent> h h:noh<cr>
 nmap <silent> j j:noh<cr>
@@ -294,6 +296,8 @@ endfunction
 
 command! Test :call Test()
 
+command! Fix :F '<<<' app
+
 
 " Custom mappings
 
@@ -372,6 +376,7 @@ inoremap <C-l> <esc>v'.cconsole.log(<c-r>")
 inoremap <c-f> <esc>v'.cconsole.log('@SEAN <c-r>"')
 
 
+
 inoremap {<Space> {}<Left>
 inoremap (<Space> ()<Left>
 inoremap [<Space> []<Left>
@@ -441,9 +446,9 @@ nnoremap <silent> <leader>r :echo 'Choose registers by key: 1st <- 2nd' \| let r
 " Tabs
 map <c-w>gn :tabnew<CR>
 
-map <leader>b<tab> q:ib <tab>
 map <leader>bp :bp<cr>
 map <leader>bn :bn<cr>
+map <leader>b<tab> q:ib <tab>
 map <leader>bd :Bclose!<cr>
 " delete all buffers but this one.
 nnoremap <silent> <leader>bD :bd! <c-a><cr><c-o>:bn<cr>:bd<cr>
@@ -461,7 +466,8 @@ nnoremap <silent> <leader>/W yiw:let @/ = <c-r><cr>
 nnoremap <silent> <leader>"% :let @" = @%<cr>
 nnoremap <silent> <leader>+% :let @+ = @%<cr>
 
-
+" nnoremap <silent> <c-m> :norm O<cr>
+" inoremap <silent> <c-m> <c-o>:norm O<cr>
 
 " These settings have to go last...
 
