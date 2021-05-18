@@ -2,8 +2,25 @@ source $HOME/.vim/custom/functions.vim
 source $HOME/.vim/custom/snippets.vim
 
 call plug#begin('~/.local/share/vim/plugged')
+
   Plug 'junegunn/vim-plug'
 
+  " Syntax and colours
+  Plug 'yuezk/vim-js'
+  Plug 'HerringtonDarkholme/yats.vim'
+  Plug 'jparise/vim-graphql'
+  Plug 'maxmellon/vim-jsx-pretty'
+  Plug 'peitalin/vim-jsx-typescript'
+  Plug 'KabbAmine/vCoolor.vim'
+  Plug 'lilydjwg/colorizer'
+  Plug 'sainnhe/sonokai'
+  Plug 'reedes/vim-colors-pencil'
+  Plug 'fabi1cazenave/kalahari.vim'
+  Plug 'rakr/vim-one'
+  Plug 'sickill/vim-monokai'
+  Plug 'yggdroot/indentline'
+  Plug 'mbbill/undotree'
+  '
   " Auto-completion and linting (necessary evils)
   Plug 'honza/vim-snippets'
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -33,19 +50,6 @@ call plug#begin('~/.local/share/vim/plugged')
 
   " Manual page lookup (don't need but really nice to have)
   Plug 'vim-utils/vim-man'
-
-  Plug 'Galooshi/vim-import-js'
-
-  " Syntax and colours
-  Plug 'yuezk/vim-js'
-  Plug 'HerringtonDarkholme/yats.vim'
-  Plug 'jparise/vim-graphql'
-  Plug 'maxmellon/vim-jsx-pretty'
-  Plug 'peitalin/vim-jsx-typescript'
-  Plug 'KabbAmine/vCoolor.vim'
-  Plug 'lilydjwg/colorizer'
-  Plug 'sainnhe/sonokai'
-  Plug 'reedes/vim-colors-pencil'
 
   Plug 'vim-scripts/Txtfmt-The-Vim-Highlighter'
 call plug#end()
@@ -110,10 +114,11 @@ let g:vim_jsx_pretty_colorful_config = 1
 let g:sonokai_enable_italic = 1
 let g:sonokai_current_word = 'underline'
 let g:sonokai_disable_italic_comment = 1
-command! Light :colorscheme pencil | set background=light
+
+command! Light :colorscheme one | set background=light
 command! Dark :colorscheme sonokai | set background=dark
 " Set default to Dark...
-Dark
+Light
 
 " " Nicer diff colours
 " hi DiffAdd cterm=reverse ctermfg=35 ctermbg=235 guibg=DarkBlue
@@ -180,15 +185,6 @@ set undodir=~/.vim/undodir
 
 set mouse=a
 
-" Always show the signcolumn, otherwise it would shift the text each time
-" diagnostics appear/become resolved.
-" if has("patch-8.1.1564")
-"   " Recently vim can merge signcolumn and number column into one
-"   set signcolumn=number
-" else
-"   set signcolumn=yes
-" endif
-
 " Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
 " delays and poor user experience.
 set updatetime=100
@@ -234,6 +230,9 @@ let g:coc_filetype_map = {
 
 
 " General Settings
+
+" Undo tree
+map <leader>u :UndotreeToggle<cr>
 
 " Colorizer is really slow on large files (for anything in :help for example)
 " Set it to off by default, you can toggle it with <leader>tc
@@ -361,12 +360,26 @@ map T <Plug>Sneak_T
 
 " General Mappings
 
+" F key shortcuts
+map <F1> :Startify<cr>
+map <F2> :Test<cr>
+map <F3> :Fix<cr>
+map <F4> :reg<cr>
+map <F5> :Light<cr>
+map <F6> :Dark<cr>
+
+map <leader>rr :reg<cr>
+map <leader>jj :jumps<cr>G
+
 " Jump preview
 map <leader>* <c-w>s15<c-w>-*zz
 map <leader># <c-w>s15<c-w>-#zz
 map <leader>£ <c-w>s15<c-w>-£zz
 map n nzz
 map N Nzz
+
+" Jump to RN style definition
+map <leader>sf yiwbbgdf'gf/<c-r>"<cr>
 
 " type any word then press ctrl-z in insert mode to console log it
 " with an id string...
