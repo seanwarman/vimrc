@@ -18,9 +18,8 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'fabi1cazenave/kalahari.vim'
   Plug 'rakr/vim-one'
   Plug 'sickill/vim-monokai'
-  Plug 'yggdroot/indentline'
   Plug 'mbbill/undotree'
-  '
+
   " Auto-completion and linting (necessary evils)
   Plug 'honza/vim-snippets'
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -343,6 +342,7 @@ nnoremap <silent> <leader>gg :G<cr>
 nnoremap <silent> <leader>gd :Gdiff<cr>
 nnoremap <silent> <leader>gr :Gread<cr>
 nnoremap <silent> <leader>gb :Gblame<cr>
+nnoremap <leader>gpu :echo execute("G push -u origin " FugitiveHead())<cr>
 
 " Jtags mappings
 
