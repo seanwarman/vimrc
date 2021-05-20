@@ -342,7 +342,7 @@ nnoremap <silent> <leader>gg :G<cr>
 nnoremap <silent> <leader>gd :Gdiff<cr>
 nnoremap <silent> <leader>gr :Gread<cr>
 nnoremap <silent> <leader>gb :Gblame<cr>
-nnoremap <leader>gpu :echo execute("G push -u origin " FugitiveHead())<cr>
+nnoremap <leader>gpu :echo execute("G push -u origin " . FugitiveHead())<cr>
 
 " Jtags mappings
 
