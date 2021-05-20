@@ -343,6 +343,8 @@ nnoremap <silent> <leader>gd :Gdiff<cr>
 nnoremap <silent> <leader>gr :Gread<cr>
 nnoremap <silent> <leader>gb :Gblame<cr>
 nnoremap <leader>gpu :echo execute("G push -u origin " . FugitiveHead())<cr>
+" Note, this always refers to the cwd git repo...
+nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 
 " Jtags mappings
 
