@@ -314,7 +314,6 @@ nmap <silent> <leader>] "ayiw:Ag <c-r>a<cr>
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
 " Expand a snippet suggestion with enter
-imap <expr> <cr> pumvisible() ? "<Plug>(coc-snippets-expand)" : "<CR>"
 let g:coc_snippet_next = '<c-n>'
 let g:coc_snippet_prev = '<c-p>'
 nmap ga <Plug>(coc-codeaction)
@@ -326,6 +325,19 @@ nmap <leader>cc <Plug>(coc-fix-current)
 nmap <leader>ch <Plug>(coc-float-hide)
 nmap <leader>cf <Plug>(coc-definition)
 nmap <leader>ct <Plug>(coc-type-definition)
+" Make <tab> used for trigger completion, completion confirm, snippet expand and jump...
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? coc#_select_confirm() :
+      \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+let g:coc_snippet_next = '<tab>'
 
 " ImportJS Mappings
 
@@ -359,7 +371,6 @@ map F <Plug>Sneak_F
 map t <Plug>Sneak_t
 map T <Plug>Sneak_T
 
-
 " General Mappings
 
 " F key shortcuts
@@ -387,7 +398,7 @@ map <leader>sf yiwbbgdf'gf/<c-r>"<cr>
 " with an id string...
 inoremap <C-z> <esc>v'.cconsole.log('<c-r>": ', <c-r>")
 inoremap <C-a> <esc>v'.cconsole.log('@SEAN <c-r>": ', <c-r>")
-inoremap <C-l> <esc>v'.cconsole.log(<c-r>")
+" inoremap <C-l> <esc>v'.cconsole.log(<c-r>")
 inoremap <c-f> <esc>v'.cconsole.log('@SEAN <c-r>"')
 
 
@@ -398,12 +409,6 @@ inoremap [<Space> []<Left>
 inoremap {<cr> {<cr>}<esc>O
 inoremap (<cr> (<cr>)<esc>O
 inoremap [<cr> [<cr>]<esc>O
-" inoremap {{<cr> {{<cr>}}<esc>O
-" inoremap ({<cr> ({<cr>})<esc>O
-" inoremap [{<cr> [{<cr>}]<esc>O
-" inoremap ((<cr> ((<cr>))<esc>O
-" inoremap ([<cr> ([<cr>])<esc>O
-" inoremap [[<cr> [[<cr>]]<esc>O
 
 " Toggle numbers...
 nnoremap <leader>rn :set relativenumber! \| set nu!<cr>
@@ -438,11 +443,6 @@ map <silent> <leader>- /[}\])]<cr>v%J<esc>:s/,\([ ]\?}\)/\1/g<cr>
 
 " JSX Element commenting, relies on vim commentary ('S')
 vmap K S{%i*/<Esc>l%a/*<Esc>
-
-nnoremap ]] ]M
-nnoremap [[ [m
-nnoremap ][ ]m
-nnoremap [] [M
 
 " select last pasted text
 nnoremap gp `[v`]
@@ -517,3 +517,5 @@ noremap <leader>ac <esc>:call ActionCreator()<cr>
 command! AC call ActionCreator()
 
 command! Sesh exec 'SSave ' FugitiveHead()
+
+command! -nargs=* PlainAC :call PlainAC(<f-args>)

@@ -10,3 +10,9 @@ func ActionCreator()
   call execute("norm iexport interface " . action_type . " {\ntype: typeof " .  type_const . ";\npayload: " . payload_type . ";\n}\n")
    
 endfunc
+
+func PlainAC(funcName, payload)
+  let l:typeName = toupper(substitute(a:funcName, '\(\u\)', '_\1', 'g'))
+  call execute("norm iexport const " . l:typeName . " = '" . l:typeName .  "';\n\n export function " . a:funcName . "(" . a:payload . ") {\n return {\n type: " .  l:typeName . ",\n payload: { " . a:payload . " },\n};\n}")
+  call execute("norm ='[")
+endfunc

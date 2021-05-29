@@ -1,3 +1,4 @@
 {
-  "diagnostic.messageTarget": "echo"
+  "diagnostic.messageTarget": "echo",
+  "typescript.autoClosingTags": true
 }
