@@ -46,6 +46,7 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'mhinz/vim-startify'
   Plug 'airblade/vim-gitgutter'
   Plug 'rbgrouleff/bclose.vim'
+  Plug 'habamax/vim-polar'
 
   " Manual page lookup (don't need but really nice to have)
   Plug 'vim-utils/vim-man'
@@ -115,9 +116,10 @@ let g:sonokai_current_word = 'underline'
 let g:sonokai_disable_italic_comment = 1
 
 command! Light :colorscheme one | set background=light
+command! HiContrast :colorscheme polar | set background=light
 command! Dark :colorscheme sonokai | set background=dark
 " Set default to Dark...
-Light
+HiContrast
 
 " " Nicer diff colours
 " hi DiffAdd cterm=reverse ctermfg=35 ctermbg=235 guibg=DarkBlue
@@ -512,6 +514,8 @@ augroup ReplaceNetrwByFzfBrowser
   autocmd VimEnter * silent! autocmd! Browse
   autocmd BufEnter * if isdirectory(expand("%")) | call fzf#vim#browse(expand("%:p:h")) | endif
 augroup END
+
+autocmd BufNewFile,BufRead,BufEnter * echo 'cool'
 
 noremap <leader>ac <esc>:call ActionCreator()<cr>
 command! AC call ActionCreator()

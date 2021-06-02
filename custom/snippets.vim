@@ -11,8 +11,8 @@ func ActionCreator()
    
 endfunc
 
-func PlainAC(funcName, payload)
+func PlainAC(funcName, payload, type)
   let l:typeName = toupper(substitute(a:funcName, '\(\u\)', '_\1', 'g'))
-  call execute("norm iexport const " . l:typeName . " = '" . l:typeName .  "';\n\n export function " . a:funcName . "(" . a:payload . ") {\n return {\n type: " .  l:typeName . ",\n payload: { " . a:payload . " },\n};\n}")
-  call execute("norm ='[")
+  call execute("norm iexport const " . l:typeName . " = '" . l:typeName .  "';\n\nexport function " . a:funcName . "(" . a:payload . ": " . a:type . ") {\nreturn {\ntype: " .  l:typeName . ",\npayload: {" . a:payload . "},\n};\n}")
+  call execute("norm ='[/payload\nf{cs{{")
 endfunc
