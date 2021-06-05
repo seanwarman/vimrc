@@ -121,14 +121,17 @@ command! Dark :colorscheme sonokai | set background=dark
 " Set default to Dark...
 HiContrast
 
-" " Nicer diff colours
-" hi DiffAdd cterm=reverse ctermfg=35 ctermbg=235 guibg=DarkBlue
-" hi DiffChange cterm=reverse ctermfg=76 ctermbg=235 guibg=DarkMagenta
-" hi DiffDelete cterm=reverse ctermfg=166 ctermbg=235 gui=bold guifg=Blue guibg=DarkCyan
-" hi DiffText cterm=reverse ctermfg=37 ctermbg=235 gui=bold guibg=Red
+function InitialiseCustomColours()
+  hi StatusSaveState guifg=#d70000 guibg=#cacbcc
+  return ''
+endfunction
 
-" Sets statusline to [buffer-number -- filename [-/+] -- filetype]
-set statusline=\ b%n\ •\ %{FugitiveHead()}\ •\ %t\ %m%=%y\ •\ %p%%\ 
+function ListBuffers()
+  return join(map(getbufinfo({'buflisted':1}),{ key, val -> val.bufnr == buffer_number() ? (len(val.name) > 0 ? fnamemodify(val.name, ":t") : '[No Name]') . '*' : (len(val.name) > 0 ? fnamemodify(val.name, ":t") : '[No Name]') }))
+endfunction
+
+set statusline=%{InitialiseCustomColours()}\ %{FugitiveHead()}\ •\ %F\ %#StatusSaveState#%m%*%=%{ListBuffers()}\ •\ %p%%\ 
+
 set laststatus=2
 set autoindent
 set smartindent
@@ -515,11 +518,12 @@ augroup ReplaceNetrwByFzfBrowser
   autocmd BufEnter * if isdirectory(expand("%")) | call fzf#vim#browse(expand("%:p:h")) | endif
 augroup END
 
-autocmd BufNewFile,BufRead,BufEnter * echo 'cool'
-
 noremap <leader>ac <esc>:call ActionCreator()<cr>
 command! AC call ActionCreator()
 
 command! Sesh exec 'SSave ' FugitiveHead()
 
 command! -nargs=* PlainAC :call PlainAC(<f-args>)
+
+command! CarePlannerPasscode call system('adb shell input text "1111111"')
+map <leader>cpp :CarePlannerPasscode<cr>
