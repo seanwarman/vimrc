@@ -5,20 +5,22 @@ call plug#begin('~/.local/share/vim/plugged')
 
   Plug 'junegunn/vim-plug'
 
-  " Syntax and colours
+  " Syntax
   Plug 'yuezk/vim-js'
   Plug 'HerringtonDarkholme/yats.vim'
   Plug 'jparise/vim-graphql'
   Plug 'maxmellon/vim-jsx-pretty'
   Plug 'peitalin/vim-jsx-typescript'
-  Plug 'KabbAmine/vCoolor.vim'
-  Plug 'lilydjwg/colorizer'
+
+  " Colorschemes
   Plug 'sainnhe/sonokai'
-  Plug 'reedes/vim-colors-pencil'
-  Plug 'fabi1cazenave/kalahari.vim'
   Plug 'rakr/vim-one'
   Plug 'sickill/vim-monokai'
-  Plug 'mbbill/undotree'
+  Plug 'habamax/vim-polar'
+
+  " CSS
+  Plug 'KabbAmine/vCoolor.vim'
+  Plug 'ap/vim-css-color'
 
   " Auto-completion and linting (necessary evils)
   Plug 'honza/vim-snippets'
@@ -46,7 +48,6 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'mhinz/vim-startify'
   Plug 'airblade/vim-gitgutter'
   Plug 'rbgrouleff/bclose.vim'
-  Plug 'habamax/vim-polar'
 
   " Manual page lookup (don't need but really nice to have)
   Plug 'vim-utils/vim-man'
@@ -127,10 +128,21 @@ function InitialiseCustomColours()
 endfunction
 
 function ListBuffers()
-  return join(map(getbufinfo({'buflisted':1}),{ key, val -> val.bufnr == buffer_number() ? (len(val.name) > 0 ? fnamemodify(val.name, ":t") : '[No Name]') . '*' : (len(val.name) > 0 ? fnamemodify(val.name, ":t") : '[No Name]') }))
+  return join(
+    map(
+      getbufinfo({'buflisted':1}),
+      { 
+          key, val -> 
+            val.bufnr == buffer_number() ?
+              (len(val.name) > 0 ? 
+              fnamemodify(val.name, ":t") : '[No Name]') . '*' 
+            : (len(val.name) > 0 ?  fnamemodify(val.name, ":t") : '[No Name]') 
+      }
+    ), ' • '
+  )
 endfunction
 
-set statusline=%{InitialiseCustomColours()}\ %{FugitiveHead()}\ •\ %F\ %#StatusSaveState#%m%*%=%{ListBuffers()}\ •\ %p%%\ 
+set statusline=%{InitialiseCustomColours()}\ %p%%\ •\ %{FugitiveHead()}\ •\ %f\ %#StatusSaveState#%m%*%=%{ListBuffers()}\ 
 
 set laststatus=2
 set autoindent
@@ -232,15 +244,11 @@ let g:coc_filetype_map = {
 \ 'javascript': 'typescriptreact'
 \ }
 
+" My work project uses an older node version so this points coc to a more
+" recent one...
+let g:coc_node_path = '~/.nvm/versions/node/v14.10.1/bin/node'
 
 " General Settings
-
-" Undo tree
-map <leader>u :UndotreeToggle<cr>
-
-" Colorizer is really slow on large files (for anything in :help for example)
-" Set it to off by default, you can toggle it with <leader>tc
-let g:colorizer_startup = 0
 
 " fzf Settings
 let g:fzf_layout = { 'down': '40%' }
@@ -326,6 +334,7 @@ vmap ga <Plug>(coc-codeaction-selected)
 nmap <leader>ce :CocEnable<cr>
 nmap <leader>cd :CocDisable<cr>
 nmap <leader>cg :CocDiagnostics<cr>
+nmap <leader>cr :CocRestart<cr>
 nmap <leader>cc <Plug>(coc-fix-current)
 nmap <leader>ch <Plug>(coc-float-hide)
 nmap <leader>cf <Plug>(coc-definition)
@@ -438,13 +447,13 @@ map <silent> <c-w>C :tabclose<cr>
 
 " Attempts to put a single line of properties (eg: {1,2,3}) onto multiple lines
 map <silent> <leader>= :silent! s/\([{\[(]\)\(.\{-}\)\([}\])]\)/\1\r\2\r\3/ \| silent! -1s/ //g \| silent! s/,/,\r/g \| silent! s/$/,/<cr>j=%
-map <silent> <leader>- /[}\])]<cr>v%J<esc>:s/,\([ ]\?}\)/\1/g<cr>
+map <silent> <leader>- /[}\])]<cr>v%J<esc>:s/,\([ ]\?}\)/\1/g<cr>gv:s/:/: /g<cr>
 
 " Adds an import to the file if the current variable or function is missing
-" map <silent> <leader>if yiw:let @f = taglist('<c-r><c-w>')[0].filename \| echo @f<cr>
+" map <leader>if <c-]><c-o>yiw:let @f = taglist(expand('<cword>'))[0].filename<cr>gg}Oimport {  <c-r>" <esc>A from '<c-r>f';<esc>
 
 " grep the word under the cursor
-" map <leader>* :F <cword> * <CR>
+map <leader>* :F <cword> app <CR>
 
 " JSX Element commenting, relies on vim commentary ('S')
 vmap K S{%i*/<Esc>l%a/*<Esc>
@@ -486,11 +495,7 @@ nnoremap <silent> <leader>/W yiw:let @/ = <c-r><cr>
 nnoremap <silent> <leader>"% :let @" = @%<cr>
 nnoremap <silent> <leader>+% :let @+ = @%<cr>
 
-" nnoremap <silent> <c-m> :norm O<cr>
-" inoremap <silent> <c-m> <c-o>:norm O<cr>
-
 " These settings have to go last...
-
 set rtp+=~/.fzf
 
 
@@ -525,5 +530,49 @@ command! Sesh exec 'SSave ' FugitiveHead()
 
 command! -nargs=* PlainAC :call PlainAC(<f-args>)
 
-command! CarePlannerPasscode call system('adb shell input text "1111111"')
+function AndroidEnterKeyEvent(...)
+  for event in a:000
+    call system('adb shell input keyevent ' . l:event)
+  endfor
+endfunction
+command! -nargs=* AndroidEnterKeyEvent call AndroidEnterKeyEvent(<args>)
+function AndroidEnterText(...)
+  for text in a:000
+    call system('adb shell input text "' . l:text . '"; adb shell input keyevent 66')
+  endfor
+endfunction
+command! -nargs=* AndroidEnterText call AndroidEnterText(<args>)
+command! IgnoreLogs execute("norm :e app/App.tsx<cr>/react-native<cr>F{a LogBox,<esc>G?return<cr>[{OLogBox.ignoreAllLogs();<cr><esc>:w \| bd!")
+command! IgnoreLogsNo execute("norm :e app/App.tsx<cr>/LogBox<cr>dWGNdk:w | bd!<cr>")
+command! TODO e ~/Desktop/TODO | set filetype=markdown
+map <silent><leader>to :split \| TODO<cr>:map <buffer> gq :bd!<lt>cr>:silent! close<lt>cr><cr>
+map <leader>cpt :AndroidEnterText ""<Left>
+map <leader>cpe :AndroidEnterKeyEvent 
+
+command! CarePlannerRefresh call system('adb shell input swipe 360 500 360 1000')
+map <leader>cpj :CarePlannerRefresh<cr>
+command! CarePlannerEnter call system('adb shell input keyevent 66')
+map <leader>cp<cr> :CarePlannerEnter<cr>
+command! CarePlannerPasscode call system('adb shell input text "1111111"; adb shell input keyevent 66')
 map <leader>cpp :CarePlannerPasscode<cr>
+command! AndroidReload call system('adb shell input text "RR"')
+map <leader>cpr :AndroidReload<cr>
+command! CarePlannerHandoverNote call system('adb shell input text "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm"')
+map <leader>cph :CarePlannerHandoverNote<cr>
+command! AndroidDevMenu call system('adb shell input keyevent 82')
+map <leader>cpm :AndroidDevMenu<cr>
+command! AndroidDebugToggle call system('adb shell input keyevent 82; adb shell input keyevent 61; adb shell input keyevent 61; adb shell input keyevent 66')
+map <leader>cpd :AndroidDebugToggle<cr>
+
+map <leader>> :diffput<cr>
+map <leader>< :diffget<cr>
+map [[ F{
+map ]] f}
+map [] F}
+map ][ f{
+map <leader>o O<esc>
+command! ConstFromActionCreator let @+ = toupper(substitute(expand('<cword>'), '\(\u\)', '_\1', 'g'))
+
+" Split a jsx component's props onto multi lines
+map <leader>t= 0f<f v/\/>\\|><cr>hc<cr><c-r>"<cr><esc>kA<bs><esc>0dwv$:s/ /\r/g<cr>='[:noh<cr>
+map <leader>t- ?<<cr>v/\/>\\|><cr>J<esc>:noh<cr>

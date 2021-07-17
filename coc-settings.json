@@ -1,4 +1,4 @@
 {
   "diagnostic.messageTarget": "echo",
-  "typescript.autoClosingTags": true
+  "eslint.nodePath": "~/.nvm/versions/node/v14.10.1/bin/node"
 }
