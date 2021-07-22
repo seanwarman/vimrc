@@ -194,6 +194,8 @@ set mouse=a
 " delays and poor user experience.
 set updatetime=100
 
+
+
 " Transparent signcolumn (left hand padding)
 " hi SignColumn guibg=NONE ctermbg=NONE
 " let g:gitgutter_set_sign_backgrounds = 1
@@ -573,4 +575,5 @@ map <leader>t= 0f<f v/\/>\\|><cr>hc<cr><c-r>"<cr><esc>kA<bs><esc>0dwv$:s/ /\r/g<
 map <leader>t- ?<<cr>v/\/>\\|><cr>J<esc>:noh<cr>
 map gs <c-w>v"syiwbbgdf'gf/<c-r>s<cr>
 
-set omnifunc=OmniCompletionRegisters
+" This sets the completion list for <c-x><c-o> to my registers contents...
+set completefunc=Registers
