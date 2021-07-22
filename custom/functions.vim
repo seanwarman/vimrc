@@ -218,3 +218,219 @@ function! LundoSelect()
 
 endfunc
 map <leader>ls :call LundoSelect()<cr>
+
+function OmniCompletionRegisters(findstart, base)
+  if a:findstart == 1
+    return 0
+  endif
+  return {
+    \'words': [
+      \{
+        \'word': getreginfo('"').regcontents[0],
+        \'abbr': '@"',
+        \'menu': getreginfo('"').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('0').regcontents[0],
+        \'abbr': '@0',
+        \'menu': getreginfo('0').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('1').regcontents[0],
+        \'abbr': '@1',
+        \'menu': getreginfo('1').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('2').regcontents[0],
+        \'abbr': '@2',
+        \'menu': getreginfo('2').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('3').regcontents[0],
+        \'abbr': '@3',
+        \'menu': getreginfo('3').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('4').regcontents[0],
+        \'abbr': '@4',
+        \'menu': getreginfo('4').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('5').regcontents[0],
+        \'abbr': '@5',
+        \'menu': getreginfo('5').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('6').regcontents[0],
+        \'abbr': '@6',
+        \'menu': getreginfo('6').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('7').regcontents[0],
+        \'abbr': '@7',
+        \'menu': getreginfo('7').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('8').regcontents[0],
+        \'abbr': '@8',
+        \'menu': getreginfo('8').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('9').regcontents[0],
+        \'abbr': '@9',
+        \'menu': getreginfo('9').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('a').regcontents[0],
+        \'abbr': '@a',
+        \'menu': getreginfo('a').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('b').regcontents[0],
+        \'abbr': '@b',
+        \'menu': getreginfo('b').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('c').regcontents[0],
+        \'abbr': '@c',
+        \'menu': getreginfo('c').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('d').regcontents[0],
+        \'abbr': '@d',
+        \'menu': getreginfo('d').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('e').regcontents[0],
+        \'abbr': '@e',
+        \'menu': getreginfo('e').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('f').regcontents[0],
+        \'abbr': '@f',
+        \'menu': getreginfo('f').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('g').regcontents[0],
+        \'abbr': '@g',
+        \'menu': getreginfo('g').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('i').regcontents[0],
+        \'abbr': '@i',
+        \'menu': getreginfo('i').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('k').regcontents[0],
+        \'abbr': '@k',
+        \'menu': getreginfo('k').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('l').regcontents[0],
+        \'abbr': '@l',
+        \'menu': getreginfo('l').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('m').regcontents[0],
+        \'abbr': '@m',
+        \'menu': getreginfo('m').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('n').regcontents[0],
+        \'abbr': '@n',
+        \'menu': getreginfo('n').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('o').regcontents[0],
+        \'abbr': '@o',
+        \'menu': getreginfo('o').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('p').regcontents[0],
+        \'abbr': '@p',
+        \'menu': getreginfo('p').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('q').regcontents[0],
+        \'abbr': '@q',
+        \'menu': getreginfo('q').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('r').regcontents[0],
+        \'abbr': '@r',
+        \'menu': getreginfo('r').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('s').regcontents[0],
+        \'abbr': '@s',
+        \'menu': getreginfo('s').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('t').regcontents[0],
+        \'abbr': '@t',
+        \'menu': getreginfo('t').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('u').regcontents[0],
+        \'abbr': '@u',
+        \'menu': getreginfo('u').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('w').regcontents[0],
+        \'abbr': '@w',
+        \'menu': getreginfo('w').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('y').regcontents[0],
+        \'abbr': '@y',
+        \'menu': getreginfo('y').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('z').regcontents[0],
+        \'abbr': '@z',
+        \'menu': getreginfo('z').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('-').regcontents[0],
+        \'abbr': '@-',
+        \'menu': getreginfo('-').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('*').regcontents[0],
+        \'abbr': '@*',
+        \'menu': getreginfo('*').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('.').regcontents[0],
+        \'abbr': '@.',
+        \'menu': getreginfo('.').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo(':').regcontents[0],
+        \'abbr': '@:',
+        \'menu': getreginfo(':').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('%').regcontents[0],
+        \'abbr': '@%',
+        \'menu': getreginfo('%').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('#').regcontents[0],
+        \'abbr': '@#',
+        \'menu': getreginfo('#').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('/').regcontents[0],
+        \'abbr': '@/',
+        \'menu': getreginfo('/').regcontents[0]
+      \},
+      \{
+        \'word': getreginfo('=').regcontents[0],
+        \'abbr': '@=',
+        \'menu': getreginfo('=').regcontents[0]
+      \},
+    \],
+    \'refresh': 'always',
+  \}
+endfunction

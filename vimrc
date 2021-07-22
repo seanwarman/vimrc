@@ -128,18 +128,7 @@ function InitialiseCustomColours()
 endfunction
 
 function ListBuffers()
-  return join(
-    map(
-      getbufinfo({'buflisted':1}),
-      { 
-          key, val -> 
-            val.bufnr == buffer_number() ?
-              (len(val.name) > 0 ? 
-              fnamemodify(val.name, ":t") : '[No Name]') . '*' 
-            : (len(val.name) > 0 ?  fnamemodify(val.name, ":t") : '[No Name]') 
-      }
-    ), ' • '
-  )
+  return join( map( getbufinfo({'buflisted':1}), { key, val -> val.bufnr == buffer_number() ?  (len(val.name) > 0 ?  fnamemodify(val.name, ":t") : '[No Name]') . '*' : (len(val.name) > 0 ?  fnamemodify(val.name, ":t") : '[No Name]') }), ' • ')
 endfunction
 
 set statusline=%{InitialiseCustomColours()}\ %p%%\ •\ %{FugitiveHead()}\ •\ %f\ %#StatusSaveState#%m%*%=%{ListBuffers()}\ 
@@ -272,8 +261,15 @@ command! PluginBaby :PlugClean | PlugInstall
 " Mdn Lookup
 command! -nargs=+ MDN call MdnSplit("<args>")
 
+function ToConst()
+  return toupper(substitute(expand('<cword>'), '\(\u\)', '_\1', 'g'))
+endfunction
+command! ConstFromActionCreator let @+ = toupper(substitute(expand('<cword>'), '\(\u\)', '_\1', 'g'))
 " Search for a search term in the given directory ':F term folder'
 command! -nargs=+ -complete=dir F :silent grep! -RHn <args> | copen | norm <c-w>L40<c-w><
+" Do the same as above but convert the c-word into a constant (for searching
+" for constants from action creators)...
+nmap <leader>g* :silent let @f = ToConst()<cr>:silent grep! -RHn <c-r>f app \| copen \| norm <c-w>L40<c-w><cr>
 
 " Goes to my vimrc
 command! Vimrc e ~/.vim/vimrc
@@ -544,7 +540,7 @@ endfunction
 command! -nargs=* AndroidEnterText call AndroidEnterText(<args>)
 command! IgnoreLogs execute("norm :e app/App.tsx<cr>/react-native<cr>F{a LogBox,<esc>G?return<cr>[{OLogBox.ignoreAllLogs();<cr><esc>:w \| bd!")
 command! IgnoreLogsNo execute("norm :e app/App.tsx<cr>/LogBox<cr>dWGNdk:w | bd!<cr>")
-command! TODO e ~/Desktop/TODO | set filetype=markdown
+command! TODO e ~/Documents/Careplanner\ Mob\ App/TODO | set filetype=markdown
 map <silent><leader>to :split \| TODO<cr>:map <buffer> gq :bd!<lt>cr>:silent! close<lt>cr><cr>
 map <leader>cpt :AndroidEnterText ""<Left>
 map <leader>cpe :AndroidEnterKeyEvent 
@@ -571,8 +567,10 @@ map ]] f}
 map [] F}
 map ][ f{
 map <leader>o O<esc>
-command! ConstFromActionCreator let @+ = toupper(substitute(expand('<cword>'), '\(\u\)', '_\1', 'g'))
 
 " Split a jsx component's props onto multi lines
 map <leader>t= 0f<f v/\/>\\|><cr>hc<cr><c-r>"<cr><esc>kA<bs><esc>0dwv$:s/ /\r/g<cr>='[:noh<cr>
 map <leader>t- ?<<cr>v/\/>\\|><cr>J<esc>:noh<cr>
+map gs <c-w>v"syiwbbgdf'gf/<c-r>s<cr>
+
+set omnifunc=OmniCompletionRegisters
