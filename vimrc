@@ -123,7 +123,12 @@ command! Dark :colorscheme sonokai | set background=dark
 HiContrast
 
 function InitialiseCustomColours()
-  hi StatusSaveState guifg=#d70000 guibg=#cacbcc
+  if trim(execute('colo')) == 'polar'
+    hi StatusSaveState guifg=#d70000 guibg=#cacbcc
+  else
+    hi StatusSaveState guifg=#d70000 guibg=#3b3e48
+  endif
+
   return ''
 endfunction
 
@@ -574,6 +579,8 @@ map <leader>o O<esc>
 map <leader>t= 0f<f v/\/>\\|><cr>hc<cr><c-r>"<cr><esc>kA<bs><esc>0dwv$:s/ /\r/g<cr>='[:noh<cr>
 map <leader>t- ?<<cr>v/\/>\\|><cr>J<esc>:noh<cr>
 map gs <c-w>v"syiwbbgdf'gf/<c-r>s<cr>
+
+imap <c-l> <esc>"tciW<lt><c-r>t><esc>"tyypa/<esc>O
 
 " This sets the completion list for <c-x><c-o> to my registers contents...
 set completefunc=Registers
