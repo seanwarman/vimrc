@@ -33,6 +33,8 @@ call plug#begin('~/.local/share/vim/plugged')
 
   " Second best plugin ever
   Plug 'francoiscabrol/ranger.vim'
+  " I'm trying out Dirvish instead because it's much simpler...
+  Plug 'justinmk/vim-dirvish'
 
   " Best git plugin ever
   Plug 'tpope/vim-fugitive'
@@ -44,10 +46,12 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'tpope/vim-commentary'
   Plug 'tpope/vim-repeat'
   Plug 'tpope/vim-surround'
+  Plug 'tpope/vim-abolish'
   Plug 'justinmk/vim-sneak'
   Plug 'mhinz/vim-startify'
   Plug 'airblade/vim-gitgutter'
   Plug 'rbgrouleff/bclose.vim'
+  Plug 'MattesGroeger/vim-bookmarks'
 
   " Manual page lookup (don't need but really nice to have)
   Plug 'vim-utils/vim-man'
@@ -120,7 +124,7 @@ command! Light :colorscheme one | set background=light
 command! HiContrast :colorscheme polar | set background=light
 command! Dark :colorscheme sonokai | set background=dark
 " Set default to Dark...
-HiContrast
+Dark
 
 function InitialiseCustomColours()
   if trim(execute('colo')) == 'polar'
@@ -138,6 +142,9 @@ endfunction
 
 set statusline=%{InitialiseCustomColours()}\ %p%%\ •\ %{FugitiveHead()}\ •\ %f\ %#StatusSaveState#%m%*%=%{ListBuffers()}\ 
 
+" Makes escape work instantly (turn off if you ever want to use esc perfixed shortcuts
+set noesckeys
+set foldcolumn=1
 set laststatus=2
 set autoindent
 set smartindent
@@ -206,15 +213,11 @@ set updatetime=100
 " let g:gitgutter_set_sign_backgrounds = 1
 let g:gitgutter_close_preview_on_escape = 1
 
-" Persist folds
-" TODO: add `if expand("%")` to this...
-" augroup AutoSaveFolds
-"   if expand("%")
-"     autocmd!
-"     autocmd BufWinLeave * mkview
-"     autocmd BufWinEnter * silent loadview
-"   endif
-" augroup END
+" Replace grep with ag for searching commands...
+" if executable("ag")
+"     set grepprg=ag\ --nogroup\ --nocolor\ --ignore-case\ --column
+"     set grepformat=%f:%l:%c:%m,%f:%l:%m
+" endif
 
 " Auto commands
 "
@@ -249,11 +252,17 @@ let g:coc_node_path = '~/.nvm/versions/node/v14.10.1/bin/node'
 " fzf Settings
 let g:fzf_layout = { 'down': '40%' }
 
+" Dirvish
+map <silent> <leader>. :Dirvish <c-r>%<cr>
+
 " Ranger Settings
 "
 " let g:ranger_replace_netrw = 1 " open ranger when vim open a directory
 " let g:ranger_map_keys = 0
 " nnoremap <silent> <leader>. :RangerCurrentFile<cr>
+" Until I figure out hiow to stop it this is a shortcut to put the filetype
+" back to js after ranger's opened a file...
+" map <leader>ftj :set filetype=javascript<cr>
 
 " Custom Commands...
 "
@@ -274,6 +283,8 @@ endfunction
 command! ConstFromActionCreator let @+ = toupper(substitute(expand('<cword>'), '\(\u\)', '_\1', 'g'))
 " Search for a search term in the given directory ':F term folder'
 command! -nargs=+ -complete=dir F :silent grep! -RHn <args> | copen | norm <c-w>L40<c-w><
+" To do a fuzzy pattern wrap each seperate word in the following: '\(word1\)\@=\|\(word2\)\@='
+
 " Do the same as above but convert the c-word into a constant (for searching
 " for constants from action creators)...
 nmap <silent> <leader>g* :silent let @f = ToConst()<cr>:silent grep! -RHn <c-r>f app \| copen \| norm <c-w>L40<c-w><cr>
@@ -322,6 +333,7 @@ nnoremap <silent> <c-h> :Ag<CR>
 nnoremap <silent> <c-l> :Buffers<cr>
 " Quick search sexp in project
 nmap <silent> <leader>] "ayiw:Ag <c-r>a<cr>
+nmap <silent> <leader>gc :execute "Ag " ToConst()<cr>
 
 
 " coc Mappings
@@ -374,12 +386,13 @@ nnoremap <silent> <leader>gb :Gblame<cr>
 nnoremap <leader>gpu :echo execute("G push -u origin " . FugitiveHead())<cr>
 " Note, this always refers to the cwd git repo...
 nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
+nnoremap <leader>gu :GitGutterUndoHunk<cr>
 
 " Jtags mappings
 
 " This seems to work with normal help tags as well, which is lucky!
 map <silent> <c-]> :<C-U>call Jtags()<cr>
-map <leader><c-]> :<C-U>call JtagsSearchless()<cr>
+" map <leader><c-]> :<C-U>call JtagsSearchless()<cr>
 
 " vim-sneak Mappings
 " Remaps f and t to work over multi lines
@@ -456,7 +469,7 @@ map <silent> <leader>- /[}\])]<cr>v%J<esc>:s/,\([ ]\?}\)/\1/g<cr>gv:s/:/: /g<cr>
 " map <leader>if <c-]><c-o>yiw:let @f = taglist(expand('<cword>'))[0].filename<cr>gg}Oimport {  <c-r>" <esc>A from '<c-r>f';<esc>
 
 " grep the word under the cursor
-map <leader>* :F <cword> app <CR>
+map <leader><leader>* :F <cword> app <CR>
 
 " JSX Element commenting, relies on vim commentary ('S')
 vmap K S{%i*/<Esc>l%a/*<Esc>
@@ -483,12 +496,12 @@ map <leader>bn :bn<cr>
 map <leader>b<tab> q:ib <tab>
 map <leader>bd :Bclose!<cr>
 " delete all buffers but this one.
-nnoremap <silent> <leader>bD :bd! <c-a><cr><c-o>:bn<cr>:bd<cr>
+nnoremap <silent> <leader>bD :bd! <c-a><c-f>?<c-r>#<cr>dW<cr>
 
 " Terminal buffer
 nnoremap <silent> <leader>ts <c-w><c-n><c-w>J12<c-w>-:terminal<cr>i
 nnoremap <silent> <leader>tn :te <cr>i
-nnoremap <silent> <leader>to :b {term:}<cr>
+" nnoremap <silent> <leader>to :b {term:}<cr>
 
 
 " Put the word under the cursor into the search, like * but without jumping
@@ -519,12 +532,12 @@ map <leader>ld :LundoDiff<cr>
 command! FuzdCo :silent! exe "!$HOME/.vim/scripts/./fuzd4vim " expand("%:p:h") | cf $HOME/.vim/.vimfile | cdo e | redraw! 
 " command! Fuzd :silent! exe "!$HOME/.vim/scripts/./fuzd4vim " expand("%:p:h") | let fuzd_filename = system("cat $HOME/.vim/.vimfile") | if len(fuzd_filename) > 1 | exe "e " fuzd_filename | endif | redraw!
 
-map <leader>. :Browse<cr>
+" map <leader>. :Browse<cr>
 
-augroup ReplaceNetrwByFzfBrowser
-  autocmd VimEnter * silent! autocmd! Browse
-  autocmd BufEnter * if isdirectory(expand("%")) | call fzf#vim#browse(expand("%:p:h")) | endif
-augroup END
+" augroup ReplaceNetrwByFzfBrowser
+"   autocmd VimEnter * silent! autocmd! Browse
+"   autocmd BufEnter * if isdirectory(expand("%")) | call fzf#vim#browse(expand("%:p:h")) | endif
+" augroup END
 
 noremap <leader>ac <esc>:call ActionCreator()<cr>
 command! AC call ActionCreator()
@@ -548,7 +561,7 @@ command! -nargs=* AndroidEnterText call AndroidEnterText(<args>)
 command! IgnoreLogs execute("norm :e app/App.tsx<cr>/react-native<cr>F{a LogBox,<esc>G?return<cr>[{OLogBox.ignoreAllLogs();<cr><esc>:w \| bd!")
 command! IgnoreLogsNo execute("norm :e app/App.tsx<cr>/LogBox<cr>dWGNdk:w | bd!<cr>")
 command! TODO e ~/Documents/Careplanner\ Mob\ App/TODO | set filetype=markdown
-map <silent><leader>to :split \| TODO<cr>:map <buffer> gq :bd!<lt>cr>:silent! close<lt>cr><cr>
+map <silent><leader>to :split \| TODO<cr>:map <buffer> gq :bd!<lt>cr>:silent! close<lt>cr><cr>:norm Gzz<cr>
 map <leader>cpt :AndroidEnterText ""<Left>
 map <leader>cpe :AndroidEnterKeyEvent 
 
@@ -556,7 +569,7 @@ command! CarePlannerRefresh call system('adb shell input swipe 360 500 360 1000'
 map <leader>cpj :CarePlannerRefresh<cr>
 command! CarePlannerEnter call system('adb shell input keyevent 66')
 map <leader>cp<cr> :CarePlannerEnter<cr>
-command! CarePlannerPasscode call system('adb shell input text "1111111"; adb shell input keyevent 66')
+command! CarePlannerPasscode call system('adb shell input text "11111111"; adb shell input keyevent 66')
 map <leader>cpp :CarePlannerPasscode<cr>
 command! AndroidReload call system('adb shell input text "RR"')
 map <leader>cpr :AndroidReload<cr>
@@ -584,15 +597,5 @@ imap <c-l> <esc>"tciW<lt><c-r>t><esc>"tyypa/<esc>O
 
 " This sets the completion list for <c-x><c-o> to my registers contents...
 set completefunc=Registers
-
-
-
-
-
-
-
-
-
-
-
-
+map <leader>fco :F '@SEAN' app<cr>
+map <leader>s/ :%s/
