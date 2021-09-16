@@ -495,12 +495,22 @@ nnoremap <silent> <leader>r :echo 'Choose registers by key: 1st <- 2nd' \| let r
 " Tabs
 map <c-w>gn :tabnew<CR>
 
+function ListEmptyBufNums()
+  return join(map(getbufinfo({'buflisted':1}), { key, val -> len(val.name) == 0 ? val.bufnr : ''}))
+endfunction
+
+function ListAllBufNums()
+  return join(map(getbufinfo({'buflisted':1}), { key, val -> val.bufnr }))
+endfunction
+
 map <leader>bp :bp<cr>
 map <leader>bn :bn<cr>
 map <leader>b<tab> q:ib <tab>
-map <leader>bd :Bclose!<cr>
-" delete all buffers but this one.
-nnoremap <silent> <leader>bD :bd! <c-a><c-f>?<c-r>#<cr>dW<cr>
+map <leader>bdd :Bclose!<cr>
+" Delete all empty buffers
+map <leader>bde :exe 'bd! ' ListEmptyBufNums()<cr>
+" Delete all buffers but this one
+map <leader>bdD :exe 'bd! ' substitute(ListAllBufNums(), buffer_number(), '', 'g')<cr>
 
 " Terminal buffer
 nnoremap <silent> <leader>ts <c-w><c-n><c-w>J12<c-w>-:terminal<cr>i
