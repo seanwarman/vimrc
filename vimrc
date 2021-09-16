@@ -280,6 +280,9 @@ command! -nargs=+ MDN call MdnSplit("<args>")
 function ToConst()
   return toupper(substitute(expand('<cword>'), '\(\u\)', '_\1', 'g'))
 endfunction
+function ToCamel()
+  return substitute(tolower(expand('<cword>')), '_\(\w\)', '\U\1', 'g')
+endfunction
 command! ConstFromActionCreator let @+ = toupper(substitute(expand('<cword>'), '\(\u\)', '_\1', 'g'))
 " Search for a search term in the given directory ':F term folder'
 command! -nargs=+ -complete=dir F :silent grep! -RHn <args> | copen | norm <c-w>L40<c-w><
@@ -288,6 +291,7 @@ command! -nargs=+ -complete=dir F :silent grep! -RHn <args> | copen | norm <c-w>
 " Do the same as above but convert the c-word into a constant (for searching
 " for constants from action creators)...
 nmap <silent> <leader>g* :silent let @f = ToConst()<cr>:silent grep! -RHn <c-r>f app \| copen \| norm <c-w>L40<c-w><cr>
+nmap <silent> <leader>g£ :silent let @f = ToCamel()<cr>:silent grep! -RHn <c-r>f app \| copen \| norm <c-w>L40<c-w><cr>
 
 " Goes to my vimrc
 command! Vimrc e ~/.vim/vimrc
