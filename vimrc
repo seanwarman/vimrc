@@ -137,7 +137,7 @@ function InitialiseCustomColours()
 endfunction
 
 function ListBuffers()
-  return join( map( getbufinfo({'buflisted':1}), { key, val -> val.bufnr == buffer_number() ?  (len(val.name) > 0 ?  fnamemodify(val.name, ":t") : '[No Name]') . '*' : (len(val.name) > 0 ?  fnamemodify(val.name, ":t") : '[No Name]') }), ' • ')
+  return join( map( getbufinfo({'buflisted':1}), { key, val -> val.bufnr == bufnr() ?  (len(val.name) > 0 ?  fnamemodify(val.name, ":t") : '[No Name]') . '*' : (len(val.name) > 0 ?  fnamemodify(val.name, ":t") : '[No Name]') }), ' • ')
 endfunction
 
 set statusline=%{InitialiseCustomColours()}\ %p%%\ •\ %{FugitiveHead()}\ •\ %f\ %#StatusSaveState#%m%*%=%{ListBuffers()}\ 
@@ -506,7 +506,7 @@ endfunction
 map <leader>bp :bp<cr>
 map <leader>bn :bn<cr>
 map <leader>b<tab> q:ib <tab>
-map <leader>bdd :Bclose!<cr>
+map <leader>bdd :exe 'bd! ' bufnr()<cr>
 " Delete all empty buffers
 function DeleteEmptyBuffers()
   let l:bufnums = ListEmptyBufNums()
@@ -518,7 +518,7 @@ function DeleteEmptyBuffers()
 endfunction
 map <leader>bde :call DeleteEmptyBuffers()<cr>
 " Delete all buffers but this one
-map <leader>bdD :exe 'bd! ' substitute(ListAllBufNums(), buffer_number(), '', 'g')<cr>
+map <leader>bdD :exe 'bd! ' substitute(ListAllBufNums(), bufnr(), '', 'g')<cr>
 
 " Terminal buffer
 nnoremap <silent> <leader>ts <c-w><c-n><c-w>J12<c-w>-:terminal<cr>i
