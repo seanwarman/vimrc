@@ -124,7 +124,7 @@ command! Light :colorscheme one | set background=light
 command! HiContrast :colorscheme polar | set background=light
 command! Dark :colorscheme sonokai | set background=dark
 " Set default to Dark...
-Dark
+HiContrast
 
 function InitialiseCustomColours()
   if trim(execute('colo')) == 'polar'
@@ -508,7 +508,15 @@ map <leader>bn :bn<cr>
 map <leader>b<tab> q:ib <tab>
 map <leader>bdd :Bclose!<cr>
 " Delete all empty buffers
-map <leader>bde :exe 'bd! ' ListEmptyBufNums()<cr>
+function DeleteEmptyBuffers()
+  let l:bufnums = ListEmptyBufNums()
+  if len(l:bufnums) > 1
+    exe 'bd! ' ListEmptyBufNums()
+  else 
+    echo 'No empty buffers'
+  endif
+endfunction
+map <leader>bde :call DeleteEmptyBuffers()<cr>
 " Delete all buffers but this one
 map <leader>bdD :exe 'bd! ' substitute(ListAllBufNums(), buffer_number(), '', 'g')<cr>
 
