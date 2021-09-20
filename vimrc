@@ -245,7 +245,7 @@ let g:coc_filetype_map = {
 
 " My work project uses an older node version so this points coc to a more
 " recent one...
-let g:coc_node_path = '~/.nvm/versions/node/v14.10.1/bin/node'
+" let g:coc_node_path = '~/.nvm/versions/node/v14.10.1/bin/node'
 
 " General Settings
 
