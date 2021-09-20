@@ -50,7 +50,7 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'justinmk/vim-sneak'
   Plug 'mhinz/vim-startify'
   Plug 'airblade/vim-gitgutter'
-  Plug 'rbgrouleff/bclose.vim'
+  " Plug 'rbgrouleff/bclose.vim'
   Plug 'MattesGroeger/vim-bookmarks'
 
   " Manual page lookup (don't need but really nice to have)
@@ -123,8 +123,8 @@ let g:sonokai_disable_italic_comment = 1
 command! Light :colorscheme one | set background=light
 command! HiContrast :colorscheme polar | set background=light
 command! Dark :colorscheme sonokai | set background=dark
-" Set default to Dark...
-HiContrast
+" Default colorscheme...
+Dark
 
 function InitialiseCustomColours()
   if trim(execute('colo')) == 'polar'
@@ -136,8 +136,12 @@ function InitialiseCustomColours()
   return ''
 endfunction
 
+function FilePathToBufName(path)
+  return len(a:path) > 0 ? fnamemodify(a:path, ":t") : '[No Name]'
+endfunction
+
 function ListBuffers()
-  return join( map( getbufinfo({'buflisted':1}), { key, val -> val.bufnr == bufnr() ?  (len(val.name) > 0 ?  fnamemodify(val.name, ":t") : '[No Name]') . '*' : (len(val.name) > 0 ?  fnamemodify(val.name, ":t") : '[No Name]') }), ' • ')
+  return join(map(getbufinfo({'buflisted':1}), { key, val -> val.bufnr == bufnr() ? FilePathToBufName(val.name) . '*' : FilePathToBufName(val.name) }), ' • ')
 endfunction
 
 set statusline=%{InitialiseCustomColours()}\ %p%%\ •\ %{FugitiveHead()}\ •\ %f\ %#StatusSaveState#%m%*%=%{ListBuffers()}\ 
