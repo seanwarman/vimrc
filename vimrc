@@ -14,8 +14,6 @@ call plug#begin('~/.local/share/vim/plugged')
 
   " Colorschemes
   Plug 'sainnhe/sonokai'
-  Plug 'rakr/vim-one'
-  Plug 'sickill/vim-monokai'
   Plug 'habamax/vim-polar'
 
   " CSS
@@ -29,11 +27,9 @@ call plug#begin('~/.local/share/vim/plugged')
 
   " Best plugin ever
   Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-  Plug 'seanwarman/fzf.vim'
+  Plug 'junegunn/fzf.vim'
 
-  " Second best plugin ever
-  Plug 'francoiscabrol/ranger.vim'
-  " I'm trying out Dirvish instead because it's much simpler...
+  " Dirvish, amaze...
   Plug 'justinmk/vim-dirvish'
 
   " Best git plugin ever
@@ -120,7 +116,6 @@ let g:sonokai_enable_italic = 1
 let g:sonokai_current_word = 'underline'
 let g:sonokai_disable_italic_comment = 1
 
-command! Light :colorscheme one | set background=light
 command! HiContrast :colorscheme polar | set background=light
 command! Dark :colorscheme sonokai | set background=dark
 " Default colorscheme...
@@ -247,6 +242,15 @@ autocmd BufLeave *.md set tw&
 let g:coc_filetype_map = {
 \ 'javascript': 'typescriptreact'
 \ }
+
+" Rather than calling CocInstall, add extensions here...
+let g:coc_global_extensions = [
+      \'coc-snippets',
+      \'coc-eslint',
+      \'coc-prettier',
+      \'coc-vetur',
+      \'coc-json'
+\]
 
 " My work project uses an older node version so this points coc to a more
 " recent one...
