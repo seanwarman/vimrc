@@ -46,7 +46,7 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'justinmk/vim-sneak'
   Plug 'mhinz/vim-startify'
   Plug 'airblade/vim-gitgutter'
-  " Plug 'rbgrouleff/bclose.vim'
+  Plug 'rbgrouleff/bclose.vim'
   Plug 'MattesGroeger/vim-bookmarks'
 
   " Manual page lookup (don't need but really nice to have)
@@ -139,7 +139,7 @@ function ListBuffers()
   return join(map(getbufinfo({'buflisted':1}), { key, val -> val.bufnr == bufnr() ? FilePathToBufName(val.name) . '*' : FilePathToBufName(val.name) }), ' • ')
 endfunction
 
-set statusline=%{InitialiseCustomColours()}\ %p%%\ •\ %{FugitiveHead()}\ •\ %f\ %#StatusSaveState#%m%*%=%{ListBuffers()}\ 
+set statusline=%{InitialiseCustomColours()}\ %#InfoFloat#%{fnamemodify(getcwd(),':t')}%*\ •\ %#ClapFuzzyMatches#%{FugitiveHead()}%*\ •\ %f:%p%%\ %#StatusSaveState#%m%*%=%{ListBuffers()}\ 
 
 " Makes escape work instantly (turn off if you ever want to use esc perfixed shortcuts
 set noesckeys
@@ -157,7 +157,7 @@ set hlsearch
 set autoread
 set relativenumber
 set nu
-let g:dirvish_relative_paths = 1
+let g:dirvish_relative_paths = 0
 let &t_SI = "\<Esc>]50;CursorShape=1\x7"
 let &t_SR = "\<Esc>]50;CursorShape=2\x7"
 let &t_EI = "\<Esc>]50;CursorShape=0\x7"
@@ -508,14 +508,14 @@ function ListEmptyBufNums()
   return join(map(getbufinfo({'buflisted':1}), { key, val -> len(val.name) == 0 ? val.bufnr : ''}))
 endfunction
 
-function ListAllBufNums()
-  return join(map(getbufinfo({'buflisted':1}), { key, val -> val.bufnr }))
+function ListAllBufNums(missbuf)
+  return join(map(getbufinfo({'buflisted':1}), { key, val -> val.bufnr == a:missbuf ? '' : val.bufnr }))
 endfunction
 
 map <leader>bp :bp<cr>
 map <leader>bn :bn<cr>
 map <leader>b<tab> q:ib <tab>
-map <leader>bdd :exe 'bd! ' bufnr()<cr>
+map <leader>bdd :exe 'Bclose! ' bufnr()<cr>
 " Delete all empty buffers
 function DeleteEmptyBuffers()
   let l:bufnums = ListEmptyBufNums()
@@ -527,7 +527,7 @@ function DeleteEmptyBuffers()
 endfunction
 map <leader>bde :call DeleteEmptyBuffers()<cr>
 " Delete all buffers but this one
-map <leader>bdD :exe 'bd! ' substitute(ListAllBufNums(), bufnr(), '', 'g')<cr>
+map <leader>bdD :exe 'bd! ' ListAllBufNums(bufnr())<cr>
 
 " Terminal buffer
 nnoremap <silent> <leader>ts <c-w><c-n><c-w>J12<c-w>-:terminal<cr>i
@@ -592,7 +592,7 @@ command! -nargs=* AndroidEnterText call AndroidEnterText(<args>)
 command! IgnoreLogs execute("norm :e app/App.tsx<cr>/react-native<cr>F{a LogBox,<esc>G?return<cr>[{OLogBox.ignoreAllLogs();<cr><esc>:w \| bd!")
 command! IgnoreLogsNo execute("norm :e app/App.tsx<cr>/LogBox<cr>dWGNdk:w | bd!<cr>")
 command! TODO e ~/Documents/Careplanner\ Mob\ App/TODO | set filetype=markdown
-map <silent><leader>to :split \| TODO<cr>:map <buffer> gq :bd!<lt>cr>:silent! close<lt>cr><cr>:norm Gzz<cr>
+map <silent><leader>to :split \| TODO<cr>:map <buffer> gq :Bclose!<lt>cr>:silent! close<lt>cr><cr>:norm Gzz<cr>
 map <leader>cpt :AndroidEnterText ""<Left>
 map <leader>cpe :AndroidEnterKeyEvent 
 
@@ -624,7 +624,10 @@ map <leader>t= 0f<f v/\/>\\|><cr>hc<cr><c-r>"<cr><esc>kA<bs><esc>0dwv$:s/ /\r/g<
 map <leader>t- ?<<cr>v/\/>\\|><cr>J<esc>:noh<cr>
 map gs <c-w>v"syiwbbgdf'gf/<c-r>s<cr>
 
-imap <c-l> <esc>"tciW<lt><c-r>t><esc>"tyypa/<esc>O
+imap <c-l> <esc>v'."tdi<<c-r>t<esc>F<w"tyEA></<c-r>t><esc>F<i
+imap <c-g><c-l> <esc>v'."tdi<<c-r>t<esc>F<w"tyEA><cr></<c-r>t><esc>O
+" imap <c-g><c-l> <esc>v'."tdi<<c-r>t><return></<c-r>t><esc>F<f dt>O
+
 
 " This sets the completion list for <c-x><c-o> to my registers contents...
 set completefunc=Registers
@@ -634,6 +637,28 @@ map <leader>s/ :%s/
 " Quick fix while gf is broken
 function GotoFile()
   let l:filepath = expand("<cfile>")
-  exe 'find ' . trim(substitute(l:filepath, '\~', getcwd(), 'g')) . '*'
+  let l:homepath1 = l:filepath[0] == '~'
+  let l:homepath2 = l:filepath[0] == '/'
+  let l:relativepath = l:filepath[0] == '.'
+
+  if l:homepath1
+    exe 'find ' . trim(substitute(l:filepath, '\~', getcwd(), 'g')) . '*'
+  elseif l:homepath2
+    exe 'find ' . getcwd() . l:filepath . '*'
+  elseif l:relativepath
+    exe 'find %:h/' . l:filepath . '*'
+  else
+    exe 'find node_modules' . l:filepath . '*'
+  endif
 endfunction
+
 map gf :call GotoFile()<cr>
+
+function BatPreview()
+  exe '!clear; bat ' . expand("<cWORD>")
+endfunction
+
+map <leader><leader>p :call BatPreview()<cr>
+
+map <Space><Space>go   /let<CR>cwfunction<Esc>f:ci'changed!<Esc>
+map <Space><Space>r :silent w \| echo 'Running...' \| echo system("npm start")<cr>
