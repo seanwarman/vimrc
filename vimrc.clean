@@ -125,12 +125,6 @@ endif
 nnoremap <space> <Nop>
 let mapleader = " "
 
-colo default
-
-set relativenumber
-" Always show the statusline
-set laststatus=2
-
 call plug#begin('~/.local/share/vim/plugged')
 
   " Syntax
@@ -159,12 +153,14 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'tpope/vim-abolish'
   Plug 'justinmk/vim-sneak'
   Plug 'mhinz/vim-startify'
+  Plug 'airblade/vim-gitgutter'
   Plug 'rbgrouleff/bclose.vim'
   Plug 'MattesGroeger/vim-bookmarks'
 
   " Manual page lookup (don't need but really nice to have)
   Plug 'vim-utils/vim-man'
 call plug#end()
+call neomake#configure#automake('nrwi', 500)
 
 let g:startify_change_to_dir = 0
 let g:startify_custom_header = [
@@ -205,32 +201,10 @@ function ListBuffers()
   return join(map(getbufinfo({'buflisted':1}), { key, val -> val.bufnr == bufnr() ? FilePathToBufName(val.name) . '*' : FilePathToBufName(val.name) }), ' • ')
 endfunction
 
-set statusline=%{fnamemodify(getcwd(),':t')}%*\ •\ %{FugitiveHead()}%*\ •\ %f:%p%%\ %#ErrorMsg#%m%*%=%{ListBuffers()}\ 
-
-" Set tabs to indent 2 spaces
-set tabstop=2 softtabstop=0 expandtab shiftwidth=2 smarttab
-
-" Allows buffers to stay unsaved in the background
-" vim will prompt you if you want to quit to save them.
-set hidden
-
-" Allows me to "gf" a node import without ".js" on the end.
-set suffixesadd=.js,.ts,.tsx
-
-" stop showing the swap file error
-set shortmess+=A
-set noswapfile
-" Put .swp files into here...
-set dir=$HOME/.vim/tmp
-
-" Maintain undo
-set undofile 
-set undodir=~/.vim/undodir
+set statusline=%#InfoFloat#%{fnamemodify(getcwd(),':t')}%*\ •\ %#ClapFuzzyMatches#%{FugitiveHead()}%*\ •\ %f:%p%%\ %#StatusSaveState#%m%*%=%{ListBuffers()}\ 
 
 let g:dirvish_relative_paths = 0
-map <leader>. :Dirvish %:h<tab><cr>
 set hlsearch
-hi Search term=standout ctermfg=0 ctermbg=11 guifg=Blue guibg=Yellow
 " Clears the hlsearch on most movements
 nmap <silent> h h:noh<cr>
 nmap <silent> j j:noh<cr>
@@ -379,7 +353,7 @@ function GotoFile()
   endif
 endfunction
 
-map <leader>gf :call GotoFile()<cr>
+map gf :call GotoFile()<cr>
 
 function BatPreview()
   exe '!clear; bat ' . expand("<cWORD>")
