@@ -223,6 +223,8 @@ set noswapfile
 " Put .swp files into here...
 set dir=$HOME/.vim/tmp
 
+set nowrap
+
 " Maintain undo
 set undofile 
 set undodir=~/.vim/undodir
@@ -390,3 +392,5 @@ map <leader><leader>p :call BatPreview()<cr>
 map <Space><Space>go   /let<CR>cwfunction<Esc>f:ci'changed!<Esc>
 map <Space><Space>r :silent w \| echo 'Running...' \| echo system("npm start")<cr>
 map <leader>p q:ifind #:h**<tab>
+" Remove anything weird from path, just have the current working dir...
+set path=.
