@@ -35,6 +35,7 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'mhinz/vim-startify'
   Plug 'rbgrouleff/bclose.vim'
   Plug 'MattesGroeger/vim-bookmarks'
+  Plug 'mattn/emmet-vim'
 
   " Manual page lookup (don't need but really nice to have)
   Plug 'vim-utils/vim-man'
@@ -167,11 +168,7 @@ endif
 nnoremap <space> <Nop>
 let mapleader = " "
 
-colo default
-
-set relativenumber
-" Always show the statusline
-set laststatus=2
+colo desert
 
 let g:startify_change_to_dir = 0
 let g:startify_custom_header = [
@@ -212,7 +209,13 @@ function ListBuffers()
   return join(map(getbufinfo({'buflisted':1}), { key, val -> val.bufnr == bufnr() ? FilePathToBufName(val.name) . '*' : FilePathToBufName(val.name) }), ' • ')
 endfunction
 
-set statusline=%{fnamemodify(getcwd(),':t')}%*\ •\ %{FugitiveHead()}%*\ •\ %f:%p%%\ %#ErrorMsg#%m%*%=%{ListBuffers()}\ 
+set statusline=%{fnamemodify(getcwd(),':t')}%*\ •\ %{FugitiveHead()}%*\ •\ %t:%p%%\ %#ErrorMsg#%m%*%=%{ListBuffers()}\ 
+
+set relativenumber
+" Always show the statusline
+set laststatus=2
+
+set mouse=a
 
 " Set tabs to indent 2 spaces
 set tabstop=2 softtabstop=0 expandtab shiftwidth=2 smarttab
@@ -407,6 +410,6 @@ map <leader><leader>p :call BatPreview()<cr>
 
 map <Space><Space>r :silent w \| echo 'Running...' \| echo system("npm start")<cr>
 " Remove anything weird from path, just have the current working dir...
-set path=.,src,app
+set path=src,app,node_modules,.
 map <c-p> q:ifind **/
 
