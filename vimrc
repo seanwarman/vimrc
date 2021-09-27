@@ -247,7 +247,23 @@ set undodir=~/.vim/undodir
 set omnifunc=syntaxcomplete#Complete
 
 let g:dirvish_relative_paths = 0
-map <leader>. :Dirvish %:h<tab><cr>
+function DirvishPreviewMode(onOff)
+  augroup dirvish_config
+    if a:onOff == 1
+      autocmd!
+      autocmd FileType dirvish silent! map <buffer> j jp
+      autocmd FileType dirvish silent! map <buffer> k kp
+    elseif a:onOff == 0
+      autocmd!
+      autocmd FileType dirvish silent! unmap <buffer> j jp
+      autocmd FileType dirvish silent! unmap <buffer> k kp
+    endif
+  augroup END
+endfunction
+command! -nargs=* DirvishPreviewModeOn call DirvishPreviewMode(1) | pclose | pedit | Dirvish <args> | norm <c-w>H60<c-w><
+command! -nargs=* DirvishPreviewModeOff call DirvishPreviewMode(0) | Dirvish <args>
+map <leader><leader>. :DirvishPreviewModeOn %:h<tab><cr>
+map <leader>. :DirvishPreviewModeOff %:h<tab><cr>
 
 set hlsearch
 hi Search term=standout ctermfg=0 ctermbg=11 guifg=Blue guibg=Yellow

@@ -21,3 +21,5 @@ gitStashApply() {
 # Set the function to an alias
 alias fgs=gitStashApply
 set -o vi
+
+alias dirvish="vim -c DirvishPreviewModeOn $@"
