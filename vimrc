@@ -239,9 +239,13 @@ set nowrap
 set undofile 
 set undodir=~/.vim/undodir
 
+set hlsearch
+
+set omnifunc=syntaxcomplete#Complete
+
 let g:dirvish_relative_paths = 0
 map <leader>. :Dirvish %:h<tab><cr>
-set hlsearch
+
 hi Search term=standout ctermfg=0 ctermbg=11 guifg=Blue guibg=Yellow
 " Clears the hlsearch on most movements
 nmap <silent> h h:noh<cr>
@@ -260,6 +264,7 @@ nmap <silent> e e:noh<cr>
 command! Vimrc e ~/.vim/vimrc
 command! W :w | so ~/.vimrc
 command! Fix :F '<<<' app
+command! AC call ActionCreator()
 function Test()
   new
   set filetype=sh
@@ -267,7 +272,18 @@ function Test()
   silent let @t = system("yarn test")
   norm "tPggdj
 endfunction
-command! Test :call Test()
+command! Test call Test()
+function Lint()
+  silent! bd! {linter}
+  echo 'Linting...'
+  new
+  set filetype=sh
+  file linter
+  silent let @l = system('npx eslint --no-error-on-unmatched-pattern "?(src|app)/*"')
+  norm "lPggdd
+  echo 'Done, please press enter'
+endfunction
+command! Lint call Lint()
 
 " Fugitive mappings
 "
@@ -310,7 +326,8 @@ map N Nzz
 inoremap <C-a> <esc>v'.cconsole.log('<c-r>": ', <c-r>")
 inoremap <c-f> <esc>v'.cconsole.log('<c-r>"')
 
-inoremap {<Space> {}<Left>
+inoremap {<Space> {  }<Left><Left>
+inoremap {{<Space> {{  }}<Left><Left><Left>
 inoremap (<Space> ()<Left>
 inoremap [<Space> []<Left>
 inoremap {<cr> {<cr>}<esc>O
@@ -361,10 +378,7 @@ map <leader>bde :call DeleteEmptyBuffers()<cr>
 " Delete all buffers but this one
 map <leader>bdD :exe 'bd! ' ListAllBufNums(bufnr())<cr>
 
-command! LundoDiff :call LundoDiff()
-map <leader>ld :LundoDiff<cr>
-
-command! AC call ActionCreator()
+map <leader>ld :call LundoDiff()<cr>
 
 map <leader>> :diffput<cr>
 map <leader>< :diffget<cr>
@@ -413,3 +427,5 @@ map <Space><Space>r :silent w \| echo 'Running...' \| echo system("npm start")<c
 set path=src,app,node_modules,.
 map <c-p> q:ifind **/
 
+map <leader>cd :cd %:h<cr>
+map <leader>c- :cd -<cr>
