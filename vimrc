@@ -1,6 +1,46 @@
 source $HOME/.vim/custom/functions.vim
 source $HOME/.vim/custom/snippets.vim
 
+call plug#begin('~/.local/share/vim/plugged')
+
+  " Syntax
+  Plug 'yuezk/vim-js'
+  Plug 'HerringtonDarkholme/yats.vim'
+  Plug 'maxmellon/vim-jsx-pretty'
+  Plug 'peitalin/vim-jsx-typescript'
+
+  " CSS
+  Plug 'KabbAmine/vCoolor.vim'
+  Plug 'ap/vim-css-color'
+
+  " Fuzzy Finder
+  Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+  Plug 'junegunn/fzf.vim'
+
+  " Dirvish, amaze...
+  Plug 'justinmk/vim-dirvish'
+
+  " Best git plugin ever
+  Plug 'tpope/vim-fugitive'
+  Plug 'tommcdo/vim-fugitive-blame-ext'
+
+  " General utils
+  Plug 'itchyny/vim-cursorword'
+  Plug 'adelarsq/vim-matchit'
+  Plug 'tpope/vim-commentary'
+  Plug 'tpope/vim-repeat'
+  Plug 'tpope/vim-surround'
+  Plug 'tpope/vim-abolish'
+  Plug 'justinmk/vim-sneak'
+  Plug 'mhinz/vim-startify'
+  Plug 'rbgrouleff/bclose.vim'
+  Plug 'MattesGroeger/vim-bookmarks'
+
+  " Manual page lookup (don't need but really nice to have)
+  Plug 'vim-utils/vim-man'
+call plug#end()
+command! PluginBaby PlugClean | PlugInstall
+
 " When started as "evim", evim.vim will already have done these settings.
 if v:progname =~? "evim"
   finish
@@ -121,6 +161,8 @@ if has('langmap') && exists('+langremap')
   set nolangremap
 endif
 
+" Custom Config -------------------------------------------
+
 " Remaps the spacebar as leader
 nnoremap <space> <Nop>
 let mapleader = " "
@@ -130,41 +172,6 @@ colo default
 set relativenumber
 " Always show the statusline
 set laststatus=2
-
-call plug#begin('~/.local/share/vim/plugged')
-
-  " Syntax
-  Plug 'yuezk/vim-js'
-  Plug 'HerringtonDarkholme/yats.vim'
-  Plug 'maxmellon/vim-jsx-pretty'
-  Plug 'peitalin/vim-jsx-typescript'
-
-  " CSS
-  Plug 'KabbAmine/vCoolor.vim'
-  Plug 'ap/vim-css-color'
-
-  " Dirvish, amaze...
-  Plug 'justinmk/vim-dirvish'
-
-  " Best git plugin ever
-  Plug 'tpope/vim-fugitive'
-  Plug 'tommcdo/vim-fugitive-blame-ext'
-
-  " General utils
-  Plug 'itchyny/vim-cursorword'
-  Plug 'adelarsq/vim-matchit'
-  Plug 'tpope/vim-commentary'
-  Plug 'tpope/vim-repeat'
-  Plug 'tpope/vim-surround'
-  Plug 'tpope/vim-abolish'
-  Plug 'justinmk/vim-sneak'
-  Plug 'mhinz/vim-startify'
-  Plug 'rbgrouleff/bclose.vim'
-  Plug 'MattesGroeger/vim-bookmarks'
-
-  " Manual page lookup (don't need but really nice to have)
-  Plug 'vim-utils/vim-man'
-call plug#end()
 
 let g:startify_change_to_dir = 0
 let g:startify_custom_header = [
@@ -272,6 +279,15 @@ nnoremap <leader>gpu :echo execute("G push -u origin " . FugitiveHead())<cr>
 " Note, this always refers to the cwd git repo...
 nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 nnoremap <leader>gu :GitGutterUndoHunk<cr>
+
+" fzf Mappings
+"
+nnoremap <silent> <c-p> :GFiles<CR>
+nnoremap <silent> <c-h> :Ag<CR>
+nnoremap <silent> <c-l> :Buffers<cr>
+" Quick search sexp in project
+nmap <silent> <leader>] "ayiw:Ag <c-r>a<cr>
+nmap <silent> <leader>gc :execute "Ag " ToConst()<cr>
 
 " This seems to work with normal help tags as well, which is lucky!
 map <silent> <c-]> :<C-U>call Jtags()<cr>
