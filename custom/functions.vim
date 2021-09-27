@@ -1,18 +1,8 @@
-function! GetLs()
-  let l:BuffString = { key, val -> val.bufnr . ":" . (len(val.name) > 1 ? val.name : "[No Name]") . ":" . val.lnum }
-  return join(map(getbufinfo({'buflisted':1}), l:BuffString), "\n")
-endfunc
-
-" Jtags
-function! JtagsSearchless()
-  let l:pattern = expand('<cword>')
-  silent execute v:count . 'tag! ' . l:pattern
-endfunc
-
 function! Jtags()
   let l:pattern = expand('<cword>')
   silent! call system("$HOME/.vim/scripts/./jtags " . l:pattern)
-  silent! execute v:count . 'tag! ' . l:pattern
+  echo l:pattern
+  execute v:count . 'tag! ' . l:pattern
 endfunc
 
 " Give this function any command (marks, tags, ls),
@@ -26,50 +16,6 @@ function! MenuMovement()
   map <buffer> l <NOP>
   map <buffer> <esc> <c-w>c
 endfunc
-
-function! AnyList(cmd, ftype, cursorposition)
-  if bufname("%") == "menu-list" | return | endif
-
-  silent! redir => o | execute 'silent ' . a:cmd | redir END | let l:list = o
-
-  " Set up the buffer-list buffer (this makes it hidden)
-  let g:anylistbuff = bufnr('menu-list', 1)
-  call setbufvar(g:anylistbuff, "&buftype", "nofile")
-
-  call bufload('menu-list')
-  let lnum = 0
-  for line in split(l:list, '\n')
-    let lnum += 1
-    call setbufline(g:anylistbuff, lnum, line)
-  endfor
-
-  " If we leave buffer-list it'll get deleted...
-  au! BufLeave menu-list execute g:anylistbuff . "bwipeout"
-
-  execute "sbuffer" . g:anylistbuff
-  
-  " Copy the output of the given command (eg "ls") and paste it into
-  " buffer-list
-  silent! set cursorline
-  exe "silent! set filetype=" . a:ftype
-  exe "norm " . a:cursorposition
-  exe "map <silent> <buffer> <cr> :b " . expand("<cword>") . "<cr>"
-  exe "map <silent> <buffer> dd :bd " . expand("<cword>") . "<cr>V:g/./d\<cr>" . a:cursorposition
-
-  call MenuMovement()
-endfunction
-
-function! AnyListOnEnterBuffer()
-  execute "b " . expand("<cword>")
-endfunc
-
-function! AnyListDeleteBuffer()
-  if len(getbufinfo({'buflisted':1})) > 1
-    execute "norm V:g/./d\<cr>:Bclose " . expand("<cword>")
-  else
-    echo "Can't delete the last buffer"
-  endif
-endfunction
 
 function! EasySplit(filetype, ...)
   if bufname("%") == "easysplit" | return | endif
@@ -101,18 +47,6 @@ endfunc
 
 function! MdnSplit(query)
   call EasySplit("asm", Mdn(split(a:query, "\\.")), FormatMdn())
-endfunc
-
-function! TmuxSplit(height, ...)
-  return 'tmux split-window -l ' . a:height . ' "' . join(a:000, ' ') . '"'
-endfunc
-
-function! TmuxSend(...)
-  return 'tmux send "' . join(a:000, ' ') . '"'
-endfunc
-
-function! TmuxKeyPress(...)
-  return 'tmux send ' . join(a:000, ' ')
 endfunc
 
 " Lundo

@@ -69,6 +69,11 @@ silent! endwhile
 " Allow backspacing over everything in insert mode.
 set backspace=indent,eol,start
 
+" Add new tags to the .vim/tags file
+set tags=~/.vim/tags
+" Don't make tags reletive to that folder...
+set notagrelative
+
 set history=200		" keep 200 lines of command line history
 set ruler		" show the cursor position all the time
 set showcmd		" display incomplete commands
@@ -168,7 +173,7 @@ endif
 nnoremap <space> <Nop>
 let mapleader = " "
 
-colo desert
+colo slate
 
 let g:startify_change_to_dir = 0
 let g:startify_custom_header = [
@@ -239,13 +244,12 @@ set nowrap
 set undofile 
 set undodir=~/.vim/undodir
 
-set hlsearch
-
 set omnifunc=syntaxcomplete#Complete
 
 let g:dirvish_relative_paths = 0
 map <leader>. :Dirvish %:h<tab><cr>
 
+set hlsearch
 hi Search term=standout ctermfg=0 ctermbg=11 guifg=Blue guibg=Yellow
 " Clears the hlsearch on most movements
 nmap <silent> h h:noh<cr>
@@ -353,14 +357,13 @@ vnoremap <C-k> :m '<-2<CR>gv=gv
 " New tab
 map <c-w>gn :tabnew<CR>
 
+" Buffer maps
 function ListEmptyBufNums()
   return join(map(getbufinfo({'buflisted':1}), { key, val -> len(val.name) == 0 ? val.bufnr : ''}))
 endfunction
-
 function ListAllBufNums(missbuf)
   return join(map(getbufinfo({'buflisted':1}), { key, val -> val.bufnr == a:missbuf ? '' : val.bufnr }))
 endfunction
-
 map <leader>bp :bp<cr>
 map <leader>bn :bn<cr>
 map <leader>b<tab> q:ib <tab>
@@ -378,10 +381,12 @@ map <leader>bde :call DeleteEmptyBuffers()<cr>
 " Delete all buffers but this one
 map <leader>bdD :exe 'bd! ' ListAllBufNums(bufnr())<cr>
 
+" Lundo!
 map <leader>ld :call LundoDiff()<cr>
 
 map <leader>> :diffput<cr>
 map <leader>< :diffget<cr>
+
 map [[ F{
 map ]] f}
 map [] F}
@@ -392,9 +397,6 @@ map <leader>t= 0f<f v/\/>\\|><cr>hc<cr><c-r>"<cr><esc>kA<bs><esc>0dwv$:s/ /\r/g<
 map <leader>t- ?<<cr>v/\/>\\|><cr>J<esc>:noh<cr>
 " Go to the styles from a style.<name> for RN
 map gs <c-w>v"syiwbbgdf'gf/<c-r>s<cr>
-
-imap <c-l> <esc>v'."tdi<<c-r>t<esc>F<w"tyEA></<c-r>t><esc>F<i
-imap <c-g><c-l> <esc>v'."tdi<<c-r>t<esc>F<w"tyEA><cr></<c-r>t><esc>O
 
 " Quick fix while gf is broken
 function GotoFile()
@@ -413,19 +415,18 @@ function GotoFile()
     exe 'find node_modules' . l:filepath . '*'
   endif
 endfunction
-
 map <leader>gf :call GotoFile()<cr>
 
+" Preview files without opening them...
 function BatPreview()
   exe '!clear; bat ' . expand("<cWORD>")
 endfunction
-
 map <leader><leader>p :call BatPreview()<cr>
 
-map <Space><Space>r :silent w \| echo 'Running...' \| echo system("npm start")<cr>
 " Remove anything weird from path, just have the current working dir...
 set path=src,app,node_modules,.
 map <c-p> q:ifind **/
 
+" Quick way to cd into current dir for <c-x><c-f> file completions
 map <leader>cd :cd %:h<cr>
 map <leader>c- :cd -<cr>
