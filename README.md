@@ -1,8 +1,26 @@
 # My Vim Config
 
+This repo also acts like a dotfile repo for my work macbook.
+
+Run the install scripts:
+
+```sh
+./install-one.sh
+./install-two.sh
+```
+
+Note. If they don't work you might have to do `chmod +x`
+on them.
+
+Run the ssh scripts, how ever many times you need to:
+
+```sh
+./ssh.sh
+```
+
 Clone the repo to your .vim folder:
 
-```bash
+```sh
 git clone git@gitlab.com:cooldude3000/vim-config.git ~/.vim
 ```
 
@@ -13,16 +31,8 @@ Make a vimrc that looks for any file called vimrc:
 runtime vimrc
 ```
 
-Also make a .tmux.conf and add it to your home:
+Your bookmarks arte in **Bookmarks**, and your iTerm2 profiles
+(colours etc) are in **Profiles**.
 
-```
-source-file ~/.vim/tmux.conf
-```
-
-Open up vim, ignoring any errors, and run:
-
-```
-:PluginBaby
-```
-
-And you're ready to go!
+There's a ranger config as well, I think you can put that into
+*~/.config* on a mac like on linux.

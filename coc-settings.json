@@ -1,4 +1,0 @@
-{
-  "diagnostic.messageTarget": "echo",
-  "eslint.nodePath": "~/.nvm/versions/node/v14.10.1/bin/node"
-}
