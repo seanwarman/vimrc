@@ -325,6 +325,7 @@ nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 
 " fzf Mappings
 "
+nnoremap <silent> <c-p> :Files<cr>
 nnoremap <silent> <c-h> :Ag<CR>
 nmap <silent> <leader>] "ayiw:Ag <c-r>a<cr>
 nmap <silent> <leader>gc :execute "Ag " ToConst()<cr>
@@ -441,9 +442,13 @@ function BatPreview()
 endfunction
 map <leader><leader>p :call BatPreview()<cr>
 
-" Remove anything weird from path, just have the current working dir...
-let g:ctrl_p_path='src,app'
-map <c-p> :let &path=g:ctrl_p_path<cr>q:ifind **/
+" " List all dirs excluding node_modules...
+" function Ls()
+"   return substitute(join(split(system('ls -d /'), '\n'), ','), 'node_modules/,', '', 'g')
+" endfunction
+" " Add the dirs to the path variable ("&" allows adding expressions to a
+" " setting), then run find with a glob for fuzzy completion...
+" map <c-p> :let &path=Ls()<cr>q:ifind **/
 
 " Quick way to cd into current dir for <c-x><c-f> file completions
 map <leader>cd :cd %:h<cr>
