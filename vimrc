@@ -247,6 +247,7 @@ set undodir=~/.vim/undodir
 set omnifunc=syntaxcomplete#Complete
 
 let g:dirvish_relative_paths = 0
+let g:custom_dirvish_split_width = 30
 function DirvishPreviewMode(onOff)
   augroup dirvish_config
     if a:onOff == 1
@@ -260,7 +261,7 @@ function DirvishPreviewMode(onOff)
     endif
   augroup END
 endfunction
-command! -nargs=* DirvishPreviewModeOn call DirvishPreviewMode(1) | pclose | pedit | Dirvish <args> | norm <c-w>H60<c-w><
+command! -nargs=* DirvishPreviewModeOn call DirvishPreviewMode(1) | pclose | pedit | Dirvish <args> | exe 'norm <c-w>H' g:custom_dirvish_split_width '<c-w><'
 command! -nargs=* DirvishPreviewModeOff call DirvishPreviewMode(0) | Dirvish <args>
 map <leader><leader>. :DirvishPreviewModeOn %:h<tab><cr>
 map <leader>. :DirvishPreviewModeOff %:h<tab><cr>
@@ -440,7 +441,7 @@ endfunction
 map <leader><leader>p :call BatPreview()<cr>
 
 " Remove anything weird from path, just have the current working dir...
-set path=src,app,node_modules,.
+set path=src,app,.
 map <c-p> q:ifind **/
 
 " Quick way to cd into current dir for <c-x><c-f> file completions
