@@ -256,8 +256,8 @@ function DirvishPreviewMode(onOff)
       autocmd FileType dirvish silent! map <buffer> k kp
     elseif a:onOff == 0
       autocmd!
-      autocmd FileType dirvish silent! unmap <buffer> j jp
-      autocmd FileType dirvish silent! unmap <buffer> k kp
+      autocmd FileType dirvish silent! unmap <buffer> j
+      autocmd FileType dirvish silent! unmap <buffer> k
     endif
   augroup END
 endfunction
@@ -315,19 +315,16 @@ nnoremap <silent> <leader>gg :G<cr>
 nnoremap <silent> <leader>gd :Gdiff<cr>
 nnoremap <silent> <leader>gr :Gread<cr>
 nnoremap <silent> <leader>gb :Gblame<cr>
-nnoremap <leader>gpu :echo execute("G push -u origin " . FugitiveHead())<cr>
+nnoremap <leader>gpu :G push<cr>
 " Note, this always refers to the cwd git repo...
 nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
-nnoremap <leader>gu :GitGutterUndoHunk<cr>
 
 " fzf Mappings
 "
-nnoremap <silent> <c-p> :GFiles<CR>
 nnoremap <silent> <c-h> :Ag<CR>
-nnoremap <silent> <c-l> :Buffers<cr>
-" Quick search sexp in project
 nmap <silent> <leader>] "ayiw:Ag <c-r>a<cr>
 nmap <silent> <leader>gc :execute "Ag " ToConst()<cr>
+nmap <Nop> <Plug>Sneak_s
 
 " This seems to work with normal help tags as well, which is lucky!
 map <silent> <c-]> :<C-U>call Jtags()<cr>
