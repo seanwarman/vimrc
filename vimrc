@@ -283,6 +283,8 @@ nmap <silent> e e:noh<cr>
 
 " Goes to my vimrc
 command! Vimrc e ~/.vim/vimrc
+command! Tags e ~/.vim/tags
+command! Jtags e ~/.vim/scripts/jtags
 command! W :w | so ~/.vimrc
 command! Fix :F '<<<' app
 command! AC call ActionCreator()

@@ -18,4 +18,5 @@ fi
 sed -i "" "/$1/d" $HOME/.vim/tags
 # Update the tags file...
 echo "$tags" >> $HOME/.vim/tags
-sort $HOME/.vim/tags
+sort -o $HOME/.vim/tags $HOME/.vim/tags
+sed -i "" "/^$/d" $HOME/.vim/tags
