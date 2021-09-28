@@ -218,6 +218,7 @@ hi ProjectStatus ctermfg=0 ctermbg=6 guifg=#000000 guibg=#00CED1
 set statusline=%#ProjectStatus#\ %{fnamemodify(getcwd(),':t')}\ %*%#StatusLineTerm#\ %{FugitiveHead()}\ %*\ %t:%p%%\ %#ErrorMsg#%m%*%=%{ListBuffers()}\ 
 
 set relativenumber
+set nu
 " Always show the statusline
 set laststatus=2
 
