@@ -2,6 +2,8 @@ function! Jtags()
   let l:pattern = expand('<cword>')
   silent! call system("$HOME/.vim/scripts/./jtags " . l:pattern)
   execute v:count . 'tag! ' . l:pattern
+  " This adds the relative filepath to the "p reg as well...
+  silent! let @p = trim(system('realpath --relative-to=' . expand("#") . ' ' . expand("%")))
 endfunc
 
 " Give this function any command (marks, tags, ls),
