@@ -304,7 +304,7 @@ function Lint()
   new
   set filetype=sh
   file linter
-  silent let @l = system('npx eslint --no-error-on-unmatched-pattern "?(src|app)/*"')
+  silent let @l = system('npx eslint --ext .js,.vue,.ts,.tsx,.jsx --ignore-path .gitignore .')
   norm "lPggdd
   echo 'Done, please press enter'
 endfunction
@@ -331,8 +331,25 @@ nmap <silent> <leader>] "ayiw:Ag <c-r>a<cr>
 nmap <silent> <leader>gc :execute "Ag " ToConst()<cr>
 nmap <Nop> <Plug>Sneak_s
 
-" This seems to work with normal help tags as well, which is lucky!
-map <silent> <c-]> :<C-U>call Jtags()<cr>
+" Custom tags command that saves tags one by one...
+function! SaveToJtags(pattern)
+  silent! call system("$HOME/.vim/scripts/./jtags " . a:pattern)
+endfunc
+function TryTagOrSaveJtag()
+  let l:pattern = expand("<cword>")
+  try
+    " First, try the tag in case we already have it...
+    exe v:count . 'tag! ' . l:pattern
+  catch
+    " Otherwise run the jtags script...
+    call SaveToJtags(l:pattern)
+    exe v:count . 'tag! ' . l:pattern
+  finally
+    " This adds the relative filepath to the "p reg as well...
+    silent! let @p = trim(system('realpath --relative-to=' . expand("#:h") . ' ' . expand("%")))
+  endtry
+endfunction
+map <silent> <c-]> :call TryTagOrSaveJtag()<cr>
 
 " vim-sneak Mappings
 " Remaps f and t to work over multi lines
@@ -417,24 +434,31 @@ map <leader>t- ?<<cr>v/\/>\\|><cr>J<esc>:noh<cr>
 " Go to the styles from a style.<name> for RN
 map gs <c-w>v"syiwbbgdf'gf/<c-r>s<cr>
 
-" Quick fix while gf is broken
-function GotoFile()
+" A smarter goto file command...
+function GotoFileSpecial()
   let l:filepath = expand("<cfile>")
   let l:homepath1 = l:filepath[0] == '~'
   let l:homepath2 = l:filepath[0] == '/'
   let l:relativepath = l:filepath[0] == '.'
 
   if l:homepath1
-    exe 'find ' . trim(substitute(l:filepath, '\~', getcwd(), 'g')) . '*'
+    exe v:count 'find ' . trim(substitute(l:filepath, '\~', getcwd(), 'g')) . '*'
   elseif l:homepath2
-    exe 'find ' . getcwd() . l:filepath . '*'
+    exe v:count 'find ' . getcwd() . l:filepath . '*'
   elseif l:relativepath
-    exe 'find %:h/' . l:filepath . '*'
+    exe v:count 'find %:h/' . l:filepath . '*'
   else
-    exe 'find node_modules' . l:filepath . '*'
+    exe v:count 'find node_modules/' . l:filepath
   endif
 endfunction
-map <leader>gf :call GotoFile()<cr>
+function GotoFile()
+  try
+    exe v:count 'find <cfile>'
+  catch
+    call GotoFileSpecial()
+  endtry
+endfunction
+map gf :call GotoFile()<cr>
 
 " Preview files without opening them...
 function BatPreview()
