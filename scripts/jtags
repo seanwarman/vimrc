@@ -9,15 +9,13 @@ ag="ag"
 
 tags=$($ag --ignore tags --vimgrep --nomultiline "^[ \t]*(export)?[ \t]*((const|var|function|class|interface|type|let|function*)|(default))[ \t]*$1 " . | sed "s/^/$1:/g" | awk -F: '{ OFS="	"; line = "/^" $5 "/;\""; append = "C"; print $1, $2, line, append }')
 
-echo $tags
-
 if [[ ${#tags} -lt 1 ]]; then
   echo 'None trying modules...'
   tags=$($ag --ignore tags --vimgrep --nomultiline "^[ \t]*(export)?[ \t]*((const|var|function|class|interface|type|let|function*)|(default))[ \t]*$1 " node_modules | sed "s/^/$1:/g" | awk -F: '{ OFS="	"; line = "/^" $5 "/;\""; append = "C"; print $1, $2, line, append }')
-  echo $tags
 fi
 
-# Remove any existing matches...
-sed -i "" "s/$1.*/d" $HOME/.vim/tags
+# Remove any existing matches (this is the mac version)...
+sed -i "" "/$1/d" $HOME/.vim/tags
 # Update the tags file...
 echo "$tags" >> $HOME/.vim/tags
+sort $HOME/.vim/tags

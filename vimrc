@@ -214,7 +214,7 @@ function ListBuffers()
   return join(map(getbufinfo({'buflisted':1}), { key, val -> val.bufnr == bufnr() ? FilePathToBufName(val.name) . '*' : FilePathToBufName(val.name) }), ' • ')
 endfunction
 
-set statusline=%{fnamemodify(getcwd(),':t')}%*\ •\ %{FugitiveHead()}%*\ •\ %t:%p%%\ %#ErrorMsg#%m%*%=%{ListBuffers()}\ 
+set statusline=%#SpellLocal#%{fnamemodify(getcwd(),':t')}%*\ •\ %#StatusLineTerm#%{FugitiveHead()}%*\ •\ %t:%p%%\ %#ErrorMsg#%m%*%=%{ListBuffers()}\ 
 
 set relativenumber
 " Always show the statusline
@@ -438,8 +438,8 @@ endfunction
 map <leader><leader>p :call BatPreview()<cr>
 
 " Remove anything weird from path, just have the current working dir...
-set path=src,app,.
-map <c-p> q:ifind **/
+let g:ctrl_p_path='src,app'
+map <c-p> :let &path=g:ctrl_p_path<cr>q:ifind **/
 
 " Quick way to cd into current dir for <c-x><c-f> file completions
 map <leader>cd :cd %:h<cr>

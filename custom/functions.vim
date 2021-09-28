@@ -1,7 +1,6 @@
 function! Jtags()
   let l:pattern = expand('<cword>')
   silent! call system("$HOME/.vim/scripts/./jtags " . l:pattern)
-  echo l:pattern
   execute v:count . 'tag! ' . l:pattern
 endfunc
 
