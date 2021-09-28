@@ -214,7 +214,7 @@ function ListBuffers()
   return join(map(getbufinfo({'buflisted':1}), { key, val -> val.bufnr == bufnr() ? FilePathToBufName(val.name) . '*' : FilePathToBufName(val.name) }), ' • ')
 endfunction
 
-set statusline=%#SpellLocal#%{fnamemodify(getcwd(),':t')}%*\ •\ %#StatusLineTerm#%{FugitiveHead()}%*\ •\ %t:%p%%\ %#ErrorMsg#%m%*%=%{ListBuffers()}\ 
+set statusline=%#SpellLocal#\ %{fnamemodify(getcwd(),':t')}\ %*%#StatusLineTerm#\ %{FugitiveHead()}\ %*\ %t:%p%%\ %#ErrorMsg#%m%*%=%{ListBuffers()}\ 
 
 set relativenumber
 " Always show the statusline
