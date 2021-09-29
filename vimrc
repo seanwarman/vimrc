@@ -8,7 +8,6 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'HerringtonDarkholme/yats.vim'
   Plug 'maxmellon/vim-jsx-pretty'
   Plug 'peitalin/vim-jsx-typescript'
-  Plug 'posva/vim-vue'
 
   " CSS
   Plug 'KabbAmine/vCoolor.vim'
@@ -206,12 +205,6 @@ let g:startify_lists = [
       \ { 'type': 'commands',  'header': ['   Commands']       },
       \ ]
 
-" The vue plugin checks for css processors and slows vim down,
-" tell it which processor to use instead.
-" Possible values: coffee, haml, handlebars, less, pug, sass, scss, slm, stylus, typescript
-let g:vue_pre_processors = ['scss']
-
-
 function FilePathToBufName(path)
   return len(a:path) > 0 ? fnamemodify(a:path, ":t") : '[No Name]'
 endfunction
@@ -221,8 +214,8 @@ function ListBuffers()
 endfunction
 
 " A custom highlight group for the first item in the statusline...
-hi ProjectStatus ctermfg=0 ctermbg=6 guifg=#000000 guibg=#00CED1
-set statusline=%#ProjectStatus#\ %{fnamemodify(getcwd(),':t')}\ %*%#StatusLineTerm#\ %{FugitiveHead()}\ %*\ %t:%p%%\ %#ErrorMsg#%m%*%=%{ListBuffers()}\ 
+" hi ProjectStatus ctermfg=0 ctermbg=6 guifg=#000000 guibg=#00CED1
+set statusline=%#MatchParen#\ %{fnamemodify(getcwd(),':t')}\ %*%#StatusLineTerm#\ %{FugitiveHead()}\ %*\ %t:%p%%\ %#ErrorMsg#%m%*%=%{ListBuffers()}\ 
 " Always show the statusline
 set laststatus=2
 
@@ -307,6 +300,7 @@ command! Jtags e ~/.vim/scripts/jtags
 command! Fix :F '<<<' app
 " Creates an actions creator, with types...
 command! AC call ActionCreator()
+
 " Runs projects tests and prints results to a buffer...
 function Test()
   new
@@ -316,18 +310,20 @@ function Test()
   norm "tPggdj
 endfunction
 command! Test call Test()
+
 " Runs eslint and prints results to a buffer...
-function Lint()
+function Lint(dir)
   silent! bd! {linter}
   echo 'Linting...'
-  new
-  set filetype=sh
-  file linter
-  silent let @l = system('npx eslint --ext .js,.vue,.ts,.tsx,.jsx --ignore-path .gitignore .')
-  norm "lPggdd
-  echo 'Done, please press enter'
+  exe 'silent! pedit +setfiletype\ sh\|0read!npx\ npx\ eslint\ --ext\ .js,.vue,.ts,.tsx,.jsx\ --ignore-path\ .gitignore\ ' . a:dir . ' linter'
 endfunction
-command! Lint call Lint()
+command! -nargs=* -complete=dir Lint call Lint(expand("<args>"))
+" Run linting on the current file...
+map <leader>l% :Lint %<cr>
+" Run linting on the cwd...
+map <leader>l. :Lint .<cr>
+" Open the linter buffer in a preview window...
+map <leader>ll :pedit +b{linter}<cr>
 
 " Fugitive mappings
 "
@@ -344,8 +340,8 @@ nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 
 " fzf Mappings
 "
-nnoremap <silent> <c-p> :Files<cr>
-nnoremap <silent> <c-h> :Ag<CR>
+nnoremap <silent> <leader>pp :Files<cr>
+nnoremap <silent> <leader>h :Ag<CR>
 nmap <silent> <leader>] "ayiw:Ag <c-r>a<cr>
 nmap <silent> <leader>gc :execute "Ag " ToConst()<cr>
 nmap <Nop> <Plug>Sneak_s
@@ -498,3 +494,9 @@ map <leader>cd :cd %:h<cr>
 map <leader>c- :cd -<cr>
 " Jumps to the file for the vue component under the cursor...
 map <leader>f :let &path=LsDirsFromCwdExcluding('node_modules') \| find ./**/<cword>*<cr>
+
+" Vim's file type group...
+augroup filetypedetect
+  " Set .vue files to html...
+  autocmd! BufNewFile,BufRead *.vue setfiletype html
+augroup END
