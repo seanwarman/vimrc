@@ -253,16 +253,31 @@ set omnifunc=syntaxcomplete#Complete
 " Dirvish config...
 let g:dirvish_relative_paths = 0
 let g:custom_dirvish_split_width = 30
+function PreviewOrClosePreview()
+  if &filetype != 'dirvish'
+    pc
+  else
+    norm p
+  endif
+endfunction
 function DirvishPreviewMode(onOff)
   augroup dirvish_config
     if a:onOff == 1
-      autocmd!
-      autocmd FileType dirvish silent! map <buffer> j jp
-      autocmd FileType dirvish silent! map <buffer> k kp
+      augroup dirvish_config
+        autocmd!
+        autocmd FileType dirvish silent! map <buffer> j jp
+        autocmd FileType dirvish silent! map <buffer> k kp
+        autocmd FileType dirvish silent! map <buffer> <cr> :call dirvish#open("edit", 0)<CR> \| :call PreviewOrClosePreview()<cr>
+        autocmd FileType dirvish silent! map <buffer> - <Plug>(dirvish_up) p
+      augroup END
     elseif a:onOff == 0
-      autocmd!
-      autocmd FileType dirvish silent! unmap <buffer> j
-      autocmd FileType dirvish silent! unmap <buffer> k
+      augroup dirvish_config
+        autocmd!
+        autocmd FileType dirvish silent! unmap <buffer> j
+        autocmd FileType dirvish silent! unmap <buffer> k
+        autocmd FileType dirvish silent! map <buffer> <cr> :call dirvish#open("edit", 0)<CR>
+        autocmd FileType dirvish silent! map <buffer> - <Plug>(dirvish_up)
+      augroup END
     endif
   augroup END
 endfunction
@@ -464,12 +479,12 @@ map gs <c-w>v"syiwbbgdf'gf/<c-r>s<cr>
 " A smarter goto file command...
 function GotoFileSpecial()
   let l:filepath = expand("<cfile>")
-  let l:homepath1 = l:filepath[0] == '~'
+  let l:homepath1 = l:filepath[0] == '~' || l:filepath[0] == '@'
   let l:homepath2 = l:filepath[0] == '/'
   let l:relativepath = l:filepath[0] == '.'
 
   if l:homepath1
-    exe v:count 'find ' . trim(substitute(l:filepath, '\~', getcwd(), 'g')) . '*'
+    exe v:count 'find ' . trim(substitute(l:filepath, '\~|\@', getcwd(), 'g')) . '*'
   elseif l:homepath2
     exe v:count 'find ' . getcwd() . l:filepath . '*'
   elseif l:relativepath
