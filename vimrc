@@ -1,6 +1,8 @@
 source $HOME/.vim/custom/functions.vim
 source $HOME/.vim/custom/snippets.vim
 
+" -----------------------------------------------------------------------------------------  PLUGINS  --------------------------------------------------------------------------------------------------
+
 call plug#begin('~/.local/share/vim/plugged')
 
   " Syntax
@@ -41,6 +43,8 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'vim-utils/vim-man'
 call plug#end()
 command! PluginBaby PlugClean | PlugInstall
+
+" -----------------------------------------------------------------------------------------  DEFAULTS  ---------------------------------------------------------------------------------------------------
 
 " When started as "evim", evim.vim will already have done these settings.
 if v:progname =~? "evim"
@@ -167,7 +171,7 @@ if has('langmap') && exists('+langremap')
   set nolangremap
 endif
 
-" Custom Config -------------------------------------------
+" -----------------------------------------------------------------------------------------  CUSTOM  ---------------------------------------------------------------------------------------------------
 
 " Remaps the spacebar as leader
 nnoremap <space> <Nop>
@@ -205,6 +209,8 @@ let g:startify_lists = [
       \ { 'type': 'commands',  'header': ['   Commands']       },
       \ ]
 
+" ----------------------------------------------------------------------------------------  STATUSLINE  ------------------------------------------------------------------------------------------------
+
 function FilePathToBufName(path)
   return len(a:path) > 0 ? fnamemodify(a:path, ":t") : '[No Name]'
 endfunction
@@ -218,6 +224,8 @@ endfunction
 set statusline=%#MatchParen#\ %{fnamemodify(getcwd(),':t')}\ %*%#StatusLineTerm#\ %{FugitiveHead()}\ %*\ %t:%p%%\ %#ErrorMsg#%m%*%=%{ListBuffers()}\ 
 " Always show the statusline
 set laststatus=2
+
+" -----------------------------------------------------------------------------------------  SETTINGS  -------------------------------------------------------------------------------------------------
 
 set relativenumber
 set nu
@@ -249,6 +257,8 @@ set undodir=~/.vim/undodir
 
 " <c-x><c-o> completions...
 set omnifunc=syntaxcomplete#Complete
+
+" -----------------------------------------------------------------------------------------  DIRVISH  --------------------------------------------------------------------------------------------------
 
 " Dirvish config...
 let g:dirvish_relative_paths = 0
@@ -286,6 +296,8 @@ command! -nargs=* DirvishPreviewModeOff call DirvishPreviewMode(0) | Dirvish <ar
 map <leader><leader>. :DirvishPreviewModeOn %:h<tab><cr>
 map <leader>. :DirvishPreviewModeOff %:h<tab><cr>
 
+" -----------------------------------------------------------------------------------------  SEARCHING  ------------------------------------------------------------------------------------------------
+
 " Causes search to highlight while entering it...
 set hlsearch
 " Custom colour for search highlighting...
@@ -302,6 +314,8 @@ nmap <silent> W W:noh<cr>
 nmap <silent> B B:noh<cr>
 nmap <silent> E E:noh<cr>
 nmap <silent> e e:noh<cr>
+
+" -----------------------------------------------------------------------------------------  COMMANDS  -------------------------------------------------------------------------------------------------
 
 " Goes to my vimrc
 command! Vimrc e ~/.vim/vimrc
@@ -325,6 +339,16 @@ function Test()
   norm "tPggdj
 endfunction
 command! Test call Test()
+
+" -----------------------------------------------------------------------------------------  AUTOCMDS  -------------------------------------------------------------------------------------------------
+
+" Vim's file type group...
+augroup filetypedetect
+  " Set .vue files to html...
+  autocmd! BufNewFile,BufRead *.vue setfiletype html
+augroup END
+
+" -----------------------------------------------------------------------------------------  MAPPINGS  -------------------------------------------------------------------------------------------------
 
 " Runs eslint and prints results to a buffer...
 function Lint(dir)
@@ -522,8 +546,5 @@ map <leader>c- :cd -<cr>
 " Jumps to the file for the vue component under the cursor...
 map <leader>f :let &path=LsDirsFromCwdExcluding('node_modules') \| find ./**/<cword>*<cr>
 
-" Vim's file type group...
-augroup filetypedetect
-  " Set .vue files to html...
-  autocmd! BufNewFile,BufRead *.vue setfiletype html
-augroup END
+" Running node scripts
+map <leader><leader>r :silent pedit! +setfiletype\ javascript\|0read!node\ . console<cr>
