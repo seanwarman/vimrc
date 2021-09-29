@@ -8,6 +8,7 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'HerringtonDarkholme/yats.vim'
   Plug 'maxmellon/vim-jsx-pretty'
   Plug 'peitalin/vim-jsx-typescript'
+  Plug 'posva/vim-vue'
 
   " CSS
   Plug 'KabbAmine/vCoolor.vim'
@@ -205,6 +206,11 @@ let g:startify_lists = [
       \ { 'type': 'commands',  'header': ['   Commands']       },
       \ ]
 
+" The vue plugin checks for css processors and slows vim down,
+" tell it which processor to use instead.
+" Possible values: coffee, haml, handlebars, less, pug, sass, scss, slm, stylus, typescript
+let g:vue_pre_processors = ['scss']
+
 
 function FilePathToBufName(path)
   return len(a:path) > 0 ? fnamemodify(a:path, ":t") : '[No Name]'
@@ -214,13 +220,14 @@ function ListBuffers()
   return join(map(getbufinfo({'buflisted':1}), { key, val -> val.bufnr == bufnr() ? FilePathToBufName(val.name) . '*' : FilePathToBufName(val.name) }), ' • ')
 endfunction
 
+" A custom highlight group for the first item in the statusline...
 hi ProjectStatus ctermfg=0 ctermbg=6 guifg=#000000 guibg=#00CED1
 set statusline=%#ProjectStatus#\ %{fnamemodify(getcwd(),':t')}\ %*%#StatusLineTerm#\ %{FugitiveHead()}\ %*\ %t:%p%%\ %#ErrorMsg#%m%*%=%{ListBuffers()}\ 
+" Always show the statusline
+set laststatus=2
 
 set relativenumber
 set nu
-" Always show the statusline
-set laststatus=2
 
 set mouse=a
 
@@ -232,6 +239,7 @@ set tabstop=2 softtabstop=0 expandtab shiftwidth=2 smarttab
 set hidden
 
 " Allows me to "gf" a node import without ".js" on the end.
+" TODO prob don't need this because of GotoFileSpecial below.
 set suffixesadd=.js,.ts,.tsx
 
 " stop showing the swap file error
@@ -246,8 +254,10 @@ set nowrap
 set undofile 
 set undodir=~/.vim/undodir
 
+" <c-x><c-o> completions...
 set omnifunc=syntaxcomplete#Complete
 
+" Dirvish config...
 let g:dirvish_relative_paths = 0
 let g:custom_dirvish_split_width = 30
 function DirvishPreviewMode(onOff)
@@ -268,9 +278,11 @@ command! -nargs=* DirvishPreviewModeOff call DirvishPreviewMode(0) | Dirvish <ar
 map <leader><leader>. :DirvishPreviewModeOn %:h<tab><cr>
 map <leader>. :DirvishPreviewModeOff %:h<tab><cr>
 
+" Causes search to highlight while entering it...
 set hlsearch
+" Custom colour for search highlighting...
 hi Search term=standout ctermfg=0 ctermbg=11 guifg=Blue guibg=Yellow
-" Clears the hlsearch on most movements
+" Clears the hlsearch on most movements...
 nmap <silent> h h:noh<cr>
 nmap <silent> j j:noh<cr>
 nmap <silent> k k:noh<cr>
@@ -285,11 +297,17 @@ nmap <silent> e e:noh<cr>
 
 " Goes to my vimrc
 command! Vimrc e ~/.vim/vimrc
-command! Tags e ~/.vim/tags
-command! Jtags e ~/.vim/scripts/jtags
+" Writes and reloads the vimrc...
 command! W :w | so ~/.vimrc
+" Goes to my tags file...
+command! Tags e ~/.vim/tags
+" Goes to the jtags script...
+command! Jtags e ~/.vim/scripts/jtags
+" Finds all merge conflicts inside the app/ dir...
 command! Fix :F '<<<' app
+" Creates an actions creator, with types...
 command! AC call ActionCreator()
+" Runs projects tests and prints results to a buffer...
 function Test()
   new
   set filetype=sh
@@ -298,6 +316,7 @@ function Test()
   norm "tPggdj
 endfunction
 command! Test call Test()
+" Runs eslint and prints results to a buffer...
 function Lint()
   silent! bd! {linter}
   echo 'Linting...'
@@ -466,14 +485,16 @@ function BatPreview()
 endfunction
 map <leader><leader>p :call BatPreview()<cr>
 
-" " List all dirs excluding node_modules...
-" function Ls()
-"   return substitute(join(split(system('ls -d /'), '\n'), ','), 'node_modules/,', '', 'g')
-" endfunction
-" " Add the dirs to the path variable ("&" allows adding expressions to a
-" " setting), then run find with a glob for fuzzy completion...
-" map <c-p> :let &path=Ls()<cr>q:ifind **/
+" List all dirs excluding the given arg (usually node_modules)...
+function LsDirsFromCwdExcluding(exclude)
+  return substitute(join(split(system('ls -d */'), '\n'), ','), a:exclude . '/,', '', 'g')
+endfunction
+" " This is no good because "path" only accepts directories, even if I add the
+" " files to it, it'll ignore them when expanding the glob...
+" map <c-p> :let &path=LsDirsFromCwdExcluding('node_modules')<cr>q:ifind **/
 
 " Quick way to cd into current dir for <c-x><c-f> file completions
 map <leader>cd :cd %:h<cr>
 map <leader>c- :cd -<cr>
+" Jumps to the file for the vue component under the cursor...
+map <leader>f :let &path=LsDirsFromCwdExcluding('node_modules') \| find ./**/<cword>*<cr>
