@@ -325,6 +325,18 @@ map <leader>l. :Lint .<cr>
 " Open the linter buffer in a preview window...
 map <leader>ll :pedit +b{linter}<cr>
 
+function FixLint(dir)
+  echo 'Fixing...'
+  call system('npx eslint --fix --ext .js,.vue,.ts,.tsx,.jsx --ignore-path .gitignore ' . a:dir)
+  e!
+  echo 'Done!'
+endfunction
+command! -nargs=* -complete=dir FixLint call FixLint(expand("<args>"))
+" Autofix all found problems...
+map <leader>lf. :FixLint .<cr>
+" Auto fix the problems in the current file...
+map <leader>lf% :FixLint %<cr>
+
 " Fugitive mappings
 "
 " Add a commit or branch name to the "d" register then you can use
