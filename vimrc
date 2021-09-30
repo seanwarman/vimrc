@@ -211,12 +211,35 @@ let g:startify_lists = [
 
 " ----------------------------------------------------------------------------------------  STATUSLINE  ------------------------------------------------------------------------------------------------
 
-function FilePathToBufName(path)
-  return len(a:path) > 0 ? fnamemodify(a:path, ":t") : '[No Name]'
+function FindArgv(path)
+  for file in argv()
+	  if file == a:path
+		  return 1
+	  endif
+  endfor
+	  return 0
+endfunction
+
+function FilePathToBufName(path, bufnr)
+  let l:file = ''
+	if len(a:path) > 0
+    let l:file = fnamemodify(a:path, ":t")
+	else
+    let l:file = 'No Name'
+  endif
+
+  if FindArgv(a:path)
+    let l:file = l:file . '«'
+  endif
+  if bufnr() == a:bufnr
+    let l:file = '[' . l:file . ']'
+  endif
+
+  return l:file
 endfunction
 
 function ListBuffers()
-  return join(map(getbufinfo({'buflisted':1}), { key, val -> val.bufnr == bufnr() ? FilePathToBufName(val.name) . '*' : FilePathToBufName(val.name) }), ' • ')
+  return join(map(getbufinfo({'buflisted':1}), { key, val -> FilePathToBufName(val.name, val.bufnr) }), ' • ')
 endfunction
 
 " A custom highlight group for the first item in the statusline...
@@ -277,6 +300,7 @@ function DirvishPreviewMode()
       autocmd FileType dirvish silent! nmap <buffer> k k:call feedkeys("p")<CR>
       autocmd FileType dirvish silent! nmap <buffer> j j:call feedkeys("p")<CR>
       autocmd FileType dirvish silent! nmap <buffer> h <Plug>(dirvish_up):call feedkeys("p")<CR>
+      autocmd FileType dirvish silent! nmap <buffer> gq <Plug>(dirvish_quit):pc<cr>
     augroup END
 endfunction
 
@@ -287,12 +311,21 @@ function DirvishNormalMode()
     autocmd FileType dirvish silent! unmap <buffer> k
     autocmd FileType dirvish silent! unmap <buffer> j
     autocmd FileType dirvish silent! unmap <buffer> h
+    autocmd FileType dirvish silent! unmap <buffer> gq <Plug>(dirvish_quit)
   augroup END
 endfunction
 
-command! -nargs=* -complete=file DirvishPreviewMode call DirvishPreviewMode() | pclose | pedit | Dirvish <args> | exe 'norm <c-w>H' g:custom_dirvish_split_width '<c-w><p'
-map <leader><leader>. :DirvishPreviewMode %:h<cr>
-map <leader>. :call DirvishNormalMode() \| Dirvish! %:h<cr>
+function DirvishHereOrCwd(dir)
+  if len(expand(a:dir))
+    exe 'Dirvish ' . a:dir
+  else
+    exe 'Dirvish .'
+  endif
+endfunction
+
+command! DirvishPreviewMode call DirvishPreviewMode() | pclose | pedit | call DirvishHereOrCwd("%:h") | exe 'norm <c-w>H' g:custom_dirvish_split_width '<c-w><p'
+map <leader><leader>. :DirvishPreviewMode<cr>
+map <leader>. :call DirvishNormalMode() \| call DirvishHereOrCwd("%:h")<cr>
 
 " -----------------------------------------------------------------------------------------  SEARCHING  ------------------------------------------------------------------------------------------------
 
@@ -327,6 +360,8 @@ command! Jtags e ~/.vim/scripts/jtags
 command! Fix :F '<<<' app
 " Creates an actions creator, with types...
 command! AC call ActionCreator()
+" Runs anything and prints it in a preview window...
+command! -nargs=* Log silent! pedit! +setfiletype\ javascript\|0read<args> log
 
 " Runs projects tests and prints results to a buffer...
 function Test()
@@ -352,7 +387,7 @@ augroup END
 function Lint(dir)
   silent! bd! {linter}
   echo 'Linting...'
-  exe 'silent! pedit +setfiletype\ sh\|0read!npx\ npx\ eslint\ --ext\ .js,.vue,.ts,.tsx,.jsx\ --ignore-path\ .gitignore\ ' . a:dir . ' linter'
+  exe 'silent! pedit +setfiletype\ sh\|0read!npx\ eslint\ --ext\ .js,.vue,.ts,.tsx,.jsx\ --ignore-path\ .gitignore\ ' . a:dir . ' linter'
 endfunction
 command! -nargs=* -complete=dir Lint call Lint(expand("<args>"))
 " Run linting on the current file...
@@ -480,6 +515,13 @@ endfunction
 map <leader>bde :call DeleteEmptyBuffers()<cr>
 " Delete all buffers but this one
 map <leader>bdD :exe 'bd! ' ListAllBufNums(bufnr())<cr>
+
+" Args list mappings
+map <leader>ar :ar<cr>
+map <leader>an :n<cr>
+map <leader>ap :N<cr>
+map <leader>aa :argadd %<cr>
+map <leader>ad :argdelete %<cr>
 
 " Lundo!
 map <leader>ld :call LundoDiff()<cr>
