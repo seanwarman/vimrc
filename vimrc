@@ -213,7 +213,7 @@ let g:startify_lists = [
 
 function FindArgv(path)
   for file in argv()
-	  if file == a:path
+	  if fnamemodify(file, ":p") == fnamemodify(a:path, ":p")
 		  return 1
 	  endif
   endfor
@@ -462,8 +462,8 @@ map N Nzz
 
 " type any word then press ctrl-z in insert mode to console log it
 " with an id string...
-inoremap <C-a> <esc>v'.cconsole.log('<c-r>": ', <c-r>")
-inoremap <c-f> <esc>v'.cconsole.log('<c-r>"')
+inoremap <C-a> <esc>v'.cconsole.log('@FILTER <c-r>": ', <c-r>")
+inoremap <c-f> <esc>v'.cconsole.log('@FILTER <c-r>"')
 
 inoremap {<Space> {  }<Left><Left>
 inoremap {{<Space> {{  }}<Left><Left><Left>
