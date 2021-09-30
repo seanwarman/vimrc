@@ -262,39 +262,37 @@ set omnifunc=syntaxcomplete#Complete
 
 " Dirvish config...
 let g:dirvish_relative_paths = 0
-let g:custom_dirvish_split_width = 30
+let g:custom_dirvish_split_width = 60
 function PreviewOrClosePreview()
   if &filetype != 'dirvish'
     pc
   else
-    norm p
+    call feedkeys("p")
   endif
 endfunction
-function DirvishPreviewMode(onOff)
+function DirvishPreviewMode()
+    augroup dirvish_config
+      autocmd!
+      autocmd FileType dirvish silent! nmap <buffer> l :call dirvish#open("edit", 0)<CR> \| :call PreviewOrClosePreview()<cr>
+      autocmd FileType dirvish silent! nmap <buffer> k k:call feedkeys("p")<CR>
+      autocmd FileType dirvish silent! nmap <buffer> j j:call feedkeys("p")<CR>
+      autocmd FileType dirvish silent! nmap <buffer> h <Plug>(dirvish_up):call feedkeys("p")<CR>
+    augroup END
+endfunction
+
+function DirvishNormalMode()
   augroup dirvish_config
-    if a:onOff == 1
-      augroup dirvish_config
-        autocmd!
-        autocmd FileType dirvish silent! map <buffer> j jp
-        autocmd FileType dirvish silent! map <buffer> k kp
-        autocmd FileType dirvish silent! map <buffer> <cr> :call dirvish#open("edit", 0)<CR> \| :call PreviewOrClosePreview()<cr>
-        autocmd FileType dirvish silent! map <buffer> - <Plug>(dirvish_up) p
-      augroup END
-    elseif a:onOff == 0
-      augroup dirvish_config
-        autocmd!
-        autocmd FileType dirvish silent! unmap <buffer> j
-        autocmd FileType dirvish silent! unmap <buffer> k
-        autocmd FileType dirvish silent! map <buffer> <cr> :call dirvish#open("edit", 0)<CR>
-        autocmd FileType dirvish silent! map <buffer> - <Plug>(dirvish_up)
-      augroup END
-    endif
+    autocmd!
+    autocmd FileType dirvish silent! unmap <buffer> l
+    autocmd FileType dirvish silent! unmap <buffer> k
+    autocmd FileType dirvish silent! unmap <buffer> j
+    autocmd FileType dirvish silent! unmap <buffer> h
   augroup END
 endfunction
-command! -nargs=* DirvishPreviewModeOn call DirvishPreviewMode(1) | pclose | pedit | Dirvish <args> | exe 'norm <c-w>H' g:custom_dirvish_split_width '<c-w><'
-command! -nargs=* DirvishPreviewModeOff call DirvishPreviewMode(0) | Dirvish <args>
-map <leader><leader>. :DirvishPreviewModeOn %:h<tab><cr>
-map <leader>. :DirvishPreviewModeOff %:h<tab><cr>
+
+command! -nargs=* -complete=file DirvishPreviewMode call DirvishPreviewMode() | pclose | pedit | Dirvish <args> | exe 'norm <c-w>H' g:custom_dirvish_split_width '<c-w><p'
+map <leader><leader>. :DirvishPreviewMode %:h<cr>
+map <leader>. :call DirvishNormalMode() \| Dirvish! %:h<cr>
 
 " -----------------------------------------------------------------------------------------  SEARCHING  ------------------------------------------------------------------------------------------------
 
