@@ -10,6 +10,7 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'HerringtonDarkholme/yats.vim'
   Plug 'maxmellon/vim-jsx-pretty'
   Plug 'peitalin/vim-jsx-typescript'
+  Plug 'posva/vim-vue'
 
   " CSS
   Plug 'KabbAmine/vCoolor.vim'
@@ -171,7 +172,7 @@ if has('langmap') && exists('+langremap')
   set nolangremap
 endif
 
-" -----------------------------------------------------------------------------------------  CUSTOM  ---------------------------------------------------------------------------------------------------
+" -----------------------------------------------------------------------------------------  PLUGCONF  -------------------------------------------------------------------------------------------------
 
 " Remaps the spacebar as leader
 nnoremap <space> <Nop>
@@ -208,6 +209,8 @@ let g:startify_lists = [
       \ { 'type': 'bookmarks', 'header': ['   Bookmarks']      },
       \ { 'type': 'commands',  'header': ['   Commands']       },
       \ ]
+
+let g:vue_pre_processors = ['scss']
 
 " ----------------------------------------------------------------------------------------  STATUSLINE  ------------------------------------------------------------------------------------------------
 
