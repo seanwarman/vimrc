@@ -245,11 +245,19 @@ function ListBuffers()
   return join(map(getbufinfo({'buflisted':1}), { key, val -> FilePathToBufName(val.name, val.bufnr) }), ' • ')
 endfunction
 
-function FilePathToSelected(path)
-  if a:path == bufname(bufnr())
-    return '[' . fnamemodify(a:path, ':t') . ']'
+function FileNameOrPath(path)
+  if !len(fnamemodify(a:path, ':t'))
+    return a:path
   else
     return fnamemodify(a:path, ':t')
+  endif
+endfunction
+
+function FilePathToSelected(path)
+  if a:path == bufname(bufnr())
+    return '[' . FileNameOrPath(a:path) . ']'
+  else
+    return FileNameOrPath(a:path)
   endif
 endfunction
 
@@ -257,7 +265,7 @@ function ListArgs()
   return join(map(argv(), { key,val -> FilePathToSelected(val) }), ' • ')
 endfunction
 
-let g:args_or_buffers = 'args'
+let g:args_or_buffers = 'buffers'
 map <leader><leader>a :let g:args_or_buffers = 'args'<cr>
 map <leader><leader>b :let g:args_or_buffers = 'buffers'<cr>
 
@@ -289,7 +297,8 @@ endfunction
 map <leader>bp :bp<cr>
 map <leader>bn :bn<cr>
 map <leader>b<tab> q:ib <tab>
-map <leader>bdd :exe 'Bclose! ' bufnr()<cr>
+map <leader>bdd :bd!<cr>
+" map <leader>bdd :exe 'Bclose! ' bufnr()<cr>
 " Delete all empty buffers
 function DeleteEmptyBuffers()
   let l:bufnums = ListEmptyBufNums()
@@ -346,21 +355,18 @@ set omnifunc=syntaxcomplete#Complete
 
 " -----------------------------------------------------------------------------------------  DIRVISH  --------------------------------------------------------------------------------------------------
 
-" Dirvish config...
+" Settings
+
 let g:dirvish_relative_paths = 0
 let g:custom_dirvish_split_width = 60
 let g:custom_dirvish_split_height = 30
-function PreviewOrClosePreview()
-  if &filetype != 'dirvish'
-    pc
-  else
-    call feedkeys("p")
-  endif
-endfunction
-function DirvishPreviewMode()
+
+" Mappings
+
+function DirvishPreviewTreeMaps()
     augroup dirvish_config
       autocmd!
-      autocmd FileType dirvish silent! nmap <buffer> l :call dirvish#open("edit", 0)<CR> \| :call PreviewOrClosePreview()<cr>
+      autocmd FileType dirvish silent! nmap <buffer> l :call dirvish#open("edit", 0)<CR> \| :call PreviewOrClosePreview('feedkeys("p")')<cr>
       autocmd FileType dirvish silent! nmap <buffer> k k:call feedkeys("p")<CR>
       autocmd FileType dirvish silent! nmap <buffer> j j:call feedkeys("p")<CR>
       autocmd FileType dirvish silent! nmap <buffer> h <Plug>(dirvish_up):call feedkeys("p")<CR>
@@ -368,15 +374,96 @@ function DirvishPreviewMode()
     augroup END
 endfunction
 
-function DirvishNormalMode()
+function DirvishPreviewSearchMaps()
+  augroup dirvish_config
+    autocmd!
+    autocmd FileType dirvish silent! nmap <buffer> l :pc!<cr>gF
+    autocmd FileType dirvish silent! nmap <buffer> k k:call DirvishFindMatchAtCursor()<cr>
+    autocmd FileType dirvish silent! nmap <buffer> j j:call DirvishFindMatchAtCursor()<cr>
+    autocmd FileType dirvish silent! nmap <buffer> gq <Plug>(dirvish_quit):pc<cr>
+  augroup END
+endfunction
+
+function DirvishUnMap()
   augroup dirvish_config
     autocmd!
     autocmd FileType dirvish silent! unmap <buffer> l
     autocmd FileType dirvish silent! unmap <buffer> k
     autocmd FileType dirvish silent! unmap <buffer> j
     autocmd FileType dirvish silent! unmap <buffer> h
-    autocmd FileType dirvish silent! unmap <buffer> gq <Plug>(dirvish_quit)
+    autocmd FileType dirvish silent! unmap <buffer> gq
   augroup END
+endfunction
+
+" Commands
+
+function DirvishPreviewTree()
+  call DirvishUnMap()
+  call DirvishPreviewTreeMaps()
+  set nopreviewwindow
+  pclose
+  pedit
+  call DirvishHereOrCwd("%:h")
+  call DirvishPositionLeft(g:custom_dirvish_split_width)
+  norm p
+endfunction
+map <leader>. :call DirvishPreviewTree()<cr>
+
+function DirvishPreview(cmd)
+  silent! bw! searcher
+  set nopreviewwindow
+  silent! pedit searcher 
+  call DirvishHereOrCwd('$HOME/.vim/empty_dirvish_dir/') 
+  " Reload the dirvish buffer or it'll keep the previous search results...
+  norm R
+  exe '0read!' a:cmd 
+  " Delete the last line (.gitkeep)
+  norm Gdd
+endfunction
+
+function FindFile(path)
+  try
+    exe 'find ' . a:path
+  catch
+    call DirvishUnMap()
+    call DirvishPreviewTreeMaps()
+    call DirvishPreview('ag -g ' . a:path . ' ' . getcwd())
+    call DirvishPositionTop(g:custom_dirvish_split_height)
+    norm p
+  endtry
+endfunction
+command! -nargs=* -complete=file_in_path FindFile call FindFile(expand("<args>"))
+nmap <leader>pp :let &path=LsDirsFromCwdExcluding('node_modules')<cr>q:iFindFile 
+nmap <leader>fp :let &path=LsDirsFromCwdExcluding('node_modules')<cr>:FindFile <c-r><c-w><c-f><tab><cr>
+
+function Search(term)
+  call DirvishUnMap()
+  call DirvishPreviewSearchMaps() 
+  call DirvishPreview('ag ' . a:term . ' .')
+  call DirvishPositionTop(g:custom_dirvish_split_height)
+  call DirvishFindMatchAtCursor()
+endfunction
+command! -nargs=* Search call Search(expand("<args>"))
+map <leader>ff :Search 
+map <leader>pf :Search <c-r><c-w><cr>
+
+" Utils
+
+function DirvishPositionTop(height)
+  exe "norm \<c-w>K" a:height "\<c-w>-"
+endfunction
+
+function DirvishPositionLeft(width)
+  exe "norm \<c-w>H" a:width "\<c-w><"
+endfunction
+
+function PreviewOrClosePreview(prevcmd)
+  if &filetype != 'dirvish'
+    pc
+    argadd %
+  else
+    exe 'call' a:prevcmd
+  endif
 endfunction
 
 function DirvishHereOrCwd(dir)
@@ -387,46 +474,51 @@ function DirvishHereOrCwd(dir)
   endif
 endfunction
 
-command! DirvishPreviewMode call DirvishPreviewMode() | pclose | pedit | call DirvishHereOrCwd("%:h") | exe 'norm <c-w>H' g:custom_dirvish_split_width '<c-w><p'
-map <leader><leader>. :DirvishPreviewMode<cr>
-map <leader>. :call DirvishNormalMode() \| call DirvishHereOrCwd("%:h")<cr>
-
-function SearchFile(path)
-  try 
-    exe 'find ' . a:path
-  catch
-    call DirvishPreviewMode() 
-    try
-      pc 
-    catch
-      split
-      norm <c-w>o
-    endtry
-    pedit searcher 
-    argad searcher 
-    call DirvishHereOrCwd("$HOME/.vim/empty_dirvish_dir/") 
-    exe '0read!ag -g' a:path '' getcwd() 
-    exe 'norm <c-w>K' g:custom_dirvish_split_height '<c-w>-p'
-  endtry
+function DirvishFindMatchAtCursor()
+  let l:bits = split(expand('<cWORD>'), ':')
+  exe 'pedit +' . l:bits[1] '' l:bits[0]
 endfunction
-command! -nargs=* -complete=file_in_path SearchFile call SearchFile(expand("<args>"))
 
-" List all dirs excluding the given arg (usually node_modules)...
 function LsDirsFromCwdExcluding(exclude)
   return substitute(join(split(system('ls'), '\n'), ','), a:exclude . ',', '', 'g')
 endfunction
 
-" map <leader>pp :let &path=LsDirsFromCwdExcluding('node_modules')<cr>q:iSearchFile 
 
-" " This is no good because 'path' only accepts directories, even if I add the
-" " files to it, it'll ignore them when expanding the glob...
-" map <c-p> :set wildignore=./node_modules,node_modules \| let &path=LsDirsFromCwdExcluding('node_modules')<cr>q:ifind **/
-
-" " Quick way to cd into current dir for <c-x><c-f> file completions
-" map <leader>cd :cd %:h<cr>
-" map <leader>c- :cd -<cr>
-" " Jumps to the file for the vue component under the cursor...
+" Jumps to the file for the vue component under the cursor...
 " map <leader>f :let &path=LsDirsFromCwdExcluding('node_modules') \| find ./**/<cword>*<cr>
+
+" -----------------------------------------------------------------------------------------  NETRW  ----------------------------------------------------------------------------------------------------
+
+" " Go back to netrw at some point, I'm just not ready yet
+" map <leader>. :set previewwindow\|Lexplore\|2<cr>
+" let g:netrw_bufsettings = 'nu'
+" let g:netrw_preview = 1
+" let g:netrw_errorlvl = 2
+" let g:netrw_winsize = 30
+" let g:netrw_list_hide = '^\.\.\=/\=$'
+" let g:netrw_liststyle = 3
+" let g:netrw_banner = 0
+
+" function AddToArgsIfFile()
+"   if &filetype != 'netrw'
+"     pc
+"     argadd %
+"   endif
+" endfunction
+" function NetrwMappings()
+" 	" map <buffer> l <Plug>NetrwLocalBrowseCheck :call AddToArgsIfFile()<cr>
+"   " nnoremap <buffer> k k:call feedkeys("p")<cr>
+"   " nnoremap <buffer> j j:call feedkeys("p")<cr>
+"   " map <buffer> h <Plug>NetrwBrowseUpDir
+"   nnoremap <buffer> gq :pc! \| bd!<cr>
+"   set nu
+"   set relativenumber
+" endfunction
+
+" augroup netrw_mappings
+"   autocmd!
+"     autocmd FileType netrw silent! call NetrwMappings()
+" augroup END
 
 " -----------------------------------------------------------------------------------------  SEARCHING  ------------------------------------------------------------------------------------------------
 
@@ -537,9 +629,9 @@ nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 " fzf Mappings
 "
 " nnoremap <silent> <leader>pp :Files<cr>
-nnoremap <silent> <leader>h :Ag<CR>
-nmap <silent> <leader>] "ayiw:Ag <c-r>a<cr>
-nmap <silent> <leader>gc :execute "Ag " ToConst()<cr>
+" nnoremap <silent> <leader>h :Ag<CR>
+" nmap <silent> <leader>] "ayiw:Ag <c-r>a<cr>
+" nmap <silent> <leader>gc :execute "Ag " ToConst()<cr>
 
 " Custom tags command that saves tags one by one...
 function! SaveToJtags(pattern)
