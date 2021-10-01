@@ -16,10 +16,6 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'KabbAmine/vCoolor.vim'
   Plug 'ap/vim-css-color'
 
-  " Fuzzy Finder
-  Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-  Plug 'junegunn/fzf.vim'
-
   " Dirvish, amaze...
   Plug 'justinmk/vim-dirvish'
 
@@ -36,7 +32,6 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'tpope/vim-abolish'
   Plug 'justinmk/vim-sneak'
   Plug 'mhinz/vim-startify'
-  Plug 'rbgrouleff/bclose.vim'
   Plug 'MattesGroeger/vim-bookmarks'
   Plug 'mattn/emmet-vim'
 
@@ -407,6 +402,7 @@ function DirvishPreviewTree()
   call DirvishPositionLeft(g:custom_dirvish_split_width)
   norm p
 endfunction
+command! DirvishPreviewTree :call DirvishPreviewTree()
 map <leader>. :call DirvishPreviewTree()<cr>
 
 function DirvishPreview(cmd)
@@ -651,7 +647,7 @@ function TryTagOrSaveJtag()
     silent! let @p = trim(system('realpath --relative-to=' . expand("#:h") . ' ' . expand("%")))
   endtry
 endfunction
-map <silent> <c-]> :call TryTagOrSaveJtag()<cr>
+map <silent> <c-]> :<c-u>call TryTagOrSaveJtag()<cr>
 
 " type any word then press ctrl-z in insert mode to console log it
 " with an id string...
@@ -721,12 +717,18 @@ function GotoFileSpecial()
     exe v:count 'find %:h/' . l:filepath . '*'
 
   else
-    " An '@' path could be home (in vue) or a modules folder...
     try
-      exe v:count 'find node_modules/' . l:filepath
+      try
+        exe v:count 'find node_modules/' . l:filepath
+      catch
+        " An '@' path could be home (in vue) or a modules folder,
+        " but l:atpath doesn't work because <cfile> ignores @ signs :(
+        " Add the @ sign in...
+        exe v:count 'find node_modules/' . '@' . l:filepath
+      endtry
 
     catch
-      exe v:count 'find ' . trim(substitute(l:filepath, '@', getcwd(), 'g')) . '*'
+      exe v:count 'find ' . trim(getcwd() . '/' . substitute(l:filepath, '^\/', '', 'g')) . '*'
 
     endtry
   endif
