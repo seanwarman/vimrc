@@ -271,13 +271,45 @@ function ListArgsOrBuffers()
   endif
 endfunction
 
-" Status line that shows the args list...
+" Status line that shows the args or the bufs list
 set statusline=%#MatchParen#\ %{fnamemodify(getcwd(),':t')}\ %*%#StatusLineTerm#\ %{FugitiveHead()}\ %*\ %t:%p%%\ %#ErrorMsg#%m%*%=%{ListArgsOrBuffers()}\ 
-" Status line that shows the buffer list...
-" set statusline=%#MatchParen#\ %{fnamemodify(getcwd(),':t')}\ %*%#StatusLineTerm#\ %{FugitiveHead()}\ %*\ %t:%p%%\ %#ErrorMsg#%m%*%=%{ListBuffers()}\ 
 
 " Always show the statusline
 set laststatus=2
+
+" -----------------------------------------------------------------------------------------  BUFFERS/ARGS  ---------------------------------------------------------------------------------------------
+
+" Buffer maps
+function ListEmptyBufNums()
+  return join(map(getbufinfo({'buflisted':1}), { key, val -> len(val.name) == 0 ? val.bufnr : ''}))
+endfunction
+function ListAllBufNums(missbuf)
+  return join(map(getbufinfo({'buflisted':1}), { key, val -> val.bufnr == a:missbuf ? '' : val.bufnr }))
+endfunction
+map <leader>bp :bp<cr>
+map <leader>bn :bn<cr>
+map <leader>b<tab> q:ib <tab>
+map <leader>bdd :exe 'Bclose! ' bufnr()<cr>
+" Delete all empty buffers
+function DeleteEmptyBuffers()
+  let l:bufnums = ListEmptyBufNums()
+  if len(l:bufnums) > 1
+    exe 'bd! ' ListEmptyBufNums()
+  else 
+    echo 'No empty buffers'
+  endif
+endfunction
+map <leader>bde :call DeleteEmptyBuffers()<cr>
+" Delete all buffers but this one
+map <leader>bdD :exe 'bd! ' ListAllBufNums(bufnr())<cr>
+
+" Args list mappings
+map <leader>an :n<cr>
+map <leader>ap :N<cr>
+map <leader>aa :argadd %<cr>
+map <leader>add :argdelete %<cr>
+map <leader>al :sall<cr>
+map <leader>adD :argdelete *<cr>
 
 " -----------------------------------------------------------------------------------------  SETTINGS  -------------------------------------------------------------------------------------------------
 
@@ -358,17 +390,50 @@ endfunction
 command! DirvishPreviewMode call DirvishPreviewMode() | pclose | pedit | call DirvishHereOrCwd("%:h") | exe 'norm <c-w>H' g:custom_dirvish_split_width '<c-w><p'
 map <leader><leader>. :DirvishPreviewMode<cr>
 map <leader>. :call DirvishNormalMode() \| call DirvishHereOrCwd("%:h")<cr>
-command! -nargs=* SearchFile call DirvishPreviewMode() | pc | pedit searcher | argad searcher | call DirvishHereOrCwd("$HOME/.vim/empty_dirvish_dir/") | exe '0read!ag -g <args> ' getcwd() | exe 'norm <c-w>K' g:custom_dirvish_split_height '<c-w>-p'
-map <leader>pp :SearchFile 
-" command! -nargs=* F silent! pedit! +setfiletype\ dirvish\|0read!ag\ <args>\ . finer
 
+function SearchFile(path)
+  try 
+    exe 'find ' . a:path
+  catch
+    call DirvishPreviewMode() 
+    try
+      pc 
+    catch
+      split
+      norm <c-w>o
+    endtry
+    pedit searcher 
+    argad searcher 
+    call DirvishHereOrCwd("$HOME/.vim/empty_dirvish_dir/") 
+    exe '0read!ag -g' a:path '' getcwd() 
+    exe 'norm <c-w>K' g:custom_dirvish_split_height '<c-w>-p'
+  endtry
+endfunction
+command! -nargs=* -complete=file_in_path SearchFile call SearchFile(expand("<args>"))
+
+" List all dirs excluding the given arg (usually node_modules)...
+function LsDirsFromCwdExcluding(exclude)
+  return substitute(join(split(system('ls'), '\n'), ','), a:exclude . ',', '', 'g')
+endfunction
+
+" map <leader>pp :let &path=LsDirsFromCwdExcluding('node_modules')<cr>q:iSearchFile 
+
+" " This is no good because 'path' only accepts directories, even if I add the
+" " files to it, it'll ignore them when expanding the glob...
+" map <c-p> :set wildignore=./node_modules,node_modules \| let &path=LsDirsFromCwdExcluding('node_modules')<cr>q:ifind **/
+
+" " Quick way to cd into current dir for <c-x><c-f> file completions
+" map <leader>cd :cd %:h<cr>
+" map <leader>c- :cd -<cr>
+" " Jumps to the file for the vue component under the cursor...
+" map <leader>f :let &path=LsDirsFromCwdExcluding('node_modules') \| find ./**/<cword>*<cr>
 
 " -----------------------------------------------------------------------------------------  SEARCHING  ------------------------------------------------------------------------------------------------
 
 " Causes search to highlight while entering it...
 set hlsearch
 " Custom colour for search highlighting...
-hi Search term=standout ctermfg=0 ctermbg=11 guifg=Blue guibg=Yellow
+" hi Search term=standout ctermfg=0 ctermbg=11 guifg=Blue guibg=Yellow
 " Clears the hlsearch on most movements...
 nmap <silent> h h:noh<cr>
 nmap <silent> j j:noh<cr>
@@ -381,6 +446,17 @@ nmap <silent> W W:noh<cr>
 nmap <silent> B B:noh<cr>
 nmap <silent> E E:noh<cr>
 nmap <silent> e e:noh<cr>
+
+" vim-sneak Mappings
+" Remaps f and t to work over multi lines
+nmap <Nop> <Plug>Sneak_s
+map f <Plug>Sneak_f
+map F <Plug>Sneak_F
+map t <Plug>Sneak_t
+map T <Plug>Sneak_T
+
+" map n nzt
+" map N Nzt
 
 " -----------------------------------------------------------------------------------------  COMMANDS  -------------------------------------------------------------------------------------------------
 
@@ -464,7 +540,6 @@ nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 nnoremap <silent> <leader>h :Ag<CR>
 nmap <silent> <leader>] "ayiw:Ag <c-r>a<cr>
 nmap <silent> <leader>gc :execute "Ag " ToConst()<cr>
-nmap <Nop> <Plug>Sneak_s
 
 " Custom tags command that saves tags one by one...
 function! SaveToJtags(pattern)
@@ -485,16 +560,6 @@ function TryTagOrSaveJtag()
   endtry
 endfunction
 map <silent> <c-]> :call TryTagOrSaveJtag()<cr>
-
-" vim-sneak Mappings
-" Remaps f and t to work over multi lines
-map f <Plug>Sneak_f
-map F <Plug>Sneak_F
-map t <Plug>Sneak_t
-map T <Plug>Sneak_T
-
-map n nzz
-map N Nzz
 
 " type any word then press ctrl-z in insert mode to console log it
 " with an id string...
@@ -527,38 +592,6 @@ vnoremap <C-k> :m '<-2<CR>gv=gv
 
 " New tab
 map <c-w>gn :tabnew<CR>
-
-" Buffer maps
-function ListEmptyBufNums()
-  return join(map(getbufinfo({'buflisted':1}), { key, val -> len(val.name) == 0 ? val.bufnr : ''}))
-endfunction
-function ListAllBufNums(missbuf)
-  return join(map(getbufinfo({'buflisted':1}), { key, val -> val.bufnr == a:missbuf ? '' : val.bufnr }))
-endfunction
-map <leader>bp :bp<cr>
-map <leader>bn :bn<cr>
-map <leader>b<tab> q:ib <tab>
-map <leader>bdd :exe 'Bclose! ' bufnr()<cr>
-" Delete all empty buffers
-function DeleteEmptyBuffers()
-  let l:bufnums = ListEmptyBufNums()
-  if len(l:bufnums) > 1
-    exe 'bd! ' ListEmptyBufNums()
-  else 
-    echo 'No empty buffers'
-  endif
-endfunction
-map <leader>bde :call DeleteEmptyBuffers()<cr>
-" Delete all buffers but this one
-map <leader>bdD :exe 'bd! ' ListAllBufNums(bufnr())<cr>
-
-" Args list mappings
-map <leader>ar :ar<cr>
-map <leader>an :n<cr>
-map <leader>ap :N<cr>
-map <leader>aa :argadd %<cr>
-map <leader>ad :argdelete %<cr>
-map <leader>al :sall<cr>
 
 " Lundo!
 map <leader>ld :call LundoDiff()<cr>
@@ -621,20 +654,6 @@ function BatPreview()
   exe '!clear; bat ' . expand("<cWORD>")
 endfunction
 map <leader><leader>p :call BatPreview()<cr>
-
-" List all dirs excluding the given arg (usually node_modules)...
-function LsDirsFromCwdExcluding(exclude)
-  return substitute(join(split(system('ls'), '\n'), ','), a:exclude . ',', '', 'g')
-endfunction
-" " This is no good because 'path' only accepts directories, even if I add the
-" " files to it, it'll ignore them when expanding the glob...
-" map <c-p> :set wildignore=./node_modules,node_modules \| let &path=LsDirsFromCwdExcluding('node_modules')<cr>q:ifind **/
-
-" Quick way to cd into current dir for <c-x><c-f> file completions
-map <leader>cd :cd %:h<cr>
-map <leader>c- :cd -<cr>
-" Jumps to the file for the vue component under the cursor...
-map <leader>f :let &path=LsDirsFromCwdExcluding('node_modules') \| find ./**/<cword>*<cr>
 
 " Running node scripts
 map <leader><leader>r :silent pedit! +setfiletype\ javascript\|0read!node\ . console<cr>
