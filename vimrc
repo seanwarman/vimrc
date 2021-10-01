@@ -245,9 +245,37 @@ function ListBuffers()
   return join(map(getbufinfo({'buflisted':1}), { key, val -> FilePathToBufName(val.name, val.bufnr) }), ' • ')
 endfunction
 
-" A custom highlight group for the first item in the statusline...
-" hi ProjectStatus ctermfg=0 ctermbg=6 guifg=#000000 guibg=#00CED1
-set statusline=%#MatchParen#\ %{fnamemodify(getcwd(),':t')}\ %*%#StatusLineTerm#\ %{FugitiveHead()}\ %*\ %t:%p%%\ %#ErrorMsg#%m%*%=%{ListBuffers()}\ 
+function FilePathToSelected(path)
+  if a:path == bufname(bufnr())
+    return '[' . fnamemodify(a:path, ':t') . ']'
+  else
+    return fnamemodify(a:path, ':t')
+  endif
+endfunction
+
+function ListArgs()
+  return join(map(argv(), { key,val -> FilePathToSelected(val) }), ' • ')
+endfunction
+
+let g:args_or_buffers = 'args'
+map <leader><leader>a :let g:args_or_buffers = 'args'<cr>
+map <leader><leader>b :let g:args_or_buffers = 'buffers'<cr>
+
+function ListArgsOrBuffers()
+  if g:args_or_buffers == 'args'
+    return ListArgs()
+  elseif g:args_or_buffers == 'buffers'
+    return ListBuffers()
+  else
+    return ''
+  endif
+endfunction
+
+" Status line that shows the args list...
+set statusline=%#MatchParen#\ %{fnamemodify(getcwd(),':t')}\ %*%#StatusLineTerm#\ %{FugitiveHead()}\ %*\ %t:%p%%\ %#ErrorMsg#%m%*%=%{ListArgsOrBuffers()}\ 
+" Status line that shows the buffer list...
+" set statusline=%#MatchParen#\ %{fnamemodify(getcwd(),':t')}\ %*%#StatusLineTerm#\ %{FugitiveHead()}\ %*\ %t:%p%%\ %#ErrorMsg#%m%*%=%{ListBuffers()}\ 
+
 " Always show the statusline
 set laststatus=2
 
@@ -289,6 +317,7 @@ set omnifunc=syntaxcomplete#Complete
 " Dirvish config...
 let g:dirvish_relative_paths = 0
 let g:custom_dirvish_split_width = 60
+let g:custom_dirvish_split_height = 30
 function PreviewOrClosePreview()
   if &filetype != 'dirvish'
     pc
@@ -329,6 +358,10 @@ endfunction
 command! DirvishPreviewMode call DirvishPreviewMode() | pclose | pedit | call DirvishHereOrCwd("%:h") | exe 'norm <c-w>H' g:custom_dirvish_split_width '<c-w><p'
 map <leader><leader>. :DirvishPreviewMode<cr>
 map <leader>. :call DirvishNormalMode() \| call DirvishHereOrCwd("%:h")<cr>
+command! -nargs=* SearchFile call DirvishPreviewMode() | pc | pedit searcher | argad searcher | call DirvishHereOrCwd("$HOME/.vim/empty_dirvish_dir/") | exe '0read!ag -g <args> ' getcwd() | exe 'norm <c-w>K' g:custom_dirvish_split_height '<c-w>-p'
+map <leader>pp :SearchFile 
+" command! -nargs=* F silent! pedit! +setfiletype\ dirvish\|0read!ag\ <args>\ . finer
+
 
 " -----------------------------------------------------------------------------------------  SEARCHING  ------------------------------------------------------------------------------------------------
 
@@ -427,7 +460,7 @@ nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 
 " fzf Mappings
 "
-nnoremap <silent> <leader>pp :Files<cr>
+" nnoremap <silent> <leader>pp :Files<cr>
 nnoremap <silent> <leader>h :Ag<CR>
 nmap <silent> <leader>] "ayiw:Ag <c-r>a<cr>
 nmap <silent> <leader>gc :execute "Ag " ToConst()<cr>
@@ -525,6 +558,7 @@ map <leader>an :n<cr>
 map <leader>ap :N<cr>
 map <leader>aa :argadd %<cr>
 map <leader>ad :argdelete %<cr>
+map <leader>al :sall<cr>
 
 " Lundo!
 map <leader>ld :call LundoDiff()<cr>
@@ -546,20 +580,33 @@ map gs <c-w>v"syiwbbgdf'gf/<c-r>s<cr>
 " A smarter goto file command...
 function GotoFileSpecial()
   let l:filepath = expand("<cfile>")
-  let l:homepath1 = l:filepath[0] == '~' || l:filepath[0] == '@'
-  let l:homepath2 = l:filepath[0] == '/'
-  let l:relativepath = l:filepath[0] == '.'
 
-  if l:homepath1
-    exe v:count 'find ' . trim(substitute(l:filepath, '\~|\@', getcwd(), 'g')) . '*'
-  elseif l:homepath2
+  let l:homepath     = l:filepath[0] == '~'
+  let l:rootpath     = l:filepath[0] == '/'
+  let l:relativepath = l:filepath[0] == '.'
+  let l:atpath       = l:filepath[0] == '@'
+
+  if l:homepath
+    exe v:count 'find ' . getcwd() . '/' . l:filepath[1:] . '*'
+
+  elseif l:rootpath
     exe v:count 'find ' . getcwd() . l:filepath . '*'
+
   elseif l:relativepath
     exe v:count 'find %:h/' . l:filepath . '*'
+
   else
-    exe v:count 'find node_modules/' . l:filepath
+    " An '@' path could be home (in vue) or a modules folder...
+    try
+      exe v:count 'find node_modules/' . l:filepath
+
+    catch
+      exe v:count 'find ' . trim(substitute(l:filepath, '@', getcwd(), 'g')) . '*'
+
+    endtry
   endif
 endfunction
+
 function GotoFile()
   try
     exe v:count 'find <cfile>'
@@ -577,11 +624,11 @@ map <leader><leader>p :call BatPreview()<cr>
 
 " List all dirs excluding the given arg (usually node_modules)...
 function LsDirsFromCwdExcluding(exclude)
-  return substitute(join(split(system('ls -d */'), '\n'), ','), a:exclude . '/,', '', 'g')
+  return substitute(join(split(system('ls'), '\n'), ','), a:exclude . ',', '', 'g')
 endfunction
-" " This is no good because "path" only accepts directories, even if I add the
+" " This is no good because 'path' only accepts directories, even if I add the
 " " files to it, it'll ignore them when expanding the glob...
-" map <c-p> :let &path=LsDirsFromCwdExcluding('node_modules')<cr>q:ifind **/
+" map <c-p> :set wildignore=./node_modules,node_modules \| let &path=LsDirsFromCwdExcluding('node_modules')<cr>q:ifind **/
 
 " Quick way to cd into current dir for <c-x><c-f> file completions
 map <leader>cd :cd %:h<cr>
