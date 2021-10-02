@@ -720,37 +720,41 @@ function GotoFileSpecial()
   let l:relativepath = l:filepath[0] == '.'
   let l:atpath       = l:filepath[0] == '@'
 
-  if l:homepath
-    exe v:count 'find ' . getcwd() . '/' . l:filepath[1:] . '*'
+  try
+    if l:homepath
+      exe v:count 'find ' . getcwd() . '/' . l:filepath[1:] . '*'
 
-  elseif l:rootpath
-    exe v:count 'find ' . getcwd() . l:filepath . '*'
+    elseif l:rootpath
+      exe v:count 'find ' . getcwd() . l:filepath . '*'
 
-  elseif l:relativepath
-    try
-      " Sometimes this causes a too many filenames error
-      " because of the '*'...
-      exe v:count 'find %:h/' . l:filepath . '*'
-    catch
-      exe v:count 'find %:h/' . l:filepath
-    endtry
-    return
-  else
-    try
+    elseif l:relativepath
       try
-        exe v:count 'find node_modules/' . l:filepath
+        " Sometimes this causes a too many filenames error
+        " because of the '*'...
+        exe v:count 'find %:h/' . l:filepath . '*'
       catch
-        " An '@' path could be home (in vue) or a modules folder,
-        " but l:atpath doesn't work because <cfile> ignores @ signs :(
-        " Add the @ sign in...
-        exe v:count 'find node_modules/' . '@' . l:filepath
+        exe v:count 'find %:h/' . l:filepath
       endtry
+      return
+    else
+      try
+        try
+          exe v:count 'find node_modules/' . l:filepath
+        catch
+          " An '@' path could be home (in vue) or a modules folder,
+          " but l:atpath doesn't work because <cfile> ignores @ signs :(
+          " Add the @ sign in...
+          exe v:count 'find node_modules/' . '@' . l:filepath
+        endtry
 
-    catch
-      exe v:count 'find ' . trim(getcwd() . '/' . substitute(l:filepath, '^\/', '', 'g')) . '*'
+      catch
+        exe v:count 'find ' . trim(getcwd() . '/' . substitute(l:filepath, '^\/', '', 'g')) . '*'
 
-    endtry
-  endif
+      endtry
+    endif
+  catch
+    echo "Find error, are you sure you're cd'd into the right dir?"
+  endtry
 endfunction
 
 function GotoFile()
