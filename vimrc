@@ -714,8 +714,14 @@ function GotoFileSpecial()
     exe v:count 'find ' . getcwd() . l:filepath . '*'
 
   elseif l:relativepath
-    exe v:count 'find %:h/' . l:filepath . '*'
-
+    try
+      " Sometimes this causes a too many filenames error
+      " because of the '*'...
+      exe v:count 'find %:h/' . l:filepath . '*'
+    catch
+      exe v:count 'find %:h/' . l:filepath
+    endtry
+    return
   else
     try
       try
