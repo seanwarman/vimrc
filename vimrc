@@ -4,6 +4,11 @@ source $HOME/.vim/custom/snippets.vim
 " -----------------------------------------------------------------------------------------  PLUGINS  --------------------------------------------------------------------------------------------------
 
 call plug#begin('~/.local/share/vim/plugged')
+  " These colorschemes break the term vim's colours
+  " so only load them in the gui version...
+  if has("gui_macvim")
+    Plug 'flazz/vim-colorschemes'
+  endif
 
   " Syntax
   Plug 'yuezk/vim-js'
@@ -173,7 +178,12 @@ endif
 nnoremap <space> <Nop>
 let mapleader = " "
 
-colo slate
+" colo slate
+if has("gui_macvim")
+  colo Tomorrow-Night-Eighties
+else
+  colo slate
+endif
 
 let g:startify_change_to_dir = 0
 let g:startify_custom_header = [
@@ -577,10 +587,10 @@ command! Test call Test()
 " -----------------------------------------------------------------------------------------  AUTOCMDS  -------------------------------------------------------------------------------------------------
 
 " Vim's file type group...
-augroup filetypedetect
+" augroup filetypedetect
   " Set .vue files to html...
-  autocmd! BufNewFile,BufRead *.vue setfiletype html
-augroup END
+  " autocmd! BufNewFile,BufRead *.vue setfiletype html
+" augroup END
 
 " -----------------------------------------------------------------------------------------  MAPPINGS  -------------------------------------------------------------------------------------------------
 
@@ -688,10 +698,12 @@ map <leader>ld :call LundoDiff()<cr>
 map <leader>> :diffput<cr>
 map <leader>< :diffget<cr>
 
-map [[ F{
-map ]] f}
-map [] F}
-map ][ f{
+" This get overwritten by a plugin (emmet, I think) and I
+" don't really need them that much...
+" map [[ F{
+" map ]] f}
+" map [] F}
+" map ][ f{
 
 " Split a jsx component's props onto multi lines
 map <leader>t= 0f<f v/\/>\\|><cr>hc<cr><c-r>"<cr><esc>kA<bs><esc>0dwv$:s/ /\r/g<cr>='[:noh<cr>
