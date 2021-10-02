@@ -456,7 +456,8 @@ endfunction
 function PreviewOrClosePreview(prevcmd)
   if &filetype != 'dirvish'
     pc
-    argadd %
+    " Do I want to add the file to args automatically?
+    " argadd %
   else
     exe 'call' a:prevcmd
   endif
