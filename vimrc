@@ -178,13 +178,6 @@ endif
 nnoremap <space> <Nop>
 let mapleader = " "
 
-" colo slate
-if has("gui_macvim")
-  colo Tomorrow-Night-Eighties
-else
-  colo slate
-endif
-
 let g:startify_change_to_dir = 0
 let g:startify_custom_header = [
       \"        ________ ++     ________",
@@ -217,22 +210,84 @@ let g:startify_lists = [
 
 let g:vue_pre_processors = ['scss']
 
+" ------------------------------------------------------------------------------------------  COLORS  -------------------------------------------------------------------------------------------------
+
+function LightColours()
+  return [
+        \ 'buttercream',
+        \ 'cake16',
+        \ 'carrot',
+        \ 'cherryblossom',
+        \ 'codeburn',
+        \ 'dawn',
+        \ 'flattened_light',
+        \ 'fruidle',
+        \ 'seagull',
+        \ 'whitebox'
+        \]
+endfunction
+function DarkColours()
+  return [
+        \ 'abbott',
+        \ 'abra',
+        \ 'atom',
+        \ 'base16-atelierdune',
+        \ 'birds-of-paradise',
+        \ 'buddy',
+        \ 'bvemu',
+        \ 'desert',
+        \ 'evening1',
+        \ 'flatland',
+        \ 'gruvbox',
+        \ 'impactjs',
+        \ 'itg_flat',
+        \ 'lumberjack',
+        \ 'luna',
+        \ 'lxvc',
+        \ 'material',
+        \ 'molokai',
+        \ 'monokai-chris',
+        \ 'Monokai',
+        \ 'monokain',
+        \ 'new-railscasts',
+        \ 'pacific',
+        \ 'parsec',
+        \ 'seti',
+        \ 'slate2',
+        \ 'srcery-drk',
+        \ 'srcery',
+        \ 'stereokai',
+        \ 'Tomorrow-Night-Eighties',
+        \ 'vimbrant',
+        \]
+endfunction
+
+command! -nargs=* Dark :exe 'colo' DarkColours()[<args>]
+command! -nargs=* Light :exe 'colo' LightColours()[<args>]
+
+" colo slate
+if has("gui_macvim")
+  Dark 19
+else
+  colo slate
+endif
+
 " ----------------------------------------------------------------------------------------  STATUSLINE  ------------------------------------------------------------------------------------------------
 
 function FindArgv(path)
   for file in argv()
-	  if fnamemodify(file, ":p") == fnamemodify(a:path, ":p")
-		  return 1
-	  endif
+    if fnamemodify(file, ":p") == fnamemodify(a:path, ":p")
+      return 1
+    endif
   endfor
-	  return 0
+  return 0
 endfunction
 
 function FilePathToBufName(path, bufnr)
   let l:file = ''
-	if len(a:path) > 0
+  if len(a:path) > 0
     let l:file = fnamemodify(a:path, ":t")
-	else
+  else
     let l:file = 'No Name'
   endif
 
@@ -369,14 +424,14 @@ let g:custom_dirvish_split_height = 30
 " Mappings
 
 function DirvishPreviewTreeMaps()
-    augroup dirvish_config
-      autocmd!
-      autocmd FileType dirvish silent! nmap <buffer> l :call dirvish#open("edit", 0)<CR> \| :call PreviewOrClosePreview('feedkeys("p")')<cr>
-      autocmd FileType dirvish silent! nmap <buffer> k k:call feedkeys("p")<CR>
-      autocmd FileType dirvish silent! nmap <buffer> j j:call feedkeys("p")<CR>
-      autocmd FileType dirvish silent! nmap <buffer> h <Plug>(dirvish_up):call feedkeys("p")<CR>
-      autocmd FileType dirvish silent! nmap <buffer> gq <Plug>(dirvish_quit):pc<cr>
-    augroup END
+  augroup dirvish_config
+    autocmd!
+    autocmd FileType dirvish silent! nmap <buffer> l :call dirvish#open("edit", 0)<CR> \| :call PreviewOrClosePreview('feedkeys("p")')<cr>
+    autocmd FileType dirvish silent! nmap <buffer> k k:call feedkeys("p")<CR>
+    autocmd FileType dirvish silent! nmap <buffer> j j:call feedkeys("p")<CR>
+    autocmd FileType dirvish silent! nmap <buffer> h <Plug>(dirvish_up):call feedkeys("p")<CR>
+    autocmd FileType dirvish silent! nmap <buffer> gq <Plug>(dirvish_quit):pc<cr>
+  augroup END
 endfunction
 
 function DirvishPreviewSearchMaps()
@@ -588,8 +643,8 @@ command! Test call Test()
 
 " Vim's file type group...
 " augroup filetypedetect
-  " Set .vue files to html...
-  " autocmd! BufNewFile,BufRead *.vue setfiletype html
+" Set .vue files to html...
+" autocmd! BufNewFile,BufRead *.vue setfiletype html
 " augroup END
 
 " -----------------------------------------------------------------------------------------  MAPPINGS  -------------------------------------------------------------------------------------------------
