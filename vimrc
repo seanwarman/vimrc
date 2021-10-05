@@ -509,7 +509,7 @@ function DirvishPreviewTree()
   norm p
 endfunction
 command! DirvishPreviewTree :call DirvishPreviewTree()
-map <leader>. :call DirvishPreviewTree()<cr>
+map <leader>. :silent! call DirvishPreviewTree()<cr>
 
 function DirvishPreview(cmd)
   silent! bw! searcher
