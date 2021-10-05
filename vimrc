@@ -267,10 +267,50 @@ command! -nargs=* Light :exe 'colo' LightColours()[<args>]
 
 " colo slate
 if has("gui_macvim")
-  Dark 19
+  Dark 1
 else
   colo slate
 endif
+
+" An array of colours for the term_colourscheme_colours function based on the
+" current values of the colourscheme's highlight groups...
+let g:term_colourscheme_colours = [
+      \ { 'hi': 'Vertsplit',    'type': 'fg' },
+      \ { 'hi': 'Normal',       'type': 'fg' },
+      \ { 'hi': 'Conditional',  'type': 'fg' },
+      \ { 'hi': 'Special',      'type': 'fg' },
+      \ { 'hi': 'UnderLined',   'type': 'fg' },
+      \ { 'hi': 'Cursor',       'type': 'bg' },
+      \ { 'hi': 'Operator',     'type': 'fg' },
+      \ { 'hi': 'Error',        'type': 'bg' },
+      \ { 'hi': 'MoreMsg',      'type': 'fg' },
+      \ { 'hi': 'Type',         'type': 'fg' },
+      \ { 'hi': 'Directory',    'type': 'fg' },
+      \ { 'hi': 'Boolean',      'type': 'fg' },
+      \ { 'hi': 'Normal',       'type': 'bg' },
+      \ { 'hi': 'FoldColumn',   'type': 'fg' },
+      \ { 'hi': 'Define',       'type': 'fg' },
+      \ { 'hi': 'StatusLine',   'type': 'fg' }
+      \]
+
+function MapAnsiTermColours(key, val)
+  silent! let l:colour = synIDattr(hlID(a:val.hi), a:val.type)
+  if len(l:colour)
+    return l:colour
+  else
+    return term_getansicolors(bufnr())[a:key]
+  endif
+endfunction
+
+let g:MapAnsiTermFunc = function("MapAnsiTermColours")
+
+" This sets the ansi term colours (for gui vim) so they match the current
+" colorscheme...
+function SetAnsiTermColours()
+  silent! call term_setansicolors(bufnr(), map(g:term_colourscheme_colours, g:MapAnsiTermFunc))
+endfunction
+
+autocmd TerminalOpen * silent! call SetAnsiTermColours()
 
 " ----------------------------------------------------------------------------------------  STATUSLINE  ------------------------------------------------------------------------------------------------
 
@@ -371,6 +411,7 @@ endfunction
 map <leader>bde :call DeleteEmptyBuffers()<cr>
 " Delete all buffers but this one
 map <leader>bdD :exe 'bd! ' ListAllBufNums(bufnr())<cr>
+map <leader>bd* :exe 'bd! ' ListAllBufNums(-1)<cr>
 
 " Args list mappings
 map <leader>an :n<cr>
@@ -586,6 +627,7 @@ endfunction
 
 " Causes search to highlight while entering it...
 set hlsearch
+set ignorecase
 " Custom colour for search highlighting...
 " hi Search term=standout ctermfg=0 ctermbg=11 guifg=Blue guibg=Yellow
 " Clears the hlsearch on most movements...
@@ -639,41 +681,49 @@ function Test()
 endfunction
 command! Test call Test()
 
-" -----------------------------------------------------------------------------------------  AUTOCMDS  -------------------------------------------------------------------------------------------------
+" -----------------------------------------------------------------------------------------  QUICKFIX  -------------------------------------------------------------------------------------------------
 
-" Vim's file type group...
-" augroup filetypedetect
-" Set .vue files to html...
-" autocmd! BufNewFile,BufRead *.vue setfiletype html
-" augroup END
+" Set the make program to eslint in the project's node modules...
+set makeprg=./node_modules/.bin/eslint
+" Set the error format to understand eslint's unix output...
+set errorformat=%A%f:%l:%c:%m,%-G%.%#
 
-" -----------------------------------------------------------------------------------------  MAPPINGS  -------------------------------------------------------------------------------------------------
+command! -nargs=* MakeLint silent make --ext .js,.vue,.ts,.tsx,.jsx --ignore-path .gitignore -f unix <args>
+command! -nargs=* LMakeLint silent lmake --ext .js,.vue,.ts,.tsx,.jsx --ignore-path .gitignore -f unix <args>
+command! -nargs=* LMakeLintFix lmake --fix --ext .js,.vue,.ts,.tsx,.jsx --ignore-path .gitignore -f unix <args>
+
+" Run linting on the current file...
+map <leader>l% :LMakeLint % \| lopen<cr>
+" Run linting on the cwd...
+map <leader>l. :MakeLint . \| copen<cr>
+" Fix problems in current file...
+map <leader>lf :LMakeLintFix %<cr>
+
+map <leader>lo :lopen<cr>
+map <leader>ln :lne<cr>
+map <leader>lp :lp<cr>
+
+map <leader>co :copen<cr>
+map <leader>cn :cn<cr>
+map <leader>cp :cp<cr>
 
 " Runs eslint and prints results to a buffer...
 function Lint(dir)
   silent! bd! {linter}
   echo 'Linting...'
-  exe 'silent! pedit +setfiletype\ sh\|0read!npx\ eslint\ --ext\ .js,.vue,.ts,.tsx,.jsx\ --ignore-path\ .gitignore\ ' . a:dir . ' linter'
+  exe 'silent! pedit +setfiletype\ sh\|0read!' &makeprg . '\ ' . a:dir . ' linter'
 endfunction
-command! -nargs=* -complete=dir Lint call Lint(expand("<args>"))
-" Run linting on the current file...
-map <leader>l% :Lint %<cr>
-" Run linting on the cwd...
-map <leader>l. :Lint .<cr>
-" Open the linter buffer in a preview window...
-map <leader>ll :pedit +b{linter}<cr>
+command! -nargs=* -complete=dir LintFile call Lint(expand("<args>"))
 
 function FixLint(dir)
   echo 'Fixing...'
-  call system('npx eslint --fix --ext .js,.vue,.ts,.tsx,.jsx --ignore-path .gitignore ' . a:dir)
+  call system(&makeprg . ' --fix --ext .js,.vue,.ts,.tsx,.jsx --ignore-path .gitignore ' . a:dir)
   e!
   echo 'Done!'
 endfunction
-command! -nargs=* -complete=dir FixLint call FixLint(expand("<args>"))
-" Autofix all found problems...
-map <leader>lf. :FixLint .<cr>
-" Auto fix the problems in the current file...
-map <leader>lf% :FixLint %<cr>
+command! -nargs=* -complete=dir FixLintFile call FixLint(expand("<args>"))
+
+" -----------------------------------------------------------------------------------------  MAPPINGS  -------------------------------------------------------------------------------------------------
 
 " Fugitive mappings
 "
