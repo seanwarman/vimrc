@@ -210,6 +210,14 @@ let g:startify_lists = [
 
 let g:vue_pre_processors = ['scss']
 
+" -----------------------------------------------------------------------------------------  SESSIONS  -------------------------------------------------------------------------------------------------
+
+function SaveSesh(name)
+  exe 'SSave ' . a:name
+endfunction
+
+map <leader>ss :call SaveSesh(fnamemodify(getcwd(), ':t') . '-' . FugitiveHead())<cr>
+
 " ------------------------------------------------------------------------------------------  COLORS  -------------------------------------------------------------------------------------------------
 
 function LightColours()
@@ -310,7 +318,7 @@ function SetAnsiTermColours()
   silent! call term_setansicolors(bufnr(), map(g:term_colourscheme_colours, g:MapAnsiTermFunc))
 endfunction
 
-autocmd TerminalOpen * silent! call SetAnsiTermColours()
+autocmd TerminalOpen,TermChanged,TerminalWinOpen,Syntax * silent! call SetAnsiTermColours()
 
 " ----------------------------------------------------------------------------------------  STATUSLINE  ------------------------------------------------------------------------------------------------
 
@@ -394,29 +402,69 @@ endfunction
 function ListAllBufNums(missbuf)
   return join(map(getbufinfo({'buflisted':1}), { key, val -> val.bufnr == a:missbuf ? '' : val.bufnr }))
 endfunction
-map <leader>bp :bp<cr>
-map <leader>bn :bn<cr>
-map <leader>b<tab> q:ib <tab>
-map <leader>bdd :bd!<cr>
-" map <leader>bdd :exe 'Bclose! ' bufnr()<cr>
+
 " Delete all empty buffers
 function DeleteEmptyBuffers()
   let l:bufnums = ListEmptyBufNums()
-  if len(l:bufnums) > 1
+  if len(trim(l:bufnums)) > 1
     exe 'bd! ' ListEmptyBufNums()
   else 
     echo 'No empty buffers'
   endif
 endfunction
 map <leader>bde :call DeleteEmptyBuffers()<cr>
-" Delete all buffers but this one
-map <leader>bdD :exe 'bd! ' ListAllBufNums(bufnr())<cr>
 map <leader>bd* :exe 'bd! ' ListAllBufNums(-1)<cr>
+
+function ListAllBufNames()
+  return map(getbufinfo({'buflisted':1}), { key, val -> fnamemodify(val.name, ':p') })
+endfunction
+
+function ListAllArgPaths()
+  return map(argv(), { key, val -> fnamemodify(val, ':p') })
+endfunction
+
+function PathExistsInArgv(path)
+  for path in ListAllArgPaths()
+    if path == a:path
+      return 1
+    endif
+  endfor
+  return 0
+endfunction
+
+function ListAllBufsNotInArgv()
+  let l:paths = []
+  for path in ListAllBufNames()
+    if !PathExistsInArgv(path)
+      call add(l:paths, path)
+    endif
+  endfor
+  return l:paths
+endfunction
+
+function DeleteAllBufsNotInArgv()
+  let l:paths = ListAllBufsNotInArgv()
+  echo l:paths
+  if len(l:paths)
+    exe 'bd!' join(ListAllBufsNotInArgv())
+  endif
+  call DeleteEmptyBuffers()
+endfunction
+
+" Buffer mappings
+map <leader>bp :bp<cr>
+map <leader>bn :bn<cr>
+map <leader>bdd :bd!<cr>
+" Select buffer from completion menu...
+map <leader>b<tab> q:ib <tab>
+map <leader>bdD :sil! call DeleteAllBufsNotInArgv()<cr>
 
 " Args list mappings
 map <leader>an :n<cr>
 map <leader>ap :N<cr>
 map <leader>aa :argadd %<cr>
+" Add all open buffers to the args list...
+map <leader>aA :exe 'argadd' join(ListAllBufNames())<cr>
 map <leader>add :argdelete %<cr>
 map <leader>al :sall<cr>
 map <leader>adD :argdelete *<cr>
