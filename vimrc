@@ -40,7 +40,7 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'MattesGroeger/vim-bookmarks'
   Plug 'mattn/emmet-vim'
 
-  " Manual page lookup (don't need but really nice to have)
+  " Nice extras
   Plug 'vim-utils/vim-man'
 call plug#end()
 command! PluginBaby PlugClean | PlugInstall
@@ -508,9 +508,6 @@ set omnifunc=syntaxcomplete#Complete
 
 let g:dirvish_relative_paths = 0
 let g:custom_dirvish_split_width = 60
-let g:custom_dirvish_split_height = 30
-
-" Mappings
 
 function DirvishPreviewTreeMaps()
   augroup dirvish_config
@@ -519,16 +516,6 @@ function DirvishPreviewTreeMaps()
     autocmd FileType dirvish silent! nmap <buffer> k k:call feedkeys("p")<CR>
     autocmd FileType dirvish silent! nmap <buffer> j j:call feedkeys("p")<CR>
     autocmd FileType dirvish silent! nmap <buffer> h <Plug>(dirvish_up):call feedkeys("p")<CR>
-    autocmd FileType dirvish silent! nmap <buffer> gq <Plug>(dirvish_quit):pc<cr>
-  augroup END
-endfunction
-
-function DirvishPreviewSearchMaps()
-  augroup dirvish_config
-    autocmd!
-    autocmd FileType dirvish silent! nmap <buffer> l :pc!<cr>gF
-    autocmd FileType dirvish silent! nmap <buffer> k k:call DirvishFindMatchAtCursor()<cr>
-    autocmd FileType dirvish silent! nmap <buffer> j j:call DirvishFindMatchAtCursor()<cr>
     autocmd FileType dirvish silent! nmap <buffer> gq <Plug>(dirvish_quit):pc<cr>
   augroup END
 endfunction
@@ -556,52 +543,8 @@ function DirvishPreviewTree()
   call DirvishPositionLeft(g:custom_dirvish_split_width)
   norm p
 endfunction
-command! DirvishPreviewTree :call DirvishPreviewTree()
-map <leader>. :silent! call DirvishPreviewTree()<cr>
-
-function DirvishPreview(cmd)
-  silent! bw! searcher
-  set nopreviewwindow
-  silent! pedit searcher 
-  call DirvishHereOrCwd('$HOME/.vim/empty_dirvish_dir/') 
-  " Reload the dirvish buffer or it'll keep the previous search results...
-  norm R
-  exe '0read!' a:cmd 
-  " Delete the last line (.gitkeep)
-  norm Gdd
-endfunction
-
-function FindFile(path)
-  try
-    exe 'find ' . a:path
-  catch
-    call DirvishUnMap()
-    call DirvishPreviewTreeMaps()
-    call DirvishPreview('ag -g ' . a:path . ' ' . getcwd())
-    call DirvishPositionTop(g:custom_dirvish_split_height)
-    norm p
-  endtry
-endfunction
-command! -nargs=* -complete=file_in_path FindFile call FindFile(expand("<args>"))
-nmap <leader>pp :let &path=LsDirsFromCwdExcluding('node_modules')<cr>q:iFindFile 
-nmap <leader>fp :let &path=LsDirsFromCwdExcluding('node_modules')<cr>:FindFile <c-r><c-w><c-f><tab><cr>
-
-function Search(term)
-  call DirvishUnMap()
-  call DirvishPreviewSearchMaps() 
-  call DirvishPreview('ag ' . a:term . ' .')
-  call DirvishPositionTop(g:custom_dirvish_split_height)
-  call DirvishFindMatchAtCursor()
-endfunction
-command! -nargs=* Search call Search(expand("<args>"))
-map <leader>ff :Search 
-map <leader>pf :Search <c-r><c-w><cr>
-
-" Utils
-
-function DirvishPositionTop(height)
-  exe "norm \<c-w>K" a:height "\<c-w>-"
-endfunction
+command! DirvishPreviewTree :sil! call DirvishPreviewTree()
+map <leader>. :DirvishPreviewTree<cr>
 
 function DirvishPositionLeft(width)
   exe "norm \<c-w>H" a:width "\<c-w><"
@@ -617,6 +560,11 @@ function PreviewOrClosePreview(prevcmd)
   endif
 endfunction
 
+function DirvishFindMatchAtCursor()
+  let l:bits = split(expand('<cWORD>'), ':')
+  exe 'pedit +' . l:bits[1] '' l:bits[0]
+endfunction
+
 function DirvishHereOrCwd(dir)
   if len(expand(a:dir))
     exe 'Dirvish ' . a:dir
@@ -625,18 +573,72 @@ function DirvishHereOrCwd(dir)
   endif
 endfunction
 
-function DirvishFindMatchAtCursor()
-  let l:bits = split(expand('<cWORD>'), ':')
-  exe 'pedit +' . l:bits[1] '' l:bits[0]
+" -----------------------------------------------------------------------------------------  SEARCHER  ----------------------------------------------------------------------------------------------------
+
+let g:searcher_split_height = 30
+
+function PeditFileAtLine()
+  try
+    let l:file = split(expand('<cWORD>'), ':')
+    if len(l:file) > 1
+      exe 'pedit '  . ' +' . l:file[1] . ' ' . l:file[0]
+    else
+      exe 'pedit ' . l:file[0]
+    endif
+  catch
+    echo 'No file'
+  endtry
+endfunction
+
+function ReadCommandToBuf(cmd)
+  silent! bw! searcher
+  new
+  only
+  set nopreviewwindow
+  file searcher
+  sil! unmap <buffer> <cr>
+  sil! unmap <buffer> l
+  sil! unmap <buffer> k
+  sil! unmap <buffer> j
+  sil! unmap <buffer> gq
+  nmap <silent> <buffer> <cr> :pc!<cr>gF
+  nmap <silent> <buffer> l :pc!<cr>gF
+  nmap <silent> <buffer> k k:call PeditFileAtLine()<cr>
+  nmap <silent> <buffer> j j:call PeditFileAtLine()<cr>
+  nmap <silent> <buffer> gq :sil! pc \| e #<cr>
+  silent! pedit
+  exe '0read!' a:cmd 
+endfunction
+
+function FindFile(path)
+  try
+    exe 'find ' . a:path
+  catch
+    silent! call ReadCommandToBuf('ag -g ' . a:path . ' ' . getcwd())
+    call PositionTop(g:searcher_split_height)
+    call PeditFileAtLine()
+  endtry
+endfunction
+command! -nargs=* -complete=file_in_path FindFile call FindFile(expand("<args>"))
+nmap <leader>pp :let &path=LsDirsFromCwdExcluding('node_modules')<cr>q:iFindFile 
+nmap <leader>fp :let &path=LsDirsFromCwdExcluding('node_modules')<cr>:FindFile <c-r><c-w><c-f><tab><cr>
+
+function Search(term)
+  call ReadCommandToBuf('ag ' . a:term . ' .')
+  call PositionTop(g:searcher_split_height)
+  call PeditFileAtLine()
+endfunction
+command! -nargs=* Search silent! call Search(expand("<args>"))
+map <leader>ff :Search 
+map <leader>pf :Search <c-r><c-w><cr>
+
+function PositionTop(height)
+  exe "norm \<c-w>K" a:height "\<c-w>-"
 endfunction
 
 function LsDirsFromCwdExcluding(exclude)
   return substitute(join(split(system('ls'), '\n'), ','), a:exclude . ',', '', 'g')
 endfunction
-
-
-" Jumps to the file for the vue component under the cursor...
-" map <leader>f :let &path=LsDirsFromCwdExcluding('node_modules') \| find ./**/<cword>*<cr>
 
 " -----------------------------------------------------------------------------------------  NETRW  ----------------------------------------------------------------------------------------------------
 
