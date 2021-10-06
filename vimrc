@@ -591,6 +591,7 @@ function PeditFileAtLine()
 endfunction
 
 function ReadCommandToBuf(cmd)
+  let l:gobackbuf = bufnr()
   silent! bw! searcher
   new
   only
@@ -605,7 +606,7 @@ function ReadCommandToBuf(cmd)
   nmap <silent> <buffer> l :pc!<cr>gF
   nmap <silent> <buffer> k k:call PeditFileAtLine()<cr>
   nmap <silent> <buffer> j j:call PeditFileAtLine()<cr>
-  nmap <silent> <buffer> gq :sil! pc \| e #<cr>
+  exe 'nmap <silent> <buffer> gq :sil! pc \| b ' . l:gobackbuf . '<cr>'
   silent! pedit
   exe '0read!' a:cmd 
 endfunction
@@ -630,7 +631,7 @@ function Search(term)
 endfunction
 command! -nargs=* Search silent! call Search(expand("<args>"))
 map <leader>ff :Search 
-map <leader>pf :Search <c-r><c-w><cr>
+map <leader>p] :Search <c-r><c-w><cr>
 
 function PositionTop(height)
   exe "norm \<c-w>K" a:height "\<c-w>-"
