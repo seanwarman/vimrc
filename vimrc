@@ -1,5 +1,3 @@
-source $HOME/.vim/custom/functions.vim
-source $HOME/.vim/custom/snippets.vim
 
 " -----------------------------------------------------------------------------------------  PLUGINS  --------------------------------------------------------------------------------------------------
 
@@ -611,21 +609,15 @@ function ReadCommandToSearcherBuf(cmd)
   new
   only
   set nopreviewwindow
-  if exists(':Dirvish')
-    set filetype=dirvish
-  endif
   file searcher
   sil! unmap <buffer> <cr>
   sil! unmap <buffer> x
   sil! unmap <buffer> l
-  sil! unmap <buffer> k
-  sil! unmap <buffer> j
   sil! unmap <buffer> gq
   nmap <silent> <buffer> <cr> :pc!<cr>gF
   nmap <silent> <buffer> l :pc!<cr>gF
-  nmap <silent> <buffer> k k:call PeditFileAtLine()<cr>
-  nmap <silent> <buffer> j j:call PeditFileAtLine()<cr>
   nmap <silent> <buffer> x :call ArgAddOrRemoveFile(split(expand('<cWORD>'), ':')[0])<cr>
+  au CursorMoved <buffer> call PeditFileAtLine()
   exe 'nmap <silent> <buffer> gq :sil! pc \| b ' . l:gobackbuf . '<cr>'
   silent! pedit
   exe '0read!' a:cmd 
@@ -799,20 +791,95 @@ function FixLint(dir)
 endfunction
 command! -nargs=* -complete=dir FixLintFile call FixLint(expand("<args>"))
 
-" -----------------------------------------------------------------------------------------  MAPPINGS  -------------------------------------------------------------------------------------------------
+" -------------------------------------------------------------------------------------------  MDN  ----------------------------------------------------------------------------------------------------
 
-" Fugitive mappings
-"
-" Add a commit or branch name to the "d" register then you can use
-" it to diff any file from the current branch...
-map <leader>pd :Gdiff <c-r>d<cr>
-nnoremap <silent> <leader>gg :G<cr>
-nnoremap <silent> <leader>gd :Gdiff<cr>
-nnoremap <silent> <leader>gr :Gread<cr>
-nnoremap <silent> <leader>gb :Gblame<cr>
-nnoremap <leader>gpu :G push<cr>
-" Note, this always refers to the cwd git repo...
-nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
+function! MenuMovement()
+  " Limit movement, you can still do "w" etc, this is just to make it a bit
+  " like a menu...
+  map <buffer> h <NOP>
+  map <buffer> l <NOP>
+  map <buffer> <esc> <c-w>c
+endfunc
+
+function! EasySplit(filetype, ...)
+  if bufname("%") == "easysplit" | return | endif
+
+  " Set up the buffer-list buffer (this makes it hidden)
+  let g:easysplit = bufnr('easysplit', 1)
+  call setbufvar(g:easysplit, "&buftype", "nofile")
+  execute "sbuffer" . g:easysplit
+  " If we leave buffer-list it'll get deleted...
+  " au! BufLeave easysplit execute g:easysplit . "bwipeout"
+  execute "set filetype=".a:filetype
+  execute "norm \<c-w>J10\<c-w>-gg"
+
+  for easydo in a:000
+    silent execute easydo
+  endfor
+
+  silent execute "norm ggd/See also\<cr>dd}2d}gg"
+  call MenuMovement()
+endfunct
+
+function! FormatMdn()
+  return 'norm ggd/See also\<cr>dd}2d}gg'
+endfunc
+
+function! Mdn(queryarr)
+  return '0read !curl https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/'.a:queryarr[0].'/'.a:queryarr[1].' | w3m -dump -T text/html'
+endfunc
+
+function! MdnSplit(query)
+  call EasySplit("asm", Mdn(split(a:query, "\\.")), FormatMdn())
+endfunc
+
+command -nargs=* MDN call MdnSplit('<args>')
+
+" ------------------------------------------------------------------------------------------  LUNDO  ---------------------------------------------------------------------------------------------------
+
+function! LundoDiff()
+  let g:lundobufname = 'lundo-diff'
+
+  " Set up the buffer (this makes it hidden)
+  let g:lundobuf = bufnr(g:lundobufname, 1)
+  call setbufvar(g:lundobuf, "&buftype", "nofile")
+
+  let g:undofile = undofile(expand("%"))
+  let g:filecontent = systemlist("cat " . expand("%"))
+
+  " setbufline only works on loaded buffers
+  call bufload(g:lundobufname)
+  let lnum = 0
+  for line in g:filecontent
+    let lnum = lnum + 1
+    call setbufline(g:lundobuf, lnum, line)
+  endfor
+
+  au! BufLeave lundo-diff execute "diffoff! |" . g:lundobuf . "bwipeout"
+
+  execute "vert diffsplit " . g:lundobufname
+  silent execute 'rundo ' fnameescape(g:undofile)
+  norm zR
+
+  map <buffer> > :diffput<cr>
+  map <buffer> < :diffget<cr>
+endfunc
+
+" Lundo!
+map <leader>ld :call LundoDiff()<cr>
+
+" -----------------------------------------------------------------------------------  REGISTER COMPLETION  -------------------------------------------------------------------------------------------
+
+" This doesn't work properly but worth giving another go...
+function! Registers(findstart, base)
+  if a:findstart == 1
+    return 0
+  endif
+  let l:regs = [ '"', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'i', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'w', 'y', 'z', '-', '.', ':', '%', '#', '/', '=', ]
+  return { 'words': map(l:regs, { i, reg -> { 'key': reg, 'word': getreginfo(reg).regcontents[0], 'abbr': '@' . reg, 'menu': slice(trim(getreginfo(reg).regcontents[0]), 0, 20) } }) }
+endfunction
+
+" ------------------------------------------------------------------------------------------  JTAGS  --------------------------------------------------------------------------------------------------
 
 " Custom tags command that saves tags one by one...
 function! SaveToJtags(pattern)
@@ -833,6 +900,21 @@ function TryTagOrSaveJtag()
   endtry
 endfunction
 map <silent> <c-]> :<c-u>call TryTagOrSaveJtag()<cr>
+
+" -----------------------------------------------------------------------------------------  MAPPINGS  -------------------------------------------------------------------------------------------------
+
+" Fugitive mappings
+"
+" Add a commit or branch name to the "d" register then you can use
+" it to diff any file from the current branch...
+map <leader>pd :Gdiff <c-r>d<cr>
+nnoremap <silent> <leader>gg :G<cr>
+nnoremap <silent> <leader>gd :Gdiff<cr>
+nnoremap <silent> <leader>gr :Gread<cr>
+nnoremap <silent> <leader>gb :Gblame<cr>
+nnoremap <leader>gpu :G push<cr>
+" Note, this always refers to the cwd git repo...
+nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 
 " type any word then press ctrl-z in insert mode to console log it
 " with an id string...
@@ -865,9 +947,6 @@ vnoremap <C-k> :m '<-2<CR>gv=gv
 
 " New tab
 map <c-w>gn :tabnew<CR>
-
-" Lundo!
-map <leader>ld :call LundoDiff()<cr>
 
 map <leader>> :diffput<cr>
 map <leader>< :diffget<cr>
