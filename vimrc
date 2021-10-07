@@ -613,11 +613,16 @@ function ReadCommandToSearcherBuf(cmd)
   sil! unmap <buffer> <cr>
   sil! unmap <buffer> x
   sil! unmap <buffer> l
+  sil! unmap <buffer> k
+  sil! unmap <buffer> j
   sil! unmap <buffer> gq
   nmap <silent> <buffer> <cr> :pc!<cr>gF
   nmap <silent> <buffer> l :pc!<cr>gF
+  nmap <silent> <buffer> k k:call PeditFileAtLine()<cr>
+  nmap <silent> <buffer> j j:call PeditFileAtLine()<cr>
   nmap <silent> <buffer> x :call ArgAddOrRemoveFile(split(expand('<cWORD>'), ':')[0])<cr>
-  au CursorMoved <buffer> call PeditFileAtLine()
+  " I'd like to put this in but it behaves janky...
+  " au CursorMoved <buffer> call PeditFileAtLine()
   exe 'nmap <silent> <buffer> gq :sil! pc \| b ' . l:gobackbuf . '<cr>'
   silent! pedit
   exe '0read!' a:cmd 
