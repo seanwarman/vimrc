@@ -385,9 +385,9 @@ map <leader><leader>t :call ToggleStatusLine()<cr>
 
 function ListArgsOrBuffers()
   if g:args_or_buffers == 'args'
-    return ListArgs()
+    return ListArgs() . ' = A '
   elseif g:args_or_buffers == 'buffers'
-    return ListBuffers()
+    return ListBuffers() . ' = B '
   else
     return ''
   endif
@@ -438,6 +438,14 @@ function PathExistsInArgv(path)
   return 0
 endfunction
 
+function ArgAddOrRemoveFile(path)
+  if PathExistsInArgv(fnamemodify(a:path, ':p'))
+    exe 'argdelete' a:path
+  else
+    exe 'argadd' a:path
+  endif
+endfunction
+
 function ListAllBufsNotInArgv()
   let l:paths = []
   for path in ListAllBufNames()
@@ -467,12 +475,14 @@ map <leader>bdD :sil! call DeleteAllBufsNotInArgv()<cr>
 " Args list mappings
 map <leader>an :n<cr>
 map <leader>ap :N<cr>
-map <leader>aa :argadd %<cr>
+map <leader>aa :call ArgAddOrRemoveFile(expand('%'))<cr>
 " Add all open buffers to the args list...
 map <leader>aA :exe 'argadd' join(ListAllBufNames())<cr>
-map <leader>add :argdelete %<cr>
 map <leader>al :sall<cr>
 map <leader>adD :argdelete *<cr>
+command -nargs=* -complete=arglist Args argedit <args>
+" Select buffer from completion menu...
+map <leader>a<tab> q:iArgs <tab>
 
 " -----------------------------------------------------------------------------------------  SETTINGS  -------------------------------------------------------------------------------------------------
 
@@ -595,16 +605,7 @@ function PeditFileAtLine()
   endtry
 endfunction
 
-function ArgAddOrRemoveFile()
-  let l:path = split(expand('<cWORD>'), ':')[0]
-  if PathExistsInArgv(fnamemodify(l:path, ':p'))
-    exe 'argdelete' l:path
-  else
-    exe 'argadd' l:path
-  endif
-endfunction
-
-function ReadCommandToBuf(cmd)
+function ReadCommandToSearcherBuf(cmd)
   let l:gobackbuf = bufnr()
   silent! bw! searcher
   new
@@ -624,33 +625,11 @@ function ReadCommandToBuf(cmd)
   nmap <silent> <buffer> l :pc!<cr>gF
   nmap <silent> <buffer> k k:call PeditFileAtLine()<cr>
   nmap <silent> <buffer> j j:call PeditFileAtLine()<cr>
-  nmap <silent> <buffer> x :call ArgAddOrRemoveFile()<cr>
+  nmap <silent> <buffer> x :call ArgAddOrRemoveFile(split(expand('<cWORD>'), ':')[0])<cr>
   exe 'nmap <silent> <buffer> gq :sil! pc \| b ' . l:gobackbuf . '<cr>'
   silent! pedit
   exe '0read!' a:cmd 
 endfunction
-
-function FindFile(path)
-  try
-    exe 'find ' . a:path
-  catch
-    silent! call ReadCommandToBuf('ag -g ' . a:path . ' ' . getcwd())
-    call PositionTop(g:searcher_split_height)
-    call PeditFileAtLine()
-  endtry
-endfunction
-command! -nargs=* -complete=file_in_path FindFile call FindFile(expand("<args>"))
-nmap <leader>pp :let &path=LsDirsFromCwdExcluding('node_modules')<cr>q:iFindFile 
-nmap <leader>fp :let &path=LsDirsFromCwdExcluding('node_modules')<cr>:FindFile <c-r><c-w><c-f><tab><cr>
-
-function Search(term)
-  call ReadCommandToBuf('ag ' . a:term . ' .')
-  call PositionTop(g:searcher_split_height)
-  call PeditFileAtLine()
-endfunction
-command! -nargs=* Search silent! call Search(expand("<args>"))
-map <leader>ff :Search 
-map <leader>p] :Search <c-r><c-w><cr>
 
 function PositionTop(height)
   exe "norm \<c-w>K" a:height "\<c-w>-"
@@ -659,6 +638,30 @@ endfunction
 function LsDirsFromCwdExcluding(exclude)
   return substitute(join(split(system('ls'), '\n'), ','), a:exclude . ',', '', 'g')
 endfunction
+
+function FindFile(path)
+  try
+    exe 'find ' . a:path
+  catch
+    silent! call ReadCommandToSearcherBuf('ag -g ' . a:path . ' ' . getcwd())
+    call PositionTop(g:searcher_split_height)
+    call PeditFileAtLine()
+  endtry
+endfunction
+command! -nargs=* -complete=file_in_path FindFile let &path=LsDirsFromCwdExcluding('node_modules') | call FindFile(expand("<args>"))
+nmap <leader>pp q:iFindFile 
+nmap <leader>pw :FindFile <c-r><c-w><c-f><tab><cr>
+nmap <leader>pW :exe 'FindFile' expand('<cWORD>')<cr>
+
+function Search(term)
+  call ReadCommandToSearcherBuf('ag ' . a:term . ' .')
+  call PositionTop(g:searcher_split_height)
+  call PeditFileAtLine()
+endfunction
+command! -nargs=* Search silent! call Search(expand("<args>"))
+map <leader>ff :Search 
+map <leader>fw :Search <c-r><c-w><cr>
+map <leader>fW :exe 'Search' expand('<cWORD>')<cr>
 
 " -----------------------------------------------------------------------------------------  NETRW  ----------------------------------------------------------------------------------------------------
 
@@ -810,13 +813,6 @@ nnoremap <silent> <leader>gb :Gblame<cr>
 nnoremap <leader>gpu :G push<cr>
 " Note, this always refers to the cwd git repo...
 nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
-
-" fzf Mappings
-"
-" nnoremap <silent> <leader>pp :Files<cr>
-" nnoremap <silent> <leader>h :Ag<CR>
-" nmap <silent> <leader>] "ayiw:Ag <c-r>a<cr>
-" nmap <silent> <leader>gc :execute "Ag " ToConst()<cr>
 
 " Custom tags command that saves tags one by one...
 function! SaveToJtags(pattern)
