@@ -374,8 +374,14 @@ function ListArgs()
 endfunction
 
 let g:args_or_buffers = 'buffers'
-map <leader><leader>a :let g:args_or_buffers = 'args'<cr>
-map <leader><leader>b :let g:args_or_buffers = 'buffers'<cr>
+function ToggleStatusLine()
+  if g:args_or_buffers == 'buffers'
+    let g:args_or_buffers = 'args'
+  else
+    let g:args_or_buffers = 'buffers'
+  endif
+endfunction
+map <leader><leader>t :call ToggleStatusLine()<cr>
 
 function ListArgsOrBuffers()
   if g:args_or_buffers == 'args'
