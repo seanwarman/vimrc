@@ -444,7 +444,6 @@ endfunction
 
 function DeleteAllBufsNotInArgv()
   let l:paths = ListAllBufsNotInArgv()
-  echo l:paths
   if len(l:paths)
     exe 'bd!' join(ListAllBufsNotInArgv())
   endif
@@ -590,14 +589,27 @@ function PeditFileAtLine()
   endtry
 endfunction
 
+function ArgAddOrRemoveFile()
+  let l:path = split(expand('<cWORD>'), ':')[0]
+  if PathExistsInArgv(fnamemodify(l:path, ':p'))
+    exe 'argdelete' l:path
+  else
+    exe 'argadd' l:path
+  endif
+endfunction
+
 function ReadCommandToBuf(cmd)
   let l:gobackbuf = bufnr()
   silent! bw! searcher
   new
   only
   set nopreviewwindow
+  if exists(':Dirvish')
+    set filetype=dirvish
+  endif
   file searcher
   sil! unmap <buffer> <cr>
+  sil! unmap <buffer> x
   sil! unmap <buffer> l
   sil! unmap <buffer> k
   sil! unmap <buffer> j
@@ -606,6 +618,7 @@ function ReadCommandToBuf(cmd)
   nmap <silent> <buffer> l :pc!<cr>gF
   nmap <silent> <buffer> k k:call PeditFileAtLine()<cr>
   nmap <silent> <buffer> j j:call PeditFileAtLine()<cr>
+  nmap <silent> <buffer> x :call ArgAddOrRemoveFile()<cr>
   exe 'nmap <silent> <buffer> gq :sil! pc \| b ' . l:gobackbuf . '<cr>'
   silent! pedit
   exe '0read!' a:cmd 
@@ -733,6 +746,9 @@ endfunction
 command! Test call Test()
 
 " -----------------------------------------------------------------------------------------  QUICKFIX  -------------------------------------------------------------------------------------------------
+
+" Search for a search term in the given directory ':F searchterm folder'
+command! -nargs=+ -complete=dir F :silent grep! -RHn <args> | copen | norm <c-w>L40<c-w><
 
 " Set the make program to eslint in the project's node modules...
 set makeprg=./node_modules/.bin/eslint
