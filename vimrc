@@ -38,8 +38,10 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'MattesGroeger/vim-bookmarks'
   Plug 'mattn/emmet-vim'
 
-  " Nice extras
+  " Show man files like vim help
   Plug 'vim-utils/vim-man'
+  " Markdown preview from Browser
+  Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
 call plug#end()
 command! PluginBaby PlugClean | PlugInstall
 
@@ -399,7 +401,6 @@ set laststatus=2
 
 " -----------------------------------------------------------------------------------------  BUFFERS/ARGS  ---------------------------------------------------------------------------------------------
 
-" Buffer maps
 function ListEmptyBufNums()
   return join(map(getbufinfo({'buflisted':1}), { key, val -> len(val.name) == 0 ? val.bufnr : ''}))
 endfunction
@@ -416,8 +417,6 @@ function DeleteEmptyBuffers()
     echo 'No empty buffers'
   endif
 endfunction
-map <leader>bde :call DeleteEmptyBuffers()<cr>
-map <leader>bd* :exe 'bd! ' ListAllBufNums(-1)<cr>
 
 function ListAllBufNames()
   return map(getbufinfo({'buflisted':1}), { key, val -> fnamemodify(val.name, ':p') })
@@ -469,6 +468,9 @@ map <leader>bdd :bd!<cr>
 " Select buffer from completion menu...
 map <leader>b<tab> q:ib <tab>
 map <leader>bdD :sil! call DeleteAllBufsNotInArgv()<cr>
+map <leader>bde :call DeleteEmptyBuffers()<cr>
+map <leader>bd* :exe 'bd! ' ListAllBufNums(-1)<cr>
+map <leader><leader>n :new \| wincmd p \| close!<cr>
 
 " Args list mappings
 map <leader>an :n<cr>
@@ -515,7 +517,43 @@ set undodir=~/.vim/undodir
 " <c-x><c-o> completions...
 set omnifunc=syntaxcomplete#Complete
 
+set previewheight=40
+
 " -----------------------------------------------------------------------------------------  DIRVISH  --------------------------------------------------------------------------------------------------
+
+" function OpenUp()
+"  if isdirectory(expand('<cfile>'))
+"    exe 'cd' expand('<cfile>')
+"    g/./d
+"    noh
+"    silent! 0read!ls -F
+"  else
+"    exe 'pedit!' expand('<cfile>')
+"  endif
+" endfunction
+" function GoBack()
+"   cd ..
+"   g/./d
+"   noh
+"   silent! 0read!ls -F
+" endfunction
+" function Preview()
+"  if isdirectory(expand('<cfile>'))
+"    exe 'pedit! +' . '0read!ls\ -F\ ' . fnamemodify(expand('<cfile>'), ':r')
+"  else
+"    exe 'pedit!' fnamemodify(expand('<cfile>'), ':r')
+"  endif
+" endfunction
+" function Browser()
+"   0read!ls -F
+"   map <buffer> <silent> <cr> :call OpenUp()<cr>
+"   map <buffer> <silent> j j:sil! call Preview()<cr>
+"   map <buffer> <silent> k k:sil! call Preview()<cr>
+"   map <buffer> <silent> l :call OpenUp()<cr>
+"   map <buffer> <silent> h :call GoBack()<cr>
+" endfunction
+
+" map <leader>. :new \| wincmd p \| close! \| call Browser()<cr>
 
 " Settings
 
@@ -588,8 +626,6 @@ endfunction
 
 " -----------------------------------------------------------------------------------------  SEARCHER  ----------------------------------------------------------------------------------------------------
 
-let g:searcher_split_height = 30
-
 function PeditFileAtLine()
   try
     let l:file = split(expand('<cWORD>'), ':')
@@ -628,10 +664,6 @@ function ReadCommandToSearcherBuf(cmd)
   exe '0read!' a:cmd 
 endfunction
 
-function PositionTop(height)
-  exe "norm \<c-w>K" a:height "\<c-w>-"
-endfunction
-
 function LsDirsFromCwdExcluding(exclude)
   return substitute(join(split(system('ls'), '\n'), ','), a:exclude . ',', '', 'g')
 endfunction
@@ -641,7 +673,6 @@ function FindFile(path)
     exe 'find ' . a:path
   catch
     silent! call ReadCommandToSearcherBuf('ag -g ' . a:path . ' ' . getcwd())
-    call PositionTop(g:searcher_split_height)
     call PeditFileAtLine()
   endtry
 endfunction
@@ -652,7 +683,7 @@ nmap <leader>pW :exe 'FindFile' expand('<cWORD>')<cr>
 
 function Search(term)
   call ReadCommandToSearcherBuf('ag ' . a:term . ' .')
-  call PositionTop(g:searcher_split_height)
+  let @/ = a:term
   call PeditFileAtLine()
 endfunction
 command! -nargs=* Search silent! call Search(expand("<args>"))
@@ -662,27 +693,28 @@ map <leader>fW :exe 'Search' expand('<cWORD>')<cr>
 
 " -----------------------------------------------------------------------------------------  NETRW  ----------------------------------------------------------------------------------------------------
 
-" " Go back to netrw at some point, I'm just not ready yet
+let g:loaded_netrw       = 1
+let g:loaded_netrwPlugin = 1
+
+" " " Go back to netrw at some point, I'm just not ready yet
 " map <leader>. :set previewwindow\|Lexplore\|2<cr>
 " let g:netrw_bufsettings = 'nu'
 " let g:netrw_preview = 1
 " let g:netrw_errorlvl = 2
 " let g:netrw_winsize = 30
-" let g:netrw_list_hide = '^\.\.\=/\=$'
+" let g:netrw_list_hide = ''
 " let g:netrw_liststyle = 3
 " let g:netrw_banner = 0
 
-" function AddToArgsIfFile()
-"   if &filetype != 'netrw'
-"     pc
-"     argadd %
-"   endif
-" endfunction
 " function NetrwMappings()
-" 	" map <buffer> l <Plug>NetrwLocalBrowseCheck :call AddToArgsIfFile()<cr>
-"   " nnoremap <buffer> k k:call feedkeys("p")<cr>
-"   " nnoremap <buffer> j j:call feedkeys("p")<cr>
+" 	" map <buffer> l <Plug>NetrwLocalBrowseCheck<cr>
+"   " nnoremap <buffer> k k:call PeditFileAtLine()<cr>
+"   " nnoremap <buffer> j j:call PeditFileAtLine()<cr>
 "   " map <buffer> h <Plug>NetrwBrowseUpDir
+"   map <buffer> j jp
+"   map <buffer> k kp
+"   map <buffer> h -
+"   map <buffer> l <cr>
 "   nnoremap <buffer> gq :pc! \| bd!<cr>
 "   set nu
 "   set relativenumber
@@ -697,7 +729,10 @@ map <leader>fW :exe 'Search' expand('<cWORD>')<cr>
 
 " Causes search to highlight while entering it...
 set hlsearch
+" Allows case sensitivity only when capitals are used
 set ignorecase
+set smartcase
+
 " Custom colour for search highlighting...
 " hi Search term=standout ctermfg=0 ctermbg=11 guifg=Blue guibg=Yellow
 " Clears the hlsearch on most movements...
@@ -1031,4 +1066,4 @@ endfunction
 map <leader><leader>p :call BatPreview()<cr>
 
 " Running node scripts
-map <leader><leader>r :silent pedit! +setfiletype\ javascript\|0read!node\ . console<cr>
+map <leader><leader>r :w! \| silent pedit! +setfiletype\ javascript\|0read!node\ . console<cr>
