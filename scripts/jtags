@@ -1,12 +1,12 @@
 #!/bin/bash
 
-ag="ag"
+ag="ag --ignore tags --vimgrep --nomultiline"
 
-tags=$($ag --ignore tags --vimgrep --nomultiline "^[ \t]*(export)?[ \t]*((const|var|function|class|interface|type|let|function*)|(default))[ \t]*$1" . | sed "s/^/$1:/g" | awk -F: '{ OFS="	"; line = "/^" $5 "/;\""; append = "C"; print $1, $2, line, append }')
+tags=$($ag "^[ \t]*(export)?[ \t]*((const|var|function|class|interface|type|let|function*)|(default))[ \t]*$1" . | sed "s/^/$1:/g" | awk -F: '{ OFS="	"; line = "/^" $5 "/;\""; append = "C"; print $1, $2, line, append }')
 
 if [[ ${#tags} -lt 1 ]]; then
   echo 'None trying modules...'
-  tags=$($ag --ignore tags --vimgrep --nomultiline "^[ \t]*(export)?[ \t]*((const|var|function|class|interface|type|let|function*)|(default))[ \t]*$1" node_modules | sed "s/^/$1:/g" | awk -F: '{ OFS="	"; line = "/^" $5 "/;\""; append = "C"; print $1, $2, line, append }')
+  tags=$($ag "^[ \t]*(export)?[ \t]*((const|var|function|class|interface|type|let|function*)|(default))[ \t]*$1" node_modules | sed "s/^/$1:/g" | awk -F: '{ OFS="	"; line = "/^" $5 "/;\""; append = "C"; print $1, $2, line, append }')
 fi
 
 # Remove any existing matches (this is the mac version)...

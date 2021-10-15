@@ -198,7 +198,6 @@ let g:startify_custom_header = [
 \]
 let g:startify_skiplist = [
       \ $HOME . "/.vim/vimrc",
-      \ $HOME . "/code/mobileapp-react-two/active.env.js",
 \]
 
 let g:startify_lists = [
@@ -210,13 +209,16 @@ let g:startify_lists = [
 
 let g:vue_pre_processors = ['scss']
 
+" The quit mapping in startify conflicts with 'q:'...
+autocmd User Startified unmap <buffer> q
+
 " -----------------------------------------------------------------------------------------  SESSIONS  -------------------------------------------------------------------------------------------------
 
 function SaveSesh(name)
   exe 'SSave ' . a:name
 endfunction
 
-map <leader>ss :call SaveSesh(fnamemodify(getcwd(), ':t') . '-' . FugitiveHead())<cr>
+command! SaveSesh call SaveSesh(fnamemodify(getcwd(), ':t') . '-' . FugitiveHead())
 
 " ------------------------------------------------------------------------------------------  COLORS  -------------------------------------------------------------------------------------------------
 
@@ -498,10 +500,6 @@ set tabstop=2 softtabstop=0 expandtab shiftwidth=2 smarttab
 " vim will prompt you if you want to quit to save them.
 set hidden
 
-" Allows me to "gf" a node import without ".js" on the end.
-" TODO prob don't need this because of GotoFileSpecial below.
-set suffixesadd=.js,.ts,.tsx
-
 " stop showing the swap file error
 set shortmess+=A
 set noswapfile
@@ -514,46 +512,62 @@ set nowrap
 set undofile 
 set undodir=~/.vim/undodir
 
-" <c-x><c-o> completions...
-set omnifunc=syntaxcomplete#Complete
-
 set previewheight=40
 
+" Set's yank to use the normal clipboard
+set clipboard=unnamed
+
+" Don't ask to [L]oad the file just load it...
+set autoread
+
+" -----------------------------------------------------------------------------------------  AUTOCOMPLETION  -------------------------------------------------------------------------------------------------
+
+function MapRegs(i, reg)
+  try
+    return { 'key': a:i, 'word': getreginfo(a:reg).regcontents[0], 'abbr': '@' . a:reg, 'menu': slice(trim(getreginfo(a:reg).regcontents[0]), 0, 20) }
+  catch
+    echo 'error'
+  endtry
+endfunction
+
+let g:MapRegsFunc = function("MapRegs")
+
+function! Registers(findstart, base)
+  if a:findstart == 1
+    return 0
+  endif
+  let l:regs = [ '"', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'i', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'w', 'y', 'z', '-', '.', ':', '%', '#', '/', '=', ]
+  return map(l:regs, g:MapRegsFunc)
+endfunction
+
+set completefunc=Registers
+
+set omnifunc=syntaxcomplete#Complete
+set completeopt=menuone,noinsert
+
+set dictionary=$HOME/.vim/syntax-dictionaries/dom
+set complete=k,.,w,b,u,t,i
+
+let g:vim_autocomplete_non_alpha = 0
+
+function Completion()
+  if !g:vim_autocomplete_non_alpha 
+    call feedkeys("\<c-n>\<c-p>")
+  endif
+endfunction
+
+function CheckAlpha()
+  let g:vim_autocomplete_non_alpha = substitute(v:char, '[^a-zA-Z]', 'VIM_AUTOCOMPLETE_NON_ALPHA', 'g') == 'VIM_AUTOCOMPLETE_NON_ALPHA'
+endfunction
+
+au! TextChangedI * call Completion()
+au! InsertCharPre * call CheckAlpha()
+au! InsertEnter * let g:vim_autocomplete_non_alpha = 1
+
+imap <tab> <c-n>
+imap <s-tab> <c-p>
+
 " -----------------------------------------------------------------------------------------  DIRVISH  --------------------------------------------------------------------------------------------------
-
-" function OpenUp()
-"  if isdirectory(expand('<cfile>'))
-"    exe 'cd' expand('<cfile>')
-"    g/./d
-"    noh
-"    silent! 0read!ls -F
-"  else
-"    exe 'pedit!' expand('<cfile>')
-"  endif
-" endfunction
-" function GoBack()
-"   cd ..
-"   g/./d
-"   noh
-"   silent! 0read!ls -F
-" endfunction
-" function Preview()
-"  if isdirectory(expand('<cfile>'))
-"    exe 'pedit! +' . '0read!ls\ -F\ ' . fnamemodify(expand('<cfile>'), ':r')
-"  else
-"    exe 'pedit!' fnamemodify(expand('<cfile>'), ':r')
-"  endif
-" endfunction
-" function Browser()
-"   0read!ls -F
-"   map <buffer> <silent> <cr> :call OpenUp()<cr>
-"   map <buffer> <silent> j j:sil! call Preview()<cr>
-"   map <buffer> <silent> k k:sil! call Preview()<cr>
-"   map <buffer> <silent> l :call OpenUp()<cr>
-"   map <buffer> <silent> h :call GoBack()<cr>
-" endfunction
-
-" map <leader>. :new \| wincmd p \| close! \| call Browser()<cr>
 
 " Settings
 
@@ -642,26 +656,62 @@ endfunction
 function ReadCommandToSearcherBuf(cmd)
   let l:gobackbuf = bufnr()
   silent! bw! searcher
-  new
+  try
+    e $HOME/.vim/searcher
+  catch
+    new
+    file $HOME/.vim/searcher
+  endtry
+  exe '%d_'
   only
   set nopreviewwindow
-  file searcher
   sil! unmap <buffer> <cr>
   sil! unmap <buffer> x
   sil! unmap <buffer> l
   sil! unmap <buffer> k
   sil! unmap <buffer> j
   sil! unmap <buffer> gq
-  nmap <silent> <buffer> <cr> :pc!<cr>gF
-  nmap <silent> <buffer> l :pc!<cr>gF
+  nmap <silent> <buffer> <cr> :pc!<cr>gF:bd!{searcher}<cr>
+  nmap <silent> <buffer> l :pc!<cr>gF:bd!{searcher}<cr>
   nmap <silent> <buffer> k k:call PeditFileAtLine()<cr>
   nmap <silent> <buffer> j j:call PeditFileAtLine()<cr>
   nmap <silent> <buffer> x :call ArgAddOrRemoveFile(split(expand('<cWORD>'), ':')[0])<cr>
   " I'd like to put this in but it behaves janky...
   " au CursorMoved <buffer> call PeditFileAtLine()
-  exe 'nmap <silent> <buffer> gq :sil! pc \| b ' . l:gobackbuf . '<cr>'
+  nmap <silent> <buffer> gq :sil! pc \| sil! bd!<cr>
   silent! pedit
   exe '0read!' a:cmd 
+  w
+endfunction
+
+function ReturnToSearcher()
+  try
+    b{searcher}
+  catch
+    try
+      e $HOME/.vim/searcher
+    catch
+      echo 'No previous searcher buffer'
+      return
+    endtry
+  endtry
+  sil! only
+  set nopreviewwindow
+  sil! unmap <buffer> <cr>
+  sil! unmap <buffer> x
+  sil! unmap <buffer> l
+  sil! unmap <buffer> k
+  sil! unmap <buffer> j
+  sil! unmap <buffer> q
+  nmap <silent> <buffer> <cr> :pc!<cr>gF:sil! bd!{searcher}<cr>
+  nmap <silent> <buffer> l :pc!<cr>gF:sil! bd!{searcher}<cr>
+  nmap <silent> <buffer> k k:call PeditFileAtLine()<cr>
+  nmap <silent> <buffer> j j:call PeditFileAtLine()<cr>
+  nmap <silent> <buffer> x :call ArgAddOrRemoveFile(split(expand('<cWORD>'), ':')[0])<cr>
+  " I'd like to put this in but it behaves janky...
+  " au CursorMoved <buffer> call PeditFileAtLine()
+  nmap <silent> <buffer> gq :sil! pc \| bd!<cr>
+  call PeditFileAtLine()
 endfunction
 
 function LsDirsFromCwdExcluding(exclude)
@@ -676,8 +726,8 @@ function FindFile(path)
     call PeditFileAtLine()
   endtry
 endfunction
-command! -nargs=* -complete=file_in_path FindFile let &path=LsDirsFromCwdExcluding('node_modules') | call FindFile(expand("<args>"))
-nmap <leader>pp q:iFindFile 
+command! -nargs=* -complete=file_in_path FindFile let &path=LsDirsFromCwdExcluding('node_modules') | call FindFile(expand("<args>")) | let @/ = '<args>'
+nnoremap <leader>pp q:iFindFile <c-x><c-v>
 nmap <leader>pw :FindFile <c-r><c-w><c-f><tab><cr>
 nmap <leader>pW :exe 'FindFile' expand('<cWORD>')<cr>
 
@@ -690,6 +740,8 @@ command! -nargs=* Search silent! call Search(expand("<args>"))
 map <leader>ff :Search 
 map <leader>fw :Search <c-r><c-w><cr>
 map <leader>fW :exe 'Search' expand('<cWORD>')<cr>
+
+map <leader>ss :call ReturnToSearcher()<cr>
 
 " -----------------------------------------------------------------------------------------  NETRW  ----------------------------------------------------------------------------------------------------
 
@@ -730,8 +782,9 @@ let g:loaded_netrwPlugin = 1
 " Causes search to highlight while entering it...
 set hlsearch
 " Allows case sensitivity only when capitals are used
-set ignorecase
-set smartcase
+" set ignorecase
+" set smartcase
+" I've switched these off becuase they effect autocomplete
 
 " Custom colour for search highlighting...
 " hi Search term=standout ctermfg=0 ctermbg=11 guifg=Blue guibg=Yellow
@@ -755,9 +808,6 @@ map f <Plug>Sneak_f
 map F <Plug>Sneak_F
 map t <Plug>Sneak_t
 map T <Plug>Sneak_T
-
-" map n nzt
-" map N Nzt
 
 " -----------------------------------------------------------------------------------------  COMMANDS  -------------------------------------------------------------------------------------------------
 
@@ -908,17 +958,6 @@ endfunc
 " Lundo!
 map <leader>ld :call LundoDiff()<cr>
 
-" -----------------------------------------------------------------------------------  REGISTER COMPLETION  -------------------------------------------------------------------------------------------
-
-" This doesn't work properly but worth giving another go...
-function! Registers(findstart, base)
-  if a:findstart == 1
-    return 0
-  endif
-  let l:regs = [ '"', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'i', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'w', 'y', 'z', '-', '.', ':', '%', '#', '/', '=', ]
-  return { 'words': map(l:regs, { i, reg -> { 'key': reg, 'word': getreginfo(reg).regcontents[0], 'abbr': '@' . reg, 'menu': slice(trim(getreginfo(reg).regcontents[0]), 0, 20) } }) }
-endfunction
-
 " ------------------------------------------------------------------------------------------  JTAGS  --------------------------------------------------------------------------------------------------
 
 " Custom tags command that saves tags one by one...
@@ -990,13 +1029,6 @@ map <c-w>gn :tabnew<CR>
 
 map <leader>> :diffput<cr>
 map <leader>< :diffget<cr>
-
-" This get overwritten by a plugin (emmet, I think) and I
-" don't really need them that much...
-" map [[ F{
-" map ]] f}
-" map [] F}
-" map ][ f{
 
 " Split a jsx component's props onto multi lines
 map <leader>t= 0f<f v/\/>\\|><cr>hc<cr><c-r>"<cr><esc>kA<bs><esc>0dwv$:s/ /\r/g<cr>='[:noh<cr>
