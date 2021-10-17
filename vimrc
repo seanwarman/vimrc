@@ -1,50 +1,4 @@
 
-" -----------------------------------------------------------------------------------------  PLUGINS  --------------------------------------------------------------------------------------------------
-
-call plug#begin('~/.local/share/vim/plugged')
-  " These colorschemes break the term vim's colours
-  " so only load them in the gui version...
-  if has("gui_macvim")
-    Plug 'flazz/vim-colorschemes'
-  endif
-
-  " Syntax
-  Plug 'yuezk/vim-js'
-  Plug 'HerringtonDarkholme/yats.vim'
-  Plug 'maxmellon/vim-jsx-pretty'
-  Plug 'peitalin/vim-jsx-typescript'
-  Plug 'posva/vim-vue'
-
-  " CSS
-  Plug 'KabbAmine/vCoolor.vim'
-  Plug 'ap/vim-css-color'
-
-  " Dirvish, amaze...
-  Plug 'justinmk/vim-dirvish'
-
-  " Best git plugin ever
-  Plug 'tpope/vim-fugitive'
-  Plug 'tommcdo/vim-fugitive-blame-ext'
-
-  " General utils
-  Plug 'itchyny/vim-cursorword'
-  Plug 'adelarsq/vim-matchit'
-  Plug 'tpope/vim-commentary'
-  Plug 'tpope/vim-repeat'
-  Plug 'tpope/vim-surround'
-  Plug 'tpope/vim-abolish'
-  Plug 'justinmk/vim-sneak'
-  Plug 'mhinz/vim-startify'
-  Plug 'MattesGroeger/vim-bookmarks'
-  Plug 'mattn/emmet-vim'
-
-  " Show man files like vim help
-  Plug 'vim-utils/vim-man'
-  " Markdown preview from Browser
-  Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
-call plug#end()
-command! PluginBaby PlugClean | PlugInstall
-
 " -----------------------------------------------------------------------------------------  DEFAULTS  ---------------------------------------------------------------------------------------------------
 
 " When started as "evim", evim.vim will already have done these settings.
@@ -172,155 +126,9 @@ if has('langmap') && exists('+langremap')
   set nolangremap
 endif
 
-" -----------------------------------------------------------------------------------------  PLUGCONF  -------------------------------------------------------------------------------------------------
-
 " Remaps the spacebar as leader
 nnoremap <space> <Nop>
 let mapleader = " "
-
-let g:startify_change_to_dir = 0
-let g:startify_custom_header = [
-      \"        ________ ++     ________",
-      \"       /VVVVVVVV\\++++  /VVVVVVVV\\",
-      \"       \\VVVVVVVV/++++++\\VVVVVVVV/",
-      \"        |VVVVVV|++++++++/VVVVV/\'",
-      \"        |VVVVVV|++++++/VVVVV/\'",
-      \"       +|VVVVVV|++++/VVVVV/\'+",
-      \"     +++|VVVVVV|++/VVVVV/\'+++++",
-      \"   +++++|VVVVVV|/VVVVV/\'+++++++++",
-      \"     +++|VVVVVVVVVVV/\'+++++++++",
-      \"       +|VVVVVVVVV/\'+++++++++",
-      \"        |VVVVVVV/\'+++++++++",
-      \"        |VVVVV/\'+++++++++",
-      \"        |VVV/\'+++++++++",
-      \"        \'V/\'   ++++++",
-      \"                 ++",
-\]
-let g:startify_skiplist = [
-      \ $HOME . "/.vim/vimrc",
-\]
-
-let g:startify_lists = [
-      \ { 'type': 'sessions',  'header': ['   Sessions']       },
-      \ { 'type': 'files',     'header': ['   Recent Files']   },
-      \ { 'type': 'bookmarks', 'header': ['   Bookmarks']      },
-      \ { 'type': 'commands',  'header': ['   Commands']       },
-      \ ]
-
-let g:vue_pre_processors = ['scss']
-
-" The quit mapping in startify conflicts with 'q:'...
-autocmd User Startified unmap <buffer> q
-
-" -----------------------------------------------------------------------------------------  SESSIONS  -------------------------------------------------------------------------------------------------
-
-function SaveSesh(name)
-  exe 'SSave ' . a:name
-endfunction
-
-command! SaveSesh call SaveSesh(fnamemodify(getcwd(), ':t') . '-' . FugitiveHead())
-
-" ------------------------------------------------------------------------------------------  COLORS  -------------------------------------------------------------------------------------------------
-
-function LightColours()
-  return [
-        \ 'buttercream',
-        \ 'cake16',
-        \ 'carrot',
-        \ 'cherryblossom',
-        \ 'codeburn',
-        \ 'dawn',
-        \ 'flattened_light',
-        \ 'fruidle',
-        \ 'seagull',
-        \ 'whitebox'
-        \]
-endfunction
-function DarkColours()
-  return [
-        \ 'abbott',
-        \ 'abra',
-        \ 'atom',
-        \ 'base16-atelierdune',
-        \ 'birds-of-paradise',
-        \ 'buddy',
-        \ 'bvemu',
-        \ 'desert',
-        \ 'evening1',
-        \ 'flatland',
-        \ 'gruvbox',
-        \ 'impactjs',
-        \ 'itg_flat',
-        \ 'lumberjack',
-        \ 'luna',
-        \ 'lxvc',
-        \ 'material',
-        \ 'molokai',
-        \ 'monokai-chris',
-        \ 'Monokai',
-        \ 'monokain',
-        \ 'new-railscasts',
-        \ 'pacific',
-        \ 'parsec',
-        \ 'seti',
-        \ 'slate2',
-        \ 'srcery-drk',
-        \ 'srcery',
-        \ 'stereokai',
-        \ 'Tomorrow-Night-Eighties',
-        \ 'vimbrant',
-        \]
-endfunction
-
-command! -nargs=* Dark :exe 'colo' DarkColours()[<args>]
-command! -nargs=* Light :exe 'colo' LightColours()[<args>]
-
-" colo slate
-if has("gui_macvim")
-  Dark 1
-else
-  colo slate
-endif
-
-" An array of colours for the term_colourscheme_colours function based on the
-" current values of the colourscheme's highlight groups...
-let g:term_colourscheme_colours = [
-      \ { 'hi': 'Vertsplit',    'type': 'fg' },
-      \ { 'hi': 'Normal',       'type': 'fg' },
-      \ { 'hi': 'Conditional',  'type': 'fg' },
-      \ { 'hi': 'Special',      'type': 'fg' },
-      \ { 'hi': 'UnderLined',   'type': 'fg' },
-      \ { 'hi': 'Cursor',       'type': 'bg' },
-      \ { 'hi': 'Operator',     'type': 'fg' },
-      \ { 'hi': 'Error',        'type': 'bg' },
-      \ { 'hi': 'MoreMsg',      'type': 'fg' },
-      \ { 'hi': 'Type',         'type': 'fg' },
-      \ { 'hi': 'Directory',    'type': 'fg' },
-      \ { 'hi': 'Boolean',      'type': 'fg' },
-      \ { 'hi': 'Normal',       'type': 'bg' },
-      \ { 'hi': 'FoldColumn',   'type': 'fg' },
-      \ { 'hi': 'Define',       'type': 'fg' },
-      \ { 'hi': 'StatusLine',   'type': 'fg' }
-      \]
-
-function MapAnsiTermColours(key, val)
-  silent! let l:colour = synIDattr(hlID(a:val.hi), a:val.type)
-  if len(l:colour)
-    return l:colour
-  else
-    return term_getansicolors(bufnr())[a:key]
-  endif
-endfunction
-
-let g:MapAnsiTermFunc = function("MapAnsiTermColours")
-
-" This sets the ansi term colours (for gui vim) so they match the current
-" colorscheme...
-function SetAnsiTermColours()
-  silent! call term_setansicolors(bufnr(), map(g:term_colourscheme_colours, g:MapAnsiTermFunc))
-endfunction
-
-autocmd TerminalOpen,TermChanged,TerminalWinOpen,Syntax * silent! call SetAnsiTermColours()
 
 " ----------------------------------------------------------------------------------------  STATUSLINE  ------------------------------------------------------------------------------------------------
 
@@ -395,8 +203,12 @@ function ListArgsOrBuffers()
   endif
 endfunction
 
+function GitBranch()
+  return trim(system('git rev-parse --abbrev-ref HEAD'))
+endfunction
+
 " Status line that shows the args or the bufs list
-set statusline=%#MatchParen#\ %{fnamemodify(getcwd(),':t')}\ %*%#StatusLineTerm#\ %{FugitiveHead()}\ %*\ %t:%p%%\ %#ErrorMsg#%m%*%=%{ListArgsOrBuffers()}\ 
+set statusline=%#MatchParen#\ %{fnamemodify(getcwd(),':t')}\ %*%#StatusLineTerm#\ %{GitBranch()}\ %*\ %t:%p%%\ %#ErrorMsg#%m%*%=%{ListArgsOrBuffers()}\ 
 
 " Always show the statusline
 set laststatus=2
@@ -488,6 +300,8 @@ map <leader>a<tab> q:iArgs <tab>
 
 " -----------------------------------------------------------------------------------------  SETTINGS  -------------------------------------------------------------------------------------------------
 
+runtime ftplugin/man.vim
+
 set relativenumber
 set nu
 
@@ -519,6 +333,8 @@ set clipboard=unnamed
 
 " Don't ask to [L]oad the file just load it...
 set autoread
+
+colo slate
 
 " -----------------------------------------------------------------------------------------  AUTOCOMPLETION  -------------------------------------------------------------------------------------------------
 
@@ -566,77 +382,6 @@ au! InsertEnter * let g:vim_autocomplete_non_alpha = 1
 
 imap <tab> <c-n>
 imap <s-tab> <c-p>
-
-" -----------------------------------------------------------------------------------------  DIRVISH  --------------------------------------------------------------------------------------------------
-
-" Settings
-
-let g:dirvish_relative_paths = 0
-let g:custom_dirvish_split_width = 60
-
-function DirvishPreviewTreeMaps()
-  augroup dirvish_config
-    autocmd!
-    autocmd FileType dirvish silent! nmap <buffer> l :call dirvish#open("edit", 0)<CR> \| :call PreviewOrClosePreview('feedkeys("p")')<cr>
-    autocmd FileType dirvish silent! nmap <buffer> k k:call feedkeys("p")<CR>
-    autocmd FileType dirvish silent! nmap <buffer> j j:call feedkeys("p")<CR>
-    autocmd FileType dirvish silent! nmap <buffer> h <Plug>(dirvish_up):call feedkeys("p")<CR>
-    autocmd FileType dirvish silent! nmap <buffer> gq <Plug>(dirvish_quit):pc<cr>
-  augroup END
-endfunction
-
-function DirvishUnMap()
-  augroup dirvish_config
-    autocmd!
-    autocmd FileType dirvish silent! unmap <buffer> l
-    autocmd FileType dirvish silent! unmap <buffer> k
-    autocmd FileType dirvish silent! unmap <buffer> j
-    autocmd FileType dirvish silent! unmap <buffer> h
-    autocmd FileType dirvish silent! unmap <buffer> gq
-  augroup END
-endfunction
-
-" Commands
-
-function DirvishPreviewTree()
-  call DirvishUnMap()
-  call DirvishPreviewTreeMaps()
-  set nopreviewwindow
-  pclose
-  pedit
-  call DirvishHereOrCwd("%:h")
-  call DirvishPositionLeft(g:custom_dirvish_split_width)
-  norm p
-endfunction
-command! DirvishPreviewTree :sil! call DirvishPreviewTree()
-map <leader>. :DirvishPreviewTree<cr>
-
-function DirvishPositionLeft(width)
-  exe "norm \<c-w>H" a:width "\<c-w><"
-endfunction
-
-function PreviewOrClosePreview(prevcmd)
-  if &filetype != 'dirvish'
-    pc
-    " Do I want to add the file to args automatically?
-    " argadd %
-  else
-    exe 'call' a:prevcmd
-  endif
-endfunction
-
-function DirvishFindMatchAtCursor()
-  let l:bits = split(expand('<cWORD>'), ':')
-  exe 'pedit +' . l:bits[1] '' l:bits[0]
-endfunction
-
-function DirvishHereOrCwd(dir)
-  if len(expand(a:dir))
-    exe 'Dirvish ' . a:dir
-  else
-    exe 'Dirvish .'
-  endif
-endfunction
 
 " -----------------------------------------------------------------------------------------  SEARCHER  ----------------------------------------------------------------------------------------------------
 
@@ -745,18 +490,14 @@ map <leader>ss :call ReturnToSearcher()<cr>
 
 " -----------------------------------------------------------------------------------------  NETRW  ----------------------------------------------------------------------------------------------------
 
-let g:loaded_netrw       = 1
-let g:loaded_netrwPlugin = 1
-
-" " " Go back to netrw at some point, I'm just not ready yet
-" map <leader>. :set previewwindow\|Lexplore\|2<cr>
-" let g:netrw_bufsettings = 'nu'
-" let g:netrw_preview = 1
-" let g:netrw_errorlvl = 2
-" let g:netrw_winsize = 30
-" let g:netrw_list_hide = ''
-" let g:netrw_liststyle = 3
-" let g:netrw_banner = 0
+map <leader>. :set previewwindow\|Lexplore\|2<cr>
+let g:netrw_bufsettings = 'nu'
+let g:netrw_preview = 1
+let g:netrw_errorlvl = 2
+let g:netrw_winsize = 30
+let g:netrw_list_hide = ''
+let g:netrw_liststyle = 3
+let g:netrw_banner = 0
 
 " function NetrwMappings()
 " 	" map <buffer> l <Plug>NetrwLocalBrowseCheck<cr>
@@ -800,14 +541,6 @@ nmap <silent> W W:noh<cr>
 nmap <silent> B B:noh<cr>
 nmap <silent> E E:noh<cr>
 nmap <silent> e e:noh<cr>
-
-" vim-sneak Mappings
-" Remaps f and t to work over multi lines
-nmap <Nop> <Plug>Sneak_s
-map f <Plug>Sneak_f
-map F <Plug>Sneak_F
-map t <Plug>Sneak_t
-map T <Plug>Sneak_T
 
 " -----------------------------------------------------------------------------------------  COMMANDS  -------------------------------------------------------------------------------------------------
 
@@ -986,12 +719,14 @@ map <silent> <c-]> :<c-u>call TryTagOrSaveJtag()<cr>
 "
 " Add a commit or branch name to the "d" register then you can use
 " it to diff any file from the current branch...
-map <leader>pd :Gdiff <c-r>d<cr>
-nnoremap <silent> <leader>gg :G<cr>
-nnoremap <silent> <leader>gd :Gdiff<cr>
-nnoremap <silent> <leader>gr :Gread<cr>
-nnoremap <silent> <leader>gb :Gblame<cr>
-nnoremap <leader>gpu :G push<cr>
+" map <leader>pd :Gdiff <c-r>d<cr>
+map <leader>gg :new \|0read !git status<cr>
+" nnoremap <silent> <leader>gg :G<cr>
+" nnoremap <silent> <leader>gd :Gdiff<cr>
+map <leader>gr :!git checkout -- %<cr>
+" nnoremap <silent> <leader>gr :Gread<cr>
+" nnoremap <silent> <leader>gb :Gblame<cr>
+" nnoremap <leader>gpu :G push<cr>
 " Note, this always refers to the cwd git repo...
 nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 
@@ -1035,6 +770,11 @@ map <leader>t= 0f<f v/\/>\\|><cr>hc<cr><c-r>"<cr><esc>kA<bs><esc>0dwv$:s/ /\r/g<
 map <leader>t- ?<<cr>v/\/>\\|><cr>J<esc>:noh<cr>
 " Go to the styles from a style.<name> for RN
 map gs <c-w>v"syiwbbgdf'gf/<c-r>s<cr>
+
+" Running node scripts
+map <leader><leader>r :w! \| silent pedit! +setfiletype\ javascript\|0read!node\ . console<cr>
+
+" -----------------------------------------------------------------------------------------  GOTO  -------------------------------------------------------------------------------------------------
 
 " A smarter goto file command...
 function GotoFileSpecial()
@@ -1090,12 +830,3 @@ function GotoFile()
   endtry
 endfunction
 map gf :call GotoFile()<cr>
-
-" Preview files without opening them...
-function BatPreview()
-  exe '!clear; bat ' . expand("<cWORD>")
-endfunction
-map <leader><leader>p :call BatPreview()<cr>
-
-" Running node scripts
-map <leader><leader>r :w! \| silent pedit! +setfiletype\ javascript\|0read!node\ . console<cr>
