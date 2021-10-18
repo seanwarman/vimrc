@@ -1,6 +1,9 @@
 
 " -----------------------------------------------------------------------------------------  PLUGINS  --------------------------------------------------------------------------------------------------
 
+" Uses the :Man builtin plugin
+runtime ftplugin/man.vim
+
 call plug#begin('~/.local/share/vim/plugged')
   " These colorschemes break the term vim's colours
   " so only load them in the gui version...
@@ -38,8 +41,6 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'MattesGroeger/vim-bookmarks'
   Plug 'mattn/emmet-vim'
 
-  " Show man files like vim help
-  Plug 'vim-utils/vim-man'
   " Markdown preview from Browser
   Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
 call plug#end()
@@ -218,7 +219,7 @@ function SaveSesh(name)
   exe 'SSave ' . a:name
 endfunction
 
-command! SaveSesh call SaveSesh(fnamemodify(getcwd(), ':t') . '-' . FugitiveHead())
+command! SaveSesh call SaveSesh(fnamemodify(getcwd(), ':t') . '-' . GitBranch())
 
 " ------------------------------------------------------------------------------------------  COLORS  -------------------------------------------------------------------------------------------------
 
@@ -395,8 +396,12 @@ function ListArgsOrBuffers()
   endif
 endfunction
 
+function GitBranch()
+  return trim(system('git rev-parse --abbrev-ref HEAD'))
+endfunction
+
 " Status line that shows the args or the bufs list
-set statusline=%#MatchParen#\ %{fnamemodify(getcwd(),':t')}\ %*%#StatusLineTerm#\ %{FugitiveHead()}\ %*\ %t:%p%%\ %#ErrorMsg#%m%*%=%{ListArgsOrBuffers()}\ 
+set statusline=%#MatchParen#\ %{fnamemodify(getcwd(),':t')}\ %*%#StatusLineTerm#\ %{GitBranch()}\ %*\ %t:%p%%\ %#ErrorMsg#%m%*%=%{ListArgsOrBuffers()}\ 
 
 " Always show the statusline
 set laststatus=2
@@ -1036,6 +1041,11 @@ map <leader>t- ?<<cr>v/\/>\\|><cr>J<esc>:noh<cr>
 " Go to the styles from a style.<name> for RN
 map gs <c-w>v"syiwbbgdf'gf/<c-r>s<cr>
 
+" Running node scripts
+map <leader><leader>r :w! \| silent pedit! +setfiletype\ javascript\|0read!node\ . console<cr>
+
+" -----------------------------------------------------------------------------------------  GOTO  -------------------------------------------------------------------------------------------------
+
 " A smarter goto file command...
 function GotoFileSpecial()
   let l:filepath = expand("<cfile>")
@@ -1090,12 +1100,3 @@ function GotoFile()
   endtry
 endfunction
 map gf :call GotoFile()<cr>
-
-" Preview files without opening them...
-function BatPreview()
-  exe '!clear; bat ' . expand("<cWORD>")
-endfunction
-map <leader><leader>p :call BatPreview()<cr>
-
-" Running node scripts
-map <leader><leader>r :w! \| silent pedit! +setfiletype\ javascript\|0read!node\ . console<cr>
