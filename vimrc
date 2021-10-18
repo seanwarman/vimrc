@@ -397,7 +397,12 @@ function ListArgsOrBuffers()
 endfunction
 
 function GitBranch()
-  return trim(system('git rev-parse --abbrev-ref HEAD'))
+  let l:branch = trim(system('git rev-parse --abbrev-ref HEAD'))
+  if substitute(split(l:branch, ' ')[0], '^fatal:', 'NOT_GIT_REPO', 'g') == 'NOT_GIT_REPO'
+    return 'not a repo'
+  else
+    return l:branch
+  endif
 endfunction
 
 " Status line that shows the args or the bufs list
