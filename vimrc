@@ -14,11 +14,12 @@ call plug#begin('~/.local/share/vim/plugged')
   " Syntax
   Plug 'yuezk/vim-js'
   Plug 'HerringtonDarkholme/yats.vim'
-  Plug 'maxmellon/vim-jsx-pretty'
-  Plug 'peitalin/vim-jsx-typescript'
-  Plug 'posva/vim-vue'
+  Plug 'mattn/emmet-vim'
+  " Plug 'maxmellon/vim-jsx-pretty'
+  " Plug 'peitalin/vim-jsx-typescript'
+  " Plug 'posva/vim-vue'
 
-  " CSS
+  " CSS and inline colors >> #344390 <<
   Plug 'KabbAmine/vCoolor.vim'
   Plug 'ap/vim-css-color'
 
@@ -29,7 +30,13 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'tpope/vim-fugitive'
   Plug 'tommcdo/vim-fugitive-blame-ext'
 
-  " General utils
+  " Bookmarks that behave nicer than default
+  Plug 'MattesGroeger/vim-bookmarks'
+
+  " Startup splash screen and workspaces
+  Plug 'mhinz/vim-startify'
+
+  " Vim-like utils
   Plug 'itchyny/vim-cursorword'
   Plug 'adelarsq/vim-matchit'
   Plug 'tpope/vim-commentary'
@@ -37,9 +44,7 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'tpope/vim-surround'
   Plug 'tpope/vim-abolish'
   Plug 'justinmk/vim-sneak'
-  Plug 'mhinz/vim-startify'
-  Plug 'MattesGroeger/vim-bookmarks'
-  Plug 'mattn/emmet-vim'
+  Plug 'rbgrouleff/bclose.vim'
 
   " Markdown preview from Browser
   Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
@@ -208,10 +213,13 @@ let g:startify_lists = [
       \ { 'type': 'commands',  'header': ['   Commands']       },
       \ ]
 
-let g:vue_pre_processors = ['scss']
+" let g:vue_pre_processors = ['scss']
 
 " The quit mapping in startify conflicts with 'q:'...
-autocmd User Startified unmap <buffer> q
+autocmd User Startified sil! unmap <buffer> q
+
+let g:user_emmet_leader_key = '<c-z>'
+
 
 " -----------------------------------------------------------------------------------------  SESSIONS  -------------------------------------------------------------------------------------------------
 
@@ -321,7 +329,7 @@ function SetAnsiTermColours()
   silent! call term_setansicolors(bufnr(), map(g:term_colourscheme_colours, g:MapAnsiTermFunc))
 endfunction
 
-autocmd TerminalOpen,TermChanged,TerminalWinOpen,Syntax * silent! call SetAnsiTermColours()
+" autocmd TerminalOpen,TermChanged,TerminalWinOpen,Syntax * silent! call SetAnsiTermColours()
 
 " ----------------------------------------------------------------------------------------  STATUSLINE  ------------------------------------------------------------------------------------------------
 
@@ -476,7 +484,7 @@ endfunction
 " Buffer mappings
 map <leader>bp :bp<cr>
 map <leader>bn :bn<cr>
-map <leader>bdd :bd!<cr>
+map <leader>bdd :Bclose!<cr>
 " Select buffer from completion menu...
 map <leader>b<tab> q:ib <tab>
 map <leader>bdD :sil! call DeleteAllBufsNotInArgv()<cr>
@@ -532,49 +540,21 @@ set autoread
 
 " -----------------------------------------------------------------------------------------  AUTOCOMPLETION  -------------------------------------------------------------------------------------------------
 
-function MapRegs(i, reg)
-  try
-    return { 'key': a:i, 'word': getreginfo(a:reg).regcontents[0], 'abbr': '@' . a:reg, 'menu': slice(trim(getreginfo(a:reg).regcontents[0]), 0, 20) }
-  catch
-    echo 'error'
-  endtry
-endfunction
+set completeopt=menuone
+set complete=.,w,b,u,t,i
 
-let g:MapRegsFunc = function("MapRegs")
-
-function! Registers(findstart, base)
-  if a:findstart == 1
-    return 0
-  endif
-  let l:regs = [ '"', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'i', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'w', 'y', 'z', '-', '.', ':', '%', '#', '/', '=', ]
-  return map(l:regs, g:MapRegsFunc)
-endfunction
-
-set completefunc=Registers
 
 set omnifunc=syntaxcomplete#Complete
-set completeopt=menuone,noinsert
-
-set dictionary=$HOME/.vim/syntax-dictionaries/dom
-set complete=k,.,w,b,u,t,i
-
-let g:vim_autocomplete_non_alpha = 0
-
-function Completion()
-  if !g:vim_autocomplete_non_alpha 
-    call feedkeys("\<c-n>\<c-p>")
+function CompleteOmni()
+  if !pumvisible()
+    call feedkeys("\<c-x>\<c-o>")
+  else
+    call feedkeys("\<c-n>")
   endif
+  return ''
 endfunction
 
-function CheckAlpha()
-  let g:vim_autocomplete_non_alpha = substitute(v:char, '[^a-zA-Z]', 'VIM_AUTOCOMPLETE_NON_ALPHA', 'g') == 'VIM_AUTOCOMPLETE_NON_ALPHA'
-endfunction
-
-au! TextChangedI * call Completion()
-au! InsertCharPre * call CheckAlpha()
-au! InsertEnter * let g:vim_autocomplete_non_alpha = 1
-
-imap <tab> <c-n>
+imap <tab> <c-r>=CompleteOmni()<cr>
 imap <s-tab> <c-p>
 
 " -----------------------------------------------------------------------------------------  DIRVISH  --------------------------------------------------------------------------------------------------
@@ -846,6 +826,12 @@ function Test()
 endfunction
 command! Test call Test()
 
+" -----------------------------------------------------------------------------------------  AUTOCMDS  -------------------------------------------------------------------------------------------------
+
+au OptionSet,BufEnter *.vue set filetype=html.javascript.css
+au OptionSet,BufEnter *.ts set filetype=javascript
+au OptionSet,BufEnter *.jsx,*.tsx set filetype=javascript.html
+
 " -----------------------------------------------------------------------------------------  QUICKFIX  -------------------------------------------------------------------------------------------------
 
 " Search for a search term in the given directory ':F searchterm folder'
@@ -1002,6 +988,7 @@ nnoremap <silent> <leader>gd :Gdiff<cr>
 nnoremap <silent> <leader>gr :Gread<cr>
 nnoremap <silent> <leader>gb :Gblame<cr>
 nnoremap <leader>gpu :G push<cr>
+
 " Note, this always refers to the cwd git repo...
 nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 
