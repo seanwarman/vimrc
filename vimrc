@@ -15,9 +15,9 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'yuezk/vim-js'
   Plug 'HerringtonDarkholme/yats.vim'
   Plug 'mattn/emmet-vim'
-  " Plug 'maxmellon/vim-jsx-pretty'
-  " Plug 'peitalin/vim-jsx-typescript'
-  " Plug 'posva/vim-vue'
+  Plug 'maxmellon/vim-jsx-pretty'
+  Plug 'peitalin/vim-jsx-typescript'
+  Plug 'posva/vim-vue'
 
   " CSS and inline colors >> #344390 <<
   Plug 'KabbAmine/vCoolor.vim'
@@ -213,7 +213,7 @@ let g:startify_lists = [
       \ { 'type': 'commands',  'header': ['   Commands']       },
       \ ]
 
-" let g:vue_pre_processors = ['scss']
+let g:vue_pre_processors = ['scss']
 
 " The quit mapping in startify conflicts with 'q:'...
 autocmd User Startified sil! unmap <buffer> q
@@ -227,7 +227,7 @@ function SaveSesh(name)
   exe 'SSave ' . a:name
 endfunction
 
-command! SaveSesh call SaveSesh(fnamemodify(getcwd(), ':t') . '-' . GitBranch())
+command! SaveSesh call SaveSesh(fnamemodify(getcwd(), ':t') . '-' . StatusLineGitBranch())
 
 " ------------------------------------------------------------------------------------------  COLORS  -------------------------------------------------------------------------------------------------
 
@@ -404,17 +404,19 @@ function ListArgsOrBuffers()
   endif
 endfunction
 
-function GitBranch()
-  let l:branch = trim(system('git rev-parse --abbrev-ref HEAD'))
-  if substitute(split(l:branch, ' ')[0], '^fatal:', 'NOT_GIT_REPO', 'g') == 'NOT_GIT_REPO'
+let statusline_git_branch = trim(system('git rev-parse --abbrev-ref HEAD'))
+au BufEnter,DirChanged * let g:statusline_git_branch = trim(system('git rev-parse --abbrev-ref HEAD'))
+
+function StatusLineGitBranch()
+  if substitute(split(g:statusline_git_branch, ' ')[0], '^fatal:', 'NOT_GIT_REPO', 'g') == 'NOT_GIT_REPO'
     return 'not a repo'
   else
-    return l:branch
+    return g:statusline_git_branch
   endif
 endfunction
 
 " Status line that shows the args or the bufs list
-set statusline=%#MatchParen#\ %{fnamemodify(getcwd(),':t')}\ %*%#StatusLineTerm#\ %{GitBranch()}\ %*\ %t:%p%%\ %#ErrorMsg#%m%*%=%{ListArgsOrBuffers()}\ 
+set statusline=%#MatchParen#\ %{fnamemodify(getcwd(),':t')}\ %*%#StatusLineTerm#\ %{StatusLineGitBranch()}\ %*\ %t:%p%%\ %#ErrorMsg#%m%*%=%{ListArgsOrBuffers()}\ 
 
 " Always show the statusline
 set laststatus=2
@@ -828,6 +830,8 @@ command! Test call Test()
 
 " -----------------------------------------------------------------------------------------  AUTOCMDS  -------------------------------------------------------------------------------------------------
 
+" This is actually fixing the colour problems in vue files but only with ts,
+" js and vue syntax plugins!
 au OptionSet,BufEnter *.vue set filetype=html.javascript.css
 au OptionSet,BufEnter *.ts set filetype=javascript
 au OptionSet,BufEnter *.jsx,*.tsx set filetype=javascript.html
@@ -1040,7 +1044,7 @@ map <leader><leader>r :w! \| silent pedit! +setfiletype\ javascript\|0read!node\
 
 " A smarter goto file command...
 function GotoFileSpecial()
-  let l:filepath = expand("<cfile>")
+  let l:filepath = fnamemodify(expand("<cfile>"))
 
   let l:homepath     = l:filepath[0] == '~'
   let l:rootpath     = l:filepath[0] == '/'
