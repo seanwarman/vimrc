@@ -220,14 +220,15 @@ autocmd User Startified sil! unmap <buffer> q
 
 let g:user_emmet_leader_key = '<c-z>'
 
-
 " -----------------------------------------------------------------------------------------  SESSIONS  -------------------------------------------------------------------------------------------------
 
 function SaveSesh(name)
   exe 'SSave ' . a:name
 endfunction
 
-command! SaveSesh call SaveSesh(fnamemodify(getcwd(), ':t') . '-' . StatusLineGitBranch())
+command! SaveSesh call SaveSesh(fnamemodify(getcwd(), ':t') . '-' . join(split(StatusLineGitBranch(), '\/'), '-'))
+
+map <leader><leader>s :SaveSesh<cr>
 
 " ------------------------------------------------------------------------------------------  COLORS  -------------------------------------------------------------------------------------------------
 
@@ -670,7 +671,7 @@ function ReadCommandToSearcherBuf(cmd)
   nmap <silent> <buffer> x :call ArgAddOrRemoveFile(split(expand('<cWORD>'), ':')[0])<cr>
   " I'd like to put this in but it behaves janky...
   " au CursorMoved <buffer> call PeditFileAtLine()
-  nmap <silent> <buffer> gq :sil! pc \| sil! bd!<cr>
+  nmap <silent> <buffer> gq :sil! pc \| Bclose!<cr>
   silent! pedit
   exe '0read!' a:cmd 
   w
@@ -828,14 +829,6 @@ function Test()
 endfunction
 command! Test call Test()
 
-" -----------------------------------------------------------------------------------------  AUTOCMDS  -------------------------------------------------------------------------------------------------
-
-" This is actually fixing the colour problems in vue files but only with ts,
-" js and vue syntax plugins!
-au OptionSet,BufEnter *.vue set filetype=html.javascript.css
-au OptionSet,BufEnter *.ts set filetype=javascript
-au OptionSet,BufEnter *.jsx,*.tsx set filetype=javascript.html
-
 " -----------------------------------------------------------------------------------------  QUICKFIX  -------------------------------------------------------------------------------------------------
 
 " Search for a search term in the given directory ':F searchterm folder'
@@ -924,6 +917,7 @@ function! MdnSplit(query)
 endfunc
 
 command -nargs=* MDN call MdnSplit('<args>')
+map <leader>mdn :MDN 
 
 " ------------------------------------------------------------------------------------------  LUNDO  ---------------------------------------------------------------------------------------------------
 
@@ -1044,9 +1038,10 @@ map <leader><leader>r :w! \| silent pedit! +setfiletype\ javascript\|0read!node\
 
 " A smarter goto file command...
 function GotoFileSpecial()
-  let l:filepath = fnamemodify(expand("<cfile>"))
+  let l:filepath = expand("<cfile>")
 
   let l:homepath     = l:filepath[0] == '~'
+  let l:varpath      = l:filepath[0] == '$'
   let l:rootpath     = l:filepath[0] == '/'
   let l:relativepath = l:filepath[0] == '.'
   let l:atpath       = l:filepath[0] == '@'
@@ -1054,7 +1049,8 @@ function GotoFileSpecial()
   try
     if l:homepath
       exe v:count 'find ' . getcwd() . '/' . l:filepath[1:] . '*'
-
+    elseif l:varpath
+      exe v:count 'find ' . l:filepath . '*'
     elseif l:rootpath
       exe v:count 'find ' . getcwd() . l:filepath . '*'
 
