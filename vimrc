@@ -546,7 +546,6 @@ set autoread
 set completeopt=menuone
 set complete=.,w,b,u,t,i
 
-
 set omnifunc=syntaxcomplete#Complete
 function CompleteOmni()
   if !pumvisible()
@@ -720,7 +719,7 @@ function FindFile(path)
   endtry
 endfunction
 command! -nargs=* -complete=file_in_path FindFile let &path=LsDirsFromCwdExcluding('node_modules') | call FindFile(expand("<args>")) | let @/ = '<args>'
-nnoremap <leader>pp q:iFindFile <c-x><c-v>
+nnoremap <leader>pp q:iFindFile <c-x><c-v><c-p>
 nmap <leader>pw :FindFile <c-r><c-w><c-f><tab><cr>
 nmap <leader>pW :exe 'FindFile' expand('<cWORD>')<cr>
 
@@ -828,6 +827,10 @@ function Test()
   norm "tPggdj
 endfunction
 command! Test call Test()
+
+" -----------------------------------------------------------------------------------------  AUTOCMDS  -------------------------------------------------------------------------------------------------
+
+au OptionSet,BufEnter *.vue set filetype=vue.html.javascript.css
 
 " -----------------------------------------------------------------------------------------  QUICKFIX  -------------------------------------------------------------------------------------------------
 
