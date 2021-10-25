@@ -1110,3 +1110,13 @@ endfunction
 " That would keep vim's workload super light, then all it needs to do is send
 " a request (via curl or wget) with the position of the cursor, then the
 " server could respond with the list of words.
+"
+" So the first request sends a filepath from an autocmd. This updates the server to loop over
+" that file.
+"
+" Then a second or subsequent request would send the position, returning the
+" suggestions.
+"
+" Later on the first request could check for imported modules, it'll ask the
+" user if they want to include them which would cause the server to install
+" that module and allow it to include that module's API.
