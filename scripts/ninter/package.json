@@ -1,0 +1,19 @@
+{
+  "name": "syntax",
+  "version": "1.0.0",
+  "description": "Should look up a params items by list the params through node itself.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "parse": "node_modules/.bin/acorn --ecma10 --module"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "acorn": "^8.5.0",
+    "acorn-loose": "^8.2.1",
+    "acorn-walk": "^8.2.0",
+    "axios": "^0.23.0"
+  }
+}
