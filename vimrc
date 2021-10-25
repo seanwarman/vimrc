@@ -503,7 +503,7 @@ map <leader>aa :call ArgAddOrRemoveFile(expand('%'))<cr>
 map <leader>aA :exe 'argadd' join(ListAllBufNames())<cr>
 map <leader>al :sall<cr>
 map <leader>adD :argdelete *<cr>
-command -nargs=* -complete=arglist Args argedit <args>
+command! -nargs=* -complete=arglist Args argedit <args>
 " Select buffer from completion menu...
 map <leader>a<tab> q:iArgs <tab>
 
@@ -919,7 +919,7 @@ function! MdnSplit(query)
   call EasySplit("asm", Mdn(split(a:query, "\\.")), FormatMdn())
 endfunc
 
-command -nargs=* MDN call MdnSplit('<args>')
+command! -nargs=* MDN call MdnSplit('<args>')
 map <leader>mdn :MDN 
 
 " ------------------------------------------------------------------------------------------  LUNDO  ---------------------------------------------------------------------------------------------------
@@ -1095,3 +1095,18 @@ function GotoFile()
   endtry
 endfunction
 map gf :call GotoFile()<cr>
+
+" -----------------------------------------------------------------------------------------  NINTER  ------------------------------------------------------------------------------------
+
+function Ninter()
+  let l:suggestions = systemlist('node $HOME/.vim/scripts/ninter/index.js')
+  call complete(col('.'), l:suggestions)
+  return ''
+endfunction
+
+" What would work best, would be if node was running on a server and was being
+" fed the file you're currently working on using an autocmd.
+"
+" That would keep vim's workload super light, then all it needs to do is send
+" a request (via curl or wget) with the position of the cursor, then the
+" server could respond with the list of words.
