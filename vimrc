@@ -18,6 +18,7 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'maxmellon/vim-jsx-pretty'
   Plug 'peitalin/vim-jsx-typescript'
   Plug 'posva/vim-vue'
+  Plug '1995eaton/vim-better-javascript-completion'
 
   " CSS and inline colors >> #344390 <<
   Plug 'KabbAmine/vCoolor.vim'
@@ -533,8 +534,6 @@ set nowrap
 set undofile 
 set undodir=~/.vim/undodir
 
-set previewheight=40
-
 " Set's yank to use the normal clipboard
 set clipboard=unnamed
 
@@ -556,8 +555,25 @@ function CompleteOmni()
   return ''
 endfunction
 
-imap <tab> <c-r>=CompleteOmni()<cr>
+" This works but it's actually not as useful as c-n
+" imap <tab> <c-r>=CompleteOmni()<cr>
+imap <tab> <c-n>
 imap <s-tab> <c-p>
+
+
+
+
+
+
+function CompleteNode()
+  call setcursorcharpos('.', col('.') -1)
+  let l:word = expand('<cWORD>')
+  call setcursorcharpos('.', col('.') +1)
+
+
+  " call complete(col('.'), [ 'constructor', '__defineGetter__', '__defineSetter__', 'hasOwnProperty', '__lookupGetter__', '__lookupSetter__', 'isPrototypeOf', 'propertyIsEnumerable', 'toString', 'valueOf', '__proto__', 'toLocaleString' ])
+  return l:word
+endfunction
 
 " -----------------------------------------------------------------------------------------  DIRVISH  --------------------------------------------------------------------------------------------------
 
@@ -800,6 +816,20 @@ map f <Plug>Sneak_f
 map F <Plug>Sneak_F
 map t <Plug>Sneak_t
 map T <Plug>Sneak_T
+
+" -----------------------------------------------------------------------------------------  COMMANDS  -------------------------------------------------------------------------------------------------
+
+" Kind of works...
+function TerminalBufCmd()
+  let l:line = line('.')
+  call term_sendkeys(4, getline(l:line) . "\r")
+  1,$ d _
+  return "\r" . join(getbufline(4, 1, 1000), "\r") . "\r"
+endfunction
+
+au FileType bufterm.sh sil! imap <buffer> <cr> <c-r>=TerminalBufCmd()<cr>
+
+command BufTerm new | set filetype=bufterm.sh | norm i
 
 " -----------------------------------------------------------------------------------------  COMMANDS  -------------------------------------------------------------------------------------------------
 
