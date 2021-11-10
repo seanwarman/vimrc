@@ -24,6 +24,10 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'KabbAmine/vCoolor.vim'
   Plug 'ap/vim-css-color'
 
+  " Can't do without this one...
+  Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+  Plug 'junegunn/fzf.vim'
+
   " Dirvish, amaze...
   Plug 'justinmk/vim-dirvish'
 
@@ -406,10 +410,13 @@ function ListArgsOrBuffers()
   endif
 endfunction
 
-let statusline_git_branch = trim(system('git rev-parse --abbrev-ref HEAD'))
-au BufEnter,DirChanged * let g:statusline_git_branch = trim(system('git rev-parse --abbrev-ref HEAD'))
+" let statusline_git_branch = trim(system('git rev-parse --abbrev-ref HEAD'))
+" au DirChanged * let g:statusline_git_branch = trim(system('git rev-parse --abbrev-ref HEAD'))
 
 function StatusLineGitBranch()
+  return FugitiveHead()
+
+  " This is slow FugitiveHead is much better optimised
   if substitute(split(g:statusline_git_branch, ' ')[0], '^fatal:', 'NOT_GIT_REPO', 'g') == 'NOT_GIT_REPO'
     return 'not a repo'
   else
@@ -540,6 +547,10 @@ set clipboard=unnamed
 " Don't ask to [L]oad the file just load it...
 set autoread
 
+set previewheight=30
+
+set diffopt+=vertical
+
 " -----------------------------------------------------------------------------------------  AUTOCOMPLETION  -------------------------------------------------------------------------------------------------
 
 set completeopt=menuone
@@ -561,6 +572,19 @@ imap <tab> <c-n>
 imap <s-tab> <c-p>
 
 
+function CountCols()
+  let l:n = 1
+  let l:total = 0
+  let l:curline = getcharpos('.')[1]
+  while l:n < l:curline
+    let l:total += col([l:n, '$'])
+    let l:n += 1
+  endwhile
+  " col() adds a 1 for every line so minus off the number of lines...
+  let l:total += (col('.') - l:curline)
+  return 'total is: ' . l:total
+endfunction
+
 
 
 
@@ -574,6 +598,12 @@ function CompleteNode()
   " call complete(col('.'), [ 'constructor', '__defineGetter__', '__defineSetter__', 'hasOwnProperty', '__lookupGetter__', '__lookupSetter__', 'isPrototypeOf', 'propertyIsEnumerable', 'toString', 'valueOf', '__proto__', 'toLocaleString' ])
   return l:word
 endfunction
+
+" -------------------------------------------------------------------------------------------  FZF  ---------------------------------------------------------------------------------------------------
+
+map <leader>pp :Files<cr>
+map <leader>ff :Ag<cr>
+map <leader>fw :Ag <c-r><c-w><cr>
 
 " -----------------------------------------------------------------------------------------  DIRVISH  --------------------------------------------------------------------------------------------------
 
@@ -728,26 +758,26 @@ endfunction
 
 function FindFile(path)
   try
-    exe 'find ' . a:path
+    exe 'find ' . expand(a:path)
   catch
-    silent! call ReadCommandToSearcherBuf('ag -g ' . a:path . ' ' . getcwd())
+    silent! call ReadCommandToSearcherBuf('ag -g ' . shellescape(expand(a:path)) . ' ' . getcwd())
     call PeditFileAtLine()
   endtry
 endfunction
 command! -nargs=* -complete=file_in_path FindFile let &path=LsDirsFromCwdExcluding('node_modules') | call FindFile(expand("<args>")) | let @/ = '<args>'
-nnoremap <leader>pp q:iFindFile <c-x><c-v><c-p>
-nmap <leader>pw :FindFile <c-r><c-w><c-f><tab><cr>
-nmap <leader>pW :exe 'FindFile' expand('<cWORD>')<cr>
+" nnoremap <leader>pp q:iFindFile <c-x><c-v><c-p>
+" nmap <leader>pw :FindFile <c-r><c-w><c-f><tab><cr>
+" nmap <leader>pW :exe 'FindFile' expand('<cWORD>')<cr>
 
 function Search(term)
-  call ReadCommandToSearcherBuf('ag ' . a:term . ' .')
+  call ReadCommandToSearcherBuf('ag ' . shellescape(a:term) . ' .')
   let @/ = a:term
   call PeditFileAtLine()
 endfunction
 command! -nargs=* Search silent! call Search(expand("<args>"))
-map <leader>ff :Search 
-map <leader>fw :Search <c-r><c-w><cr>
-map <leader>fW :exe 'Search' expand('<cWORD>')<cr>
+" map <leader>ff :Search 
+" map <leader>fw :Search <c-r><c-w><cr>
+" map <leader>fW :exe 'Search' expand('<cWORD>')<cr>
 
 map <leader>ss :call ReturnToSearcher()<cr>
 
@@ -790,8 +820,8 @@ let g:loaded_netrwPlugin = 1
 " Causes search to highlight while entering it...
 set hlsearch
 " Allows case sensitivity only when capitals are used
-" set ignorecase
-" set smartcase
+set ignorecase
+set smartcase
 " I've switched these off becuase they effect autocomplete
 
 " Custom colour for search highlighting...
@@ -860,7 +890,7 @@ command! Test call Test()
 
 " -----------------------------------------------------------------------------------------  AUTOCMDS  -------------------------------------------------------------------------------------------------
 
-au OptionSet,BufEnter *.vue set filetype=vue.html.javascript.css
+" au OptionSet,BufEnter *.vue set filetype=vue.html.javascript.css
 
 " -----------------------------------------------------------------------------------------  QUICKFIX  -------------------------------------------------------------------------------------------------
 
