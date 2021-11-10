@@ -502,10 +502,9 @@ map <leader>bn :bn<cr>
 map <leader>bdd :Bclose!<cr>
 " Select buffer from completion menu...
 map <leader>b<tab> q:ib <tab>
-map <leader>bdD :sil! call DeleteAllBufsNotInArgv()<cr>
-map <leader>bdd :sil! call DeleteAllButThisBuf()<cr>
+map <leader>bd* :sil! call DeleteAllBufsNotInArgv()<cr>
+map <leader>bdD :sil! call DeleteAllButThisBuf()<cr>
 map <leader>bde :call DeleteEmptyBuffers()<cr>
-map <leader>bd* :exe 'bd! ' ListAllBufNums(-1)<cr>
 map <leader><leader>n :new \| wincmd p \| close!<cr>
 
 " Args list mappings
