@@ -7,7 +7,9 @@ runtime ftplugin/man.vim
 call plug#begin('~/.local/share/vim/plugged')
   " These colorschemes break the term vim's colours
   " so only load them in the gui version...
-  Plug 'flazz/vim-colorschemes'
+  if has("gui_macvim")
+    Plug 'flazz/vim-colorschemes'
+  endif
 
   " Syntax
   Plug 'yuezk/vim-js'
@@ -288,7 +290,11 @@ endfunction
 command! -nargs=* Dark :exe 'colo' DarkColours()[<args>]
 command! -nargs=* Light :exe 'colo' LightColours()[<args>]
 
-Dark 4
+if has("gui_macvim")
+  Dark 7
+else
+  colo slate
+endif
 
 " An array of colours for the term_colourscheme_colours function based on the
 " current values of the colourscheme's highlight groups...
@@ -485,6 +491,11 @@ function DeleteAllBufsNotInArgv()
   call DeleteEmptyBuffers()
 endfunction
 
+function DeleteAllButThisBuf()
+  exe 'sil! bd! ' ListAllBufNums(bufnr())
+  call DeleteEmptyBuffers()
+endfunction
+
 " Buffer mappings
 map <leader>bp :bp<cr>
 map <leader>bn :bn<cr>
@@ -492,6 +503,7 @@ map <leader>bdd :Bclose!<cr>
 " Select buffer from completion menu...
 map <leader>b<tab> q:ib <tab>
 map <leader>bdD :sil! call DeleteAllBufsNotInArgv()<cr>
+map <leader>bdd :sil! call DeleteAllButThisBuf()<cr>
 map <leader>bde :call DeleteEmptyBuffers()<cr>
 map <leader>bd* :exe 'bd! ' ListAllBufNums(-1)<cr>
 map <leader><leader>n :new \| wincmd p \| close!<cr>
@@ -593,6 +605,8 @@ function CompleteNode()
 endfunction
 
 " -------------------------------------------------------------------------------------------  FZF  ---------------------------------------------------------------------------------------------------
+
+let g:fzf_layout = { 'down': '35%' }
 
 map <leader>pp :Files<cr>
 map <leader>ff :Ag<cr>
@@ -759,8 +773,8 @@ function FindFile(path)
 endfunction
 command! -nargs=* -complete=file_in_path FindFile let &path=LsDirsFromCwdExcluding('node_modules') | call FindFile(expand("<args>")) | let @/ = '<args>'
 " nnoremap <leader>pp q:iFindFile <c-x><c-v><c-p>
-" nmap <leader>pw :FindFile <c-r><c-w><c-f><tab><cr>
-" nmap <leader>pW :exe 'FindFile' expand('<cWORD>')<cr>
+nmap <leader>pw :FindFile <c-r><c-w><c-f><tab><cr>
+nmap <leader>pW :exe 'FindFile' expand('<cWORD>')<cr>
 
 function Search(term)
   call ReadCommandToSearcherBuf('ag ' . shellescape(a:term) . ' .')
