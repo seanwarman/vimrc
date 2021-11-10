@@ -2,19 +2,45 @@ const http = require('http')
 const acorn = require('acorn-loose')
 const walk = require('acorn-walk')
 
-function logProto(obj) {
-  var props = [];
-
-  do {
-    Object.getOwnPropertyNames(obj).forEach(function (prop) {
-      if (props.indexOf(prop) === -1 ) {
-        props.push( prop );
-      }
-    });
-  } while (obj = Object.getPrototypeOf(obj));
-
-  return props;
+function logLiteral(node, ancestors) {
+  if (!node.value) return []
+  return log(node, Object.getOwnPropertyNames(node.value));
 }
+
+function logFunctionProperties(node, ancestors) {
+  return log(node, Object.getOwnPropertyNames(function(){}))
+}
+
+function logIdentifier(node, ancestors) {
+  if (global[node.name]) {
+    return log(node, Object.getOwnPropertyNames(global[node.name]))
+  }
+  console.log('not on global...', node)
+}
+
+
+
+
+function suggest(source, res) {
+  const parse = () => acorn.parse(source, { ecmaVersion: 2020 })
+
+  walk.ancestor(parse(), {
+    FunctionExpression: logFunctionProperties,
+    FunctionDeclaration: logFunctionProperties,
+    Literal: logLiteral,
+    Identifier: logIdentifier,
+  })
+
+  res.writeHead(200)
+  res.end()
+}
+
+
+
+
+
+
+
 
 const requestListener = function (req, res) {
   let data = ''
@@ -26,20 +52,11 @@ const requestListener = function (req, res) {
   })
 }
 
-function suggest(source, res) {
-  const parse = () => acorn.parse(source, { ecmaVersion: 2020 })
-
-  walk.simple(parse(), {
-    Literal(node) {
-      console.log({
-        node,
-        suggestions: [...logProto(node.value)]
-      })
-    }
+function log(node, props) {
+  console.log({
+    node,
+    suggestions: props
   })
-
-  res.writeHead(200)
-  res.end()
 }
 
 const server = http.createServer(requestListener)
