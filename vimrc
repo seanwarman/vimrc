@@ -7,9 +7,7 @@ runtime ftplugin/man.vim
 call plug#begin('~/.local/share/vim/plugged')
   " These colorschemes break the term vim's colours
   " so only load them in the gui version...
-  if has("gui_macvim")
-    Plug 'flazz/vim-colorschemes'
-  endif
+  Plug 'flazz/vim-colorschemes'
 
   " Syntax
   Plug 'yuezk/vim-js'
@@ -290,12 +288,7 @@ endfunction
 command! -nargs=* Dark :exe 'colo' DarkColours()[<args>]
 command! -nargs=* Light :exe 'colo' LightColours()[<args>]
 
-" colo slate
-if has("gui_macvim")
-  Dark 1
-else
-  colo slate
-endif
+Dark 4
 
 " An array of colours for the term_colourscheme_colours function based on the
 " current values of the colourscheme's highlight groups...
