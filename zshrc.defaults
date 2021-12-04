@@ -1,10 +1,13 @@
+export TERM=xterm-256color
+
 export NVM_DIR="$HOME/.nvm"
 [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
 [ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && . "/usr/local/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
 
-alias rnr='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"'
+alias rnr="ranger"
 alias gs="git status"
 alias gc="git checkout"
+alias gp="git pull"
 # Checkout to a branch menu
 alias fgc='git checkout $(git branch | fzf)'
 # Delete multiple branches menu
@@ -21,7 +24,7 @@ gitStashApply() {
 # Set the function to an alias
 alias fgs=gitStashApply
 set -o vi
-alias rnr="ranger"
+alias rnr='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"'
 alias gs="git status"
 alias gc="git checkout"
 # Checkout to a branch menu
@@ -41,3 +44,18 @@ gitStashApply() {
 alias fgs=gitStashApply
 alias dvsh="vim -c DirvishPreviewTree"
 set -o vi
+
+# Runs a daemon to watch my bookmarks folder and keep it synced in git.
+yarn --cwd ~/code/tests/node-daemon start &> /dev/null
+
+alias bmps='yarn --cwd ~/code/tests/node-daemon ps'
+alias bmstart='yarn --cwd ~/code/tests/node-daemon start'
+alias bmstop='yarn --cwd ~/code/tests/node-daemon stop'
+alias bmmonit='yarn --cwd ~/code/tests/node-daemon monit'
+
+alias e='emacsclient -t'
+alias ec='emacsclient -c'
+set -o emacs
+
+alias :='tmux send -t !'
+alias tfz='tmux send -t 0 :e\ $(fzf --preview="bat --color=always {}") enter && tmux kill-pane'

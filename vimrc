@@ -38,6 +38,9 @@ call plug#begin('~/.local/share/vim/plugged')
   " Startup splash screen and workspaces
   Plug 'mhinz/vim-startify'
 
+  " Every editor needs multi cursors
+  Plug 'mg979/vim-visual-multi'
+
   " Vim-like utils
   Plug 'itchyny/vim-cursorword'
   Plug 'adelarsq/vim-matchit'
@@ -611,7 +614,7 @@ map <leader>fw :Ag <c-r><c-w><cr>
 " -----------------------------------------------------------------------------------------  NETRW  ----------------------------------------------------------------------------------------------------
 
 " " " Go back to netrw at some point, I'm just not ready yet
-map <leader>. :set previewwindow\|Lexplore\|2<cr>
+map <leader>. :set previewwindow\|Vexplore\|2<cr>
 let g:netrw_bufsettings = 'nu'
 let g:netrw_preview = 1
 let g:netrw_errorlvl = 2
@@ -719,7 +722,7 @@ command! Test call Test()
 " -----------------------------------------------------------------------------------------  QUICKFIX  -------------------------------------------------------------------------------------------------
 
 " Search for a search term in the given directory ':F searchterm folder'
-command! -nargs=+ -complete=dir F :silent grep! -RHn <args> | copen | norm <c-w>L40<c-w><
+command! -nargs=+ -complete=dir F :silent grep! -RHn --exclude-dir node_modules <args> | copen | norm <c-w>L40<c-w><
 
 " Set the make program to eslint in the project's node modules...
 set makeprg=./node_modules/.bin/eslint
