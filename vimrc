@@ -693,7 +693,7 @@ command BufTerm new | set filetype=bufterm.sh | norm i
 " Goes to my vimrc
 command! Vimrc e ~/.vim/vimrc
 " Writes and reloads the vimrc...
-command! W :w | so ~/.vimrc
+command! Wsource :w | so ~/.vimrc
 " Goes to my tags file...
 command! Tags e ~/.vim/tags
 " Goes to the jtags script...
@@ -715,9 +715,13 @@ function Test()
 endfunction
 command! Test call Test()
 
+" Write file then yank it...
+command! W w | norm ggyG``
+
 " -----------------------------------------------------------------------------------------  AUTOCMDS  -------------------------------------------------------------------------------------------------
 
 " au OptionSet,BufEnter *.vue set filetype=vue.html.javascript.css
+au OptionSet,BufEnter *.ejs set filetype=html.javascript.css
 
 " -----------------------------------------------------------------------------------------  QUICKFIX  -------------------------------------------------------------------------------------------------
 
