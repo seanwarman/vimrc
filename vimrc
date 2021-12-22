@@ -413,7 +413,11 @@ endfunction
 " au DirChanged * let g:statusline_git_branch = trim(system('git rev-parse --abbrev-ref HEAD'))
 
 function StatusLineGitBranch()
-  return FugitiveHead()
+  try
+    return FugitiveHead()
+  catch
+    return ''
+  endtry
 
   " This is slow FugitiveHead is much better optimised
   if substitute(split(g:statusline_git_branch, ' ')[0], '^fatal:', 'NOT_GIT_REPO', 'g') == 'NOT_GIT_REPO'
@@ -500,6 +504,7 @@ endfunction
 map <leader>bp :bp<cr>
 map <leader>bn :bn<cr>
 map <leader>bdd :Bclose!<cr>
+map <leader>bd<tab> q:bd! <tab>
 " Select buffer from completion menu...
 map <leader>b<tab> q:ib <tab>
 map <leader>bd* :sil! call DeleteAllBufsNotInArgv()<cr>
