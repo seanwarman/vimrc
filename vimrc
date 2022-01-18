@@ -17,6 +17,8 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'mattn/emmet-vim'
   Plug 'maxmellon/vim-jsx-pretty'
   Plug 'peitalin/vim-jsx-typescript'
+  Plug 'leafgarland/typescript-vim'
+
   Plug 'posva/vim-vue'
   Plug '1995eaton/vim-better-javascript-completion'
 
@@ -33,7 +35,7 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'tommcdo/vim-fugitive-blame-ext'
 
   " Bookmarks that behave nicer than default
-  Plug 'MattesGroeger/vim-bookmarks'
+  " Plug 'Yilin-Yang/vim-markbar'
 
   " Startup splash screen and workspaces
   Plug 'mhinz/vim-startify'
@@ -428,7 +430,7 @@ function StatusLineGitBranch()
 endfunction
 
 " Status line that shows the args or the bufs list
-set statusline=%#MatchParen#\ %{fnamemodify(getcwd(),':t')}\ %*%#StatusLineTerm#\ %{StatusLineGitBranch()}\ %*\ %t:%p%%\ %#ErrorMsg#%m%*%=%{ListArgsOrBuffers()}\ 
+set statusline=%#MatchParen#\ %{fnamemodify(getcwd(),':t')}\ %*%#StatusLineTerm#\ %{StatusLineGitBranch()}\ %*\ %t:%p%%:%c\ %#ErrorMsg#%m%*%=%{ListArgsOrBuffers()}\ 
 
 " Always show the statusline
 set laststatus=2
@@ -726,7 +728,7 @@ command! W w | norm ggyG``
 " -----------------------------------------------------------------------------------------  AUTOCMDS  -------------------------------------------------------------------------------------------------
 
 " au OptionSet,BufEnter *.vue set filetype=vue.html.javascript.css
-au OptionSet,BufEnter *.ejs set filetype=html.javascript.css
+au OptionSet,BufEnter *.ejs set filetype=html
 
 " -----------------------------------------------------------------------------------------  QUICKFIX  -------------------------------------------------------------------------------------------------
 
@@ -932,6 +934,9 @@ map gs <c-w>v"syiwbbgdf'gf/<c-r>s<cr>
 
 " Running node scripts
 map <leader><leader>r :w! \| silent pedit! +setfiletype\ javascript\|0read!node\ . console<cr>
+
+" Show marks before jumping to mark position...
+map ' :marks<cr>:'
 
 " -----------------------------------------------------------------------------------------  GOTO  -------------------------------------------------------------------------------------------------
 
