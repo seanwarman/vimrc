@@ -18,8 +18,10 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'maxmellon/vim-jsx-pretty'
   Plug 'peitalin/vim-jsx-typescript'
   Plug 'leafgarland/typescript-vim'
-
+  Plug 'chrisbra/csv.vim'
   Plug 'posva/vim-vue'
+
+  Plug 'dense-analysis/ale'
   Plug '1995eaton/vim-better-javascript-completion'
 
   " CSS and inline colors >> #344390 <<
@@ -185,11 +187,47 @@ if has('langmap') && exists('+langremap')
   set nolangremap
 endif
 
-" -----------------------------------------------------------------------------------------  PLUGCONF  -------------------------------------------------------------------------------------------------
+" -----------------------------------------------------------------------------------------  SETTINGS  -------------------------------------------------------------------------------------------------
 
 " Remaps the spacebar as leader
 nnoremap <space> <Nop>
 let mapleader = " "
+
+set relativenumber
+set nu
+
+set mouse=a
+
+" Set tabs to indent 2 spaces
+set tabstop=2 softtabstop=0 expandtab shiftwidth=2 smarttab
+
+" Allows buffers to stay unsaved in the background
+" vim will prompt you if you want to quit to save them.
+set hidden
+
+" stop showing the swap file error
+set shortmess+=A
+set noswapfile
+" Put .swp files into here...
+set dir=$HOME/.vim/tmp
+
+set nowrap
+
+" Maintain undo
+set undofile 
+set undodir=~/.vim/undodir
+
+" Set's yank to use the normal clipboard
+set clipboard=unnamed
+
+" Don't ask to [L]oad the file just load it...
+set autoread
+
+set previewheight=30
+
+set diffopt+=vertical
+
+" -----------------------------------------------------------------------------------------  STARTIFY  -------------------------------------------------------------------------------------------------
 
 let g:startify_change_to_dir = 0
 let g:startify_custom_header = [
@@ -220,14 +258,20 @@ let g:startify_lists = [
       \ { 'type': 'commands',  'header': ['   Commands']       },
       \ ]
 
-let g:vue_pre_processors = ['scss']
-
 " The quit mapping in startify conflicts with 'q:'...
 autocmd User Startified sil! unmap <buffer> q
 
+map <leader>G :Startify<cr>
+
+" ------------------------------------------------------------------------------------------  VUE  ----------------------------------------------------------------------------------------------------
+
+let g:vue_pre_processors = ['scss']
+
+" -----------------------------------------------------------------------------------------  EMMET  ---------------------------------------------------------------------------------------------------
+
 let g:user_emmet_leader_key = '<c-z>'
 
-" -----------------------------------------------------------------------------------------  SESSIONS  -------------------------------------------------------------------------------------------------
+" ----------------------------------------------------------------------------------------  SESSIONS  -------------------------------------------------------------------------------------------------
 
 function SaveSesh(name)
   exe 'SSave ' . a:name
@@ -293,7 +337,7 @@ command! -nargs=* Dark :exe 'colo' DarkColours()[<args>]
 command! -nargs=* Light :exe 'colo' LightColours()[<args>]
 
 if has("gui_macvim")
-  Dark 7
+  colo Monokai
 else
   colo slate
 endif
@@ -336,7 +380,36 @@ function SetAnsiTermColours()
   silent! call term_setansicolors(bufnr(), map(g:term_colourscheme_colours, g:MapAnsiTermFunc))
 endfunction
 
+" Make the fold colour more subtle
+hi Folded term=standout ctermfg=248 ctermbg=236 guifg=grey49 guibg=black
+
 " autocmd TerminalOpen,TermChanged,TerminalWinOpen,Syntax * silent! call SetAnsiTermColours()
+
+" -----------------------------------------------------------------------------------------  ALE  -------------------------------------------------------------------------------------------------
+
+" This is best set after the colourscheme because of the highlight settings
+" for the sign column.
+
+map ]e :ALENext<cr>
+map [e :ALEPrevious<cr>
+map <leader>ef :ALEFix<cr>
+map <leader>ee :ALEToggle<cr>
+
+" let g:ale_change_sign_column_color = 1
+set signcolumn=number
+hi SignColumn ctermbg=NONE
+
+let g:ale_sign_error = '✗'
+let g:ale_sign_warning = '❱'
+let g:ale_completion_enabled = 1
+
+" Make the gutter colour background more subtle
+" hi SignColumn ctermbg=NONE
+let g:ale_fixers = {
+  \   'typescript': [
+  \       'tslint',
+  \   ],
+  \}
 
 " ----------------------------------------------------------------------------------------  STATUSLINE  ------------------------------------------------------------------------------------------------
 
@@ -526,42 +599,6 @@ command! -nargs=* -complete=arglist Args argedit <args>
 " Select buffer from completion menu...
 map <leader>a<tab> q:iArgs <tab>
 
-" -----------------------------------------------------------------------------------------  SETTINGS  -------------------------------------------------------------------------------------------------
-
-set relativenumber
-set nu
-
-set mouse=a
-
-" Set tabs to indent 2 spaces
-set tabstop=2 softtabstop=0 expandtab shiftwidth=2 smarttab
-
-" Allows buffers to stay unsaved in the background
-" vim will prompt you if you want to quit to save them.
-set hidden
-
-" stop showing the swap file error
-set shortmess+=A
-set noswapfile
-" Put .swp files into here...
-set dir=$HOME/.vim/tmp
-
-set nowrap
-
-" Maintain undo
-set undofile 
-set undodir=~/.vim/undodir
-
-" Set's yank to use the normal clipboard
-set clipboard=unnamed
-
-" Don't ask to [L]oad the file just load it...
-set autoread
-
-set previewheight=30
-
-set diffopt+=vertical
-
 " -----------------------------------------------------------------------------------------  AUTOCOMPLETION  -------------------------------------------------------------------------------------------------
 
 set completeopt=menuone
@@ -654,8 +691,8 @@ let g:netrw_banner = 0
 " Causes search to highlight while entering it...
 set hlsearch
 " Allows case sensitivity only when capitals are used
-set ignorecase
-set smartcase
+" set ignorecase
+" set smartcase
 " I've switched these off becuase they effect autocomplete
 
 " Custom colour for search highlighting...
@@ -700,7 +737,7 @@ command BufTerm new | set filetype=bufterm.sh | norm i
 " Goes to my vimrc
 command! Vimrc e ~/.vim/vimrc
 " Writes and reloads the vimrc...
-command! Wsource :w | so ~/.vimrc
+command! W :w | so ~/.vimrc
 " Goes to my tags file...
 command! Tags e ~/.vim/tags
 " Goes to the jtags script...
@@ -712,18 +749,20 @@ command! AC call ActionCreator()
 " Runs anything and prints it in a preview window...
 command! -nargs=* Log silent! pedit! +setfiletype\ javascript\|0read<args> log
 
+let g:testcommand = "npm run test"
+
 " Runs projects tests and prints results to a buffer...
 function Test()
   new
   set filetype=sh
   file tests
-  silent let @t = system("yarn test")
+  silent let @t = system(g:testcommand)
   norm "tPggdj
 endfunction
 command! Test call Test()
 
 " Write file then yank it...
-command! W w | norm ggyG``
+" command! WriteYank w | norm ggyG``
 
 " -----------------------------------------------------------------------------------------  AUTOCMDS  -------------------------------------------------------------------------------------------------
 
@@ -936,7 +975,7 @@ map gs <c-w>v"syiwbbgdf'gf/<c-r>s<cr>
 map <leader><leader>r :w! \| silent pedit! +setfiletype\ javascript\|0read!node\ . console<cr>
 
 " Show marks before jumping to mark position...
-map ' :marks<cr>:'
+map <leader>' :marks<cr>:'
 
 " -----------------------------------------------------------------------------------------  GOTO  -------------------------------------------------------------------------------------------------
 
