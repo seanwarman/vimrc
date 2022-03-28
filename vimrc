@@ -413,11 +413,7 @@ let g:ale_completion_enabled = 1
 
 " Make the gutter colour background more subtle
 " hi SignColumn ctermbg=NONE
-let g:ale_fixers = {
-  \   'typescript': [
-  \       'tslint',
-  \   ],
-  \}
+let g:ale_fixers = {'typescript': ['prettier', 'eslint'] }
 
 " ----------------------------------------------------------------------------------------  STATUSLINE  ------------------------------------------------------------------------------------------------
 
