@@ -53,6 +53,7 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'tpope/vim-surround'
   Plug 'tpope/vim-abolish'
   Plug 'justinmk/vim-sneak'
+  Plug 'easymotion/vim-easymotion'
   Plug 'rbgrouleff/bclose.vim'
 
   " Markdown preview from Browser
@@ -262,6 +263,13 @@ let g:startify_lists = [
 autocmd User Startified sil! unmap <buffer> q
 
 map <leader>G :Startify<cr>
+
+" --------------------------------------------------------------------------------------  EASYMOTION  ----------------------------------------------------------------------------------------------------
+
+map <Leader>j <Plug>(easymotion-j)
+map <Leader>k <Plug>(easymotion-k)
+
+let g:EasyMotion_startofline = 0
 
 " ------------------------------------------------------------------------------------------  VUE  ----------------------------------------------------------------------------------------------------
 
