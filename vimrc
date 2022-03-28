@@ -21,7 +21,7 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'chrisbra/csv.vim'
   Plug 'posva/vim-vue'
 
-  Plug 'dense-analysis/ale'
+  Plug 'neoclide/coc.nvim', {'branch': 'release'}
   Plug '1995eaton/vim-better-javascript-completion'
 
   " CSS and inline colors >> #344390 <<
@@ -393,27 +393,35 @@ hi Folded term=standout ctermfg=248 ctermbg=236 guifg=grey49 guibg=black
 
 " autocmd TerminalOpen,TermChanged,TerminalWinOpen,Syntax * silent! call SetAnsiTermColours()
 
+" -----------------------------------------------------------------------------------------  COC  -------------------------------------------------------------------------------------------------
+
+map ]e <plug>(coc-diagnostic-next)
+map [e <plug>(coc-diagnostic-prev)
+map ef <plug>(coc-fix-current)
+map ed :CocDisable<cr>
+map ee :CocEnable<cr>
+
 " -----------------------------------------------------------------------------------------  ALE  -------------------------------------------------------------------------------------------------
 
-" This is best set after the colourscheme because of the highlight settings
-" for the sign column.
+" " This is best set after the colourscheme because of the highlight settings
+" " for the sign column.
 
-map ]e :ALENext<cr>
-map [e :ALEPrevious<cr>
-map <leader>ef :ALEFix<cr>
-map <leader>ee :ALEToggle<cr>
+" map ]e :ALENext<cr>
+" map [e :ALEPrevious<cr>
+" map <leader>ef :ALEFix<cr>
+" map <leader>ee :ALEToggle<cr>
 
-" let g:ale_change_sign_column_color = 1
-set signcolumn=number
-hi SignColumn ctermbg=NONE
-
-let g:ale_sign_error = '✗'
-let g:ale_sign_warning = '❱'
-let g:ale_completion_enabled = 1
-
-" Make the gutter colour background more subtle
+" " let g:ale_change_sign_column_color = 1
+" set signcolumn=number
 " hi SignColumn ctermbg=NONE
-let g:ale_fixers = {'vue': ['eslint'], 'typescript': ['prettier', 'eslint'] }
+
+" let g:ale_sign_error = '✗'
+" let g:ale_sign_warning = '❱'
+" let g:ale_completion_enabled = 1
+
+" " Make the gutter colour background more subtle
+" " hi SignColumn ctermbg=NONE
+" let g:ale_fixers = {'vue': ['eslint'], 'typescript': ['prettier', 'eslint'] }
 
 " ----------------------------------------------------------------------------------------  STATUSLINE  ------------------------------------------------------------------------------------------------
 
