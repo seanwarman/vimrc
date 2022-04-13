@@ -397,9 +397,9 @@ hi Folded term=standout ctermfg=248 ctermbg=236 guifg=grey49 guibg=black
 
 map ]e <plug>(coc-diagnostic-next)
 map [e <plug>(coc-diagnostic-prev)
-map ef <plug>(coc-fix-current)
-map ed :CocDisable<cr>
-map ee :CocEnable<cr>
+map <leader>ef <plug>(coc-fix-current)
+map <leader>ed :CocDisable<cr>
+map <leader>ee :CocEnable<cr>
 
 " -----------------------------------------------------------------------------------------  ALE  -------------------------------------------------------------------------------------------------
 
@@ -743,6 +743,8 @@ endfunction
 au FileType bufterm.sh sil! imap <buffer> <cr> <c-r>=TerminalBufCmd()<cr>
 
 command BufTerm new | set filetype=bufterm.sh | norm i
+
+command DelEmptyLines exe 'g/^\([\s\t]\)*$/d'
 
 " -----------------------------------------------------------------------------------------  COMMANDS  -------------------------------------------------------------------------------------------------
 
