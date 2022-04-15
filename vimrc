@@ -401,6 +401,9 @@ map <leader>ef <plug>(coc-fix-current)
 map <leader>ed :CocDisable<cr>
 map <leader>ee :CocEnable<cr>
 
+" Hide the gutter background colour
+hi SignColumn ctermbg=NONE
+
 " -----------------------------------------------------------------------------------------  ALE  -------------------------------------------------------------------------------------------------
 
 " " This is best set after the colourscheme because of the highlight settings
