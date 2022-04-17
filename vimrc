@@ -753,6 +753,8 @@ command DelEmptyLines exe 'g/^\([\s\t]\)*$/d'
 
 " Goes to my vimrc
 command! Vimrc e ~/.vim/vimrc
+" Goes to my vom config folder
+command! VimConfig e ~/.vim
 " Writes and reloads the vimrc...
 command! W :w | so ~/.vimrc
 " Goes to my tags file...
@@ -954,11 +956,25 @@ inoremap <c-f> <esc>v'.cconsole.log('@FILTER <c-r>"')
 
 inoremap {<Space> {  }<Left><Left>
 inoremap {{<Space> {{  }}<Left><Left><Left>
+inoremap ({<Space> ({  })<Left><Left><Left>
+inoremap [{<Space> [{  }]<Left><Left><Left>
 inoremap (<Space> ()<Left>
 inoremap [<Space> []<Left>
-inoremap {<cr> {<cr>}<esc>O
 inoremap (<cr> (<cr>)<esc>O
 inoremap [<cr> [<cr>]<esc>O
+inoremap {<cr> {<cr>}<esc>O
+inoremap {{<cr> {{<cr>}}<esc>O
+inoremap ({<cr> ({<cr>})<esc>O
+inoremap [{<cr> [{<cr>}]<esc>O
+inoremap `<cr> `<cr>`<esc>O
+inoremap {`<cr> {`<cr>`}<c-d><esc>O<c-t>
+inoremap [`<cr> [`<cr>`]<c-d><esc>O<c-t>
+inoremap (`<cr> (`<cr>`)<c-d><esc>O<c-t>
+inoremap ({`<cr> ({`<cr>`})<c-d><esc>O<c-t>
+inoremap ([`<cr> ([`<cr>`])<c-d><esc>O<c-t>
+" TODO make a function that detects if this is the second quote or not
+" inoremap ' ''<Left>
+" inoremap " ""<Left>
 
 " re-maps capital Yank to yank till the end of the line
 map Y y$
