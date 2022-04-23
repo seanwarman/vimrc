@@ -169,4 +169,7 @@ function mover() {
 
   # Then evaluate the output using `bash -c "{}"`
   bash -c "$MOVER_CP_COMMAND"
+
+  # Last part is to normalise all the tracks
+  ls | sort -n | mp3gain -p -c -r *.mp3
 }
