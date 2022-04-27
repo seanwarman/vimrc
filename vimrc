@@ -594,7 +594,7 @@ endfunction
 map <leader>bp :bp<cr>
 map <leader>bn :bn<cr>
 map <leader>bdd :Bclose!<cr>
-map <leader>bd<tab> q:bd! <tab>
+map <leader>bd<tab> :<c-f>ibd! <tab>
 " Select buffer from completion menu...
 map <leader>b<tab> q:ib <tab>
 map <leader>bd* :sil! call DeleteAllBufsNotInArgv()<cr>
@@ -967,11 +967,11 @@ inoremap {{<cr> {{<cr>}}<esc>O
 inoremap ({<cr> ({<cr>})<esc>O
 inoremap [{<cr> [{<cr>}]<esc>O
 inoremap `<cr> `<cr>`<esc>O
-inoremap {`<cr> {`<cr>`}<c-d><esc>O<c-t>
-inoremap [`<cr> [`<cr>`]<c-d><esc>O<c-t>
-inoremap (`<cr> (`<cr>`)<c-d><esc>O<c-t>
-inoremap ({`<cr> ({`<cr>`})<c-d><esc>O<c-t>
-inoremap ([`<cr> ([`<cr>`])<c-d><esc>O<c-t>
+inoremap {`<cr> {`<cr>`}<c-d><esc>O
+inoremap [`<cr> [`<cr>`]<c-d><esc>O
+inoremap (`<cr> (`<cr>`)<c-d><esc>O
+inoremap ({`<cr> ({`<cr>`})<c-d><esc>O
+inoremap ([`<cr> ([`<cr>`])<c-d><esc>O
 " TODO make a function that detects if this is the second quote or not
 " inoremap ' ''<Left>
 " inoremap " ""<Left>
