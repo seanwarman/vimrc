@@ -39,6 +39,9 @@ call plug#begin('~/.local/share/vim/plugged')
   " Bookmarks that behave nicer than default
   " Plug 'Yilin-Yang/vim-markbar'
 
+  " Hatred for Netrw
+  Plug 'justinmk/vim-dirvish'
+
   " Startup splash screen and workspaces
   Plug 'mhinz/vim-startify'
 
