@@ -398,6 +398,7 @@ hi Folded term=standout ctermfg=248 ctermbg=236 guifg=grey49 guibg=black
 map ]e <plug>(coc-diagnostic-next)
 map [e <plug>(coc-diagnostic-prev)
 map <leader>ef <plug>(coc-fix-current)
+map <leader>ea <plug>(coc-codeaction)
 map <leader>ed :CocDisable<cr>
 map <leader>ee :CocEnable<cr>
 
