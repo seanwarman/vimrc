@@ -674,17 +674,197 @@ map <leader>pp :Files<cr>
 map <leader>ff :Ag<cr>
 map <leader>fw :Ag <c-r><c-w><cr>
 
+" -----------------------------------------------------------------------------------------  DIRVISH  --------------------------------------------------------------------------------------------------
+
+" Settings
+
+let g:dirvish_relative_paths = 0
+let g:custom_dirvish_split_width = 60
+
+function DirvishPreviewTreeMaps()
+  augroup dirvish_config
+    autocmd!
+    autocmd FileType dirvish silent! nmap <buffer> l :call dirvish#open("edit", 0)<CR> \| :call PreviewOrClosePreview('feedkeys("p")')<cr>
+    autocmd FileType dirvish silent! nmap <buffer> k k:call feedkeys("p")<CR>
+    autocmd FileType dirvish silent! nmap <buffer> j j:call feedkeys("p")<CR>
+    autocmd FileType dirvish silent! nmap <buffer> h <Plug>(dirvish_up):call feedkeys("p")<CR>
+    autocmd FileType dirvish silent! nmap <buffer> gq <Plug>(dirvish_quit):pc<cr>
+  augroup END
+endfunction
+
+function DirvishUnMap()
+  augroup dirvish_config
+    autocmd!
+    autocmd FileType dirvish silent! unmap <buffer> l
+    autocmd FileType dirvish silent! unmap <buffer> k
+    autocmd FileType dirvish silent! unmap <buffer> j
+    autocmd FileType dirvish silent! unmap <buffer> h
+    autocmd FileType dirvish silent! unmap <buffer> gq
+  augroup END
+endfunction
+
+" Commands
+
+function DirvishPreviewTree()
+  call DirvishUnMap()
+  call DirvishPreviewTreeMaps()
+  set nopreviewwindow
+  pclose
+  pedit
+  call DirvishHereOrCwd("%:h")
+  call DirvishPositionLeft(g:custom_dirvish_split_width)
+  norm p
+endfunction
+command! DirvishPreviewTree :sil! call DirvishPreviewTree()
+map <leader>. :DirvishPreviewTree<cr>
+
+function DirvishPositionLeft(width)
+  exe "norm \<c-w>H" a:width "\<c-w><"
+endfunction
+
+function PreviewOrClosePreview(prevcmd)
+  if &filetype != 'dirvish'
+    pc
+    " Do I want to add the file to args automatically?
+    " argadd %
+  else
+    exe 'call' a:prevcmd
+  endif
+endfunction
+
+function DirvishFindMatchAtCursor()
+  let l:bits = split(expand('<cWORD>'), ':')
+  exe 'pedit +' . l:bits[1] '' l:bits[0]
+endfunction
+
+function DirvishHereOrCwd(dir)
+  if len(expand(a:dir))
+    exe 'Dirvish ' . a:dir
+  else
+    exe 'Dirvish .'
+  endif
+endfunction
+
+" -----------------------------------------------------------------------------------------  SEARCHER  ----------------------------------------------------------------------------------------------------
+
+function PeditFileAtLine()
+  try
+    let l:file = split(expand('<cWORD>'), ':')
+    if len(l:file) > 1
+      exe 'pedit '  . ' +' . l:file[1] . ' ' . l:file[0]
+    else
+      exe 'pedit ' . l:file[0]
+    endif
+  catch
+    echo 'No file'
+  endtry
+endfunction
+
+function ReadCommandToSearcherBuf(cmd)
+  let l:gobackbuf = bufnr()
+  silent! bw! searcher
+  try
+    e $HOME/.vim/searcher
+  catch
+    new
+    file $HOME/.vim/searcher
+  endtry
+  exe '%d_'
+  only
+  set nopreviewwindow
+  sil! unmap <buffer> <cr>
+  sil! unmap <buffer> x
+  sil! unmap <buffer> l
+  sil! unmap <buffer> k
+  sil! unmap <buffer> j
+  sil! unmap <buffer> gq
+  nmap <silent> <buffer> <cr> :pc!<cr>gF:bd!{searcher}<cr>
+  nmap <silent> <buffer> l :pc!<cr>gF:bd!{searcher}<cr>
+  nmap <silent> <buffer> k k:call PeditFileAtLine()<cr>
+  nmap <silent> <buffer> j j:call PeditFileAtLine()<cr>
+  nmap <silent> <buffer> x :call ArgAddOrRemoveFile(split(expand('<cWORD>'), ':')[0])<cr>
+  " I'd like to put this in but it behaves janky...
+  " au CursorMoved <buffer> call PeditFileAtLine()
+  nmap <silent> <buffer> gq :sil! pc \| Bclose!<cr>
+  silent! pedit
+  exe '0read!' a:cmd 
+  w
+endfunction
+
+function ReturnToSearcher()
+  try
+    b{searcher}
+  catch
+    try
+      e $HOME/.vim/searcher
+    catch
+      echo 'No previous searcher buffer'
+      return
+    endtry
+  endtry
+  sil! only
+  set nopreviewwindow
+  sil! unmap <buffer> <cr>
+  sil! unmap <buffer> x
+  sil! unmap <buffer> l
+  sil! unmap <buffer> k
+  sil! unmap <buffer> j
+  sil! unmap <buffer> q
+  nmap <silent> <buffer> <cr> :pc!<cr>gF:sil! bd!{searcher}<cr>
+  nmap <silent> <buffer> l :pc!<cr>gF:sil! bd!{searcher}<cr>
+  nmap <silent> <buffer> k k:call PeditFileAtLine()<cr>
+  nmap <silent> <buffer> j j:call PeditFileAtLine()<cr>
+  nmap <silent> <buffer> x :call ArgAddOrRemoveFile(split(expand('<cWORD>'), ':')[0])<cr>
+  " I'd like to put this in but it behaves janky...
+  " au CursorMoved <buffer> call PeditFileAtLine()
+  nmap <silent> <buffer> gq :sil! pc \| bd!<cr>
+  call PeditFileAtLine()
+endfunction
+
+function LsDirsFromCwdExcluding(exclude)
+  return substitute(join(split(system('ls'), '\n'), ','), a:exclude . ',', '', 'g')
+endfunction
+
+function FindFile(path)
+  try
+    exe 'find ' . expand(a:path)
+  catch
+    silent! call ReadCommandToSearcherBuf('ag -g ' . shellescape(expand(a:path)) . ' ' . getcwd())
+    call PeditFileAtLine()
+  endtry
+endfunction
+command! -nargs=* -complete=file_in_path FindFile let &path=LsDirsFromCwdExcluding('node_modules') | call FindFile(expand("<args>")) | let @/ = '<args>'
+" nnoremap <leader>pp q:iFindFile <c-x><c-v><c-p>
+nmap <leader>pw :FindFile <c-r><c-w><c-f><tab><cr>
+nmap <leader>pW :exe 'FindFile' expand('<cWORD>')<cr>
+
+function Search(term)
+  call ReadCommandToSearcherBuf('ag ' . shellescape(a:term) . ' .')
+  let @/ = a:term
+  call PeditFileAtLine()
+endfunction
+command! -nargs=* Search silent! call Search(expand("<args>"))
+" These are taken out because I'm just using fzf
+" map <leader>ff :Search 
+" map <leader>fw :Search <c-r><c-w><cr>
+" map <leader>fW :exe 'Search' expand('<cWORD>')<cr>
+
+map <leader>ss :call ReturnToSearcher()<cr>
+
 " -----------------------------------------------------------------------------------------  NETRW  ----------------------------------------------------------------------------------------------------
 
-" " " Go back to netrw at some point, I'm just not ready yet
-map <leader>. :set previewwindow\|Vexplore\|2<cr>
-let g:netrw_bufsettings = 'nu'
-let g:netrw_preview = 1
-let g:netrw_errorlvl = 2
-let g:netrw_winsize = 30
-let g:netrw_list_hide = ''
-let g:netrw_liststyle = 3
-let g:netrw_banner = 0
+let g:loaded_netrw       = 1
+let g:loaded_netrwPlugin = 1
+
+
+" map <leader>. :set previewwindow\|Vexplore\|2<cr>
+" let g:netrw_bufsettings = 'nu'
+" let g:netrw_preview = 1
+" let g:netrw_errorlvl = 2
+" let g:netrw_winsize = 30
+" let g:netrw_list_hide = ''
+" let g:netrw_liststyle = 3
+" let g:netrw_banner = 0
 
 " function NetrwMappings()
 " 	" map <buffer> l <Plug>NetrwLocalBrowseCheck<cr>
