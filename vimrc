@@ -22,7 +22,20 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'posva/vim-vue'
 
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
-  Plug '1995eaton/vim-better-javascript-completion'
+
+  if has('nvim')
+    Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+    Plug 'wellle/tmux-complete.vim'
+    Plug 'thalesmello/webcomplete.vim'
+    if has('win32') || has('win64')
+      Plug 'tbodt/deoplete-tabnine', { 'do': 'powershell.exe .\install.ps1' }
+    else
+      Plug 'tbodt/deoplete-tabnine', { 'do': './install.sh' }
+    endif
+    let g:deoplete#enable_at_startup = 1
+  else
+    Plug '1995eaton/vim-better-javascript-completion'
+  endif
 
   " CSS and inline colors >> #344390 <<
   Plug 'KabbAmine/vCoolor.vim'
@@ -681,12 +694,18 @@ map <leader>fw :Ag <c-r><c-w><cr>
 let g:dirvish_relative_paths = 0
 let g:custom_dirvish_split_width = 60
 
+function PreviewIfDir()
+  if len(finddir(expand('<cWORD>'))) > 0 
+    call feedkeys("p")
+  endif
+endfunction
+
 function DirvishPreviewTreeMaps()
   augroup dirvish_config
     autocmd!
     autocmd FileType dirvish silent! nmap <buffer> l :call dirvish#open("edit", 0)<CR> \| :call PreviewOrClosePreview('feedkeys("p")')<cr>
-    autocmd FileType dirvish silent! nmap <buffer> k k:call feedkeys("p")<CR>
-    autocmd FileType dirvish silent! nmap <buffer> j j:call feedkeys("p")<CR>
+    autocmd FileType dirvish silent! nmap <buffer> k k:call PreviewIfDir()<CR>
+    autocmd FileType dirvish silent! nmap <buffer> j j:call PreviewIfDir()<CR>
     autocmd FileType dirvish silent! nmap <buffer> h <Plug>(dirvish_up):call feedkeys("p")<CR>
     autocmd FileType dirvish silent! nmap <buffer> gq <Plug>(dirvish_quit):pc<cr>
   augroup END
