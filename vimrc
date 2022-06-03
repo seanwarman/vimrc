@@ -688,8 +688,8 @@ endfunction
 let g:fzf_layout = { 'down': '35%' }
 
 map <leader>pp :Files<cr>
-map <leader>ff :Ag<cr>
-map <leader>fw :Ag <c-r><c-w><cr>
+" map <leader>ff :Ag<cr>
+" map <leader>fw :Ag <c-r><c-w><cr>
 
 " -----------------------------------------------------------------------------------------  DIRVISH  --------------------------------------------------------------------------------------------------
 
@@ -856,8 +856,8 @@ function FindFile(path)
     call PeditFileAtLine()
   endtry
 endfunction
-command! -nargs=* -complete=file_in_path FindFile let &path=LsDirsFromCwdExcluding('node_modules') | call FindFile(expand("<args>")) | let @/ = '<args>'
-" nnoremap <leader>pp q:iFindFile <c-x><c-v><c-p>
+command! -nargs=* -complete=file_in_path FindFile let &path=LsDirsFromCwdExcluding('.angular .git node_modules') | call FindFile(expand("<args>")) | let @/ = '<args>'
+" nnoremap <leader>pp :FindFile <c-f>i<c-x><c-v><c-p>
 nmap <leader>pw :FindFile <c-r><c-w><c-f><tab><cr>
 nmap <leader>pW :exe 'FindFile' expand('<cWORD>')<cr>
 
@@ -868,8 +868,8 @@ function Search(term)
 endfunction
 command! -nargs=* Search silent! call Search(expand("<args>"))
 " These are taken out because I'm just using fzf
-" map <leader>ff :Search 
-" map <leader>fw :Search <c-r><c-w><cr>
+map <leader>ff :Search 
+map <leader>fw :Search <c-r><c-w><cr>
 " map <leader>fW :exe 'Search' expand('<cWORD>')<cr>
 
 map <leader>ss :call ReturnToSearcher()<cr>
