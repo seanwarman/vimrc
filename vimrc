@@ -54,6 +54,7 @@ call plug#begin('~/.local/share/vim/plugged')
 
   " Hatred for Netrw
   Plug 'justinmk/vim-dirvish'
+  Plug 'kristijanhusak/vim-dirvish-git'
 
   " Startup splash screen and workspaces
   Plug 'mhinz/vim-startify'
