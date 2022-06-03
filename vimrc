@@ -628,9 +628,12 @@ map <leader>aa :call ArgAddOrRemoveFile(expand('%'))<cr>
 map <leader>aA :exe 'argadd' join(ListAllBufNames())<cr>
 map <leader>al :sall<cr>
 map <leader>adD :argdelete *<cr>
-command! -nargs=* -complete=arglist Args argedit <args>
 " Select buffer from completion menu...
+command! -nargs=* -complete=arglist Args argedit <args>
 map <leader>a<tab> q:iArgs <tab>
+" Add to args list from buffer completion menu...
+command! -nargs=* -complete=buffer BufArgs argedit <args>
+map <leader>ab<tab> q:iBufArgs <tab>
 
 " -----------------------------------------------------------------------------------------  AUTOCOMPLETION  -------------------------------------------------------------------------------------------------
 
