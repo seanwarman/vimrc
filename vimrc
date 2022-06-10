@@ -7,7 +7,7 @@ runtime ftplugin/man.vim
 call plug#begin('~/.local/share/vim/plugged')
   " These colorschemes break the term vim's colours
   " so only load them in the gui version...
-  if has("gui_macvim")
+  if has("gui_macvim") || has("nvim")
     Plug 'flazz/vim-colorschemes'
   endif
 
@@ -19,7 +19,6 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'peitalin/vim-jsx-typescript'
   Plug 'leafgarland/typescript-vim'
   Plug 'chrisbra/csv.vim'
-  Plug 'posva/vim-vue'
 
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
@@ -27,6 +26,7 @@ call plug#begin('~/.local/share/vim/plugged')
     Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
     Plug 'wellle/tmux-complete.vim'
     Plug 'thalesmello/webcomplete.vim'
+    Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
     if has('win32') || has('win64')
       Plug 'tbodt/deoplete-tabnine', { 'do': 'powershell.exe .\install.ps1' }
     else
@@ -35,6 +35,7 @@ call plug#begin('~/.local/share/vim/plugged')
     let g:deoplete#enable_at_startup = 1
   else
     Plug '1995eaton/vim-better-javascript-completion'
+    Plug 'posva/vim-vue'
   endif
 
   " CSS and inline colors >> #344390 <<
@@ -77,6 +78,14 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
 call plug#end()
 command! PluginBaby PlugClean | PlugInstall
+
+" -----------------------------------------------------------------------------------------  TREESITTER  ---------------------------------------------------------------------------------------------------
+
+" Tree Sitter's written in Lua so we have to do luado to run the config, this
+" just enables the highlighting globally...
+if has('nvim')
+  luado require'nvim-treesitter.configs'.setup { highlight = { enable = true } }
+endif
 
 " -----------------------------------------------------------------------------------------  DEFAULTS  ---------------------------------------------------------------------------------------------------
 
@@ -363,6 +372,8 @@ command! -nargs=* Light :exe 'colo' LightColours()[<args>]
 
 if has("gui_macvim")
   colo Monokai
+elseif has("nvim")
+  colo gruvbox
 else
   colo slate
 endif
@@ -627,7 +638,7 @@ map <leader>aa :call ArgAddOrRemoveFile(expand('%'))<cr>
 " Add all open buffers to the args list...
 map <leader>aA :exe 'argadd' join(ListAllBufNames())<cr>
 map <leader>al :sall<cr>
-map <leader>adD :argdelete *<cr>
+map <leader>aD :argdelete *<cr>
 " Select buffer from completion menu...
 command! -nargs=* -complete=arglist Args argedit <args>
 map <leader>a<tab> q:iArgs <tab>
@@ -993,7 +1004,7 @@ command! Test call Test()
 " -----------------------------------------------------------------------------------------  AUTOCMDS  -------------------------------------------------------------------------------------------------
 
 " au OptionSet,BufEnter *.vue set filetype=vue.html.javascript.css
-au OptionSet,BufEnter *.ejs set filetype=html
+" au OptionSet,BufEnter *.ejs set filetype=html
 
 " -----------------------------------------------------------------------------------------  QUICKFIX  -------------------------------------------------------------------------------------------------
 
