@@ -8,8 +8,8 @@ call plug#begin('~/.local/share/vim/plugged')
   " These colorschemes break the term vim's colours
   " so only load them in the gui version...
   if has("gui_macvim") || has("nvim")
-    Plug 'flazz/vim-colorschemes'
   endif
+  Plug 'flazz/vim-colorschemes'
 
   " Syntax
   Plug 'yuezk/vim-js'
@@ -23,16 +23,16 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
   if has('nvim')
-    Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-    Plug 'wellle/tmux-complete.vim'
-    Plug 'thalesmello/webcomplete.vim'
+    " Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+    " Plug 'wellle/tmux-complete.vim'
+    " Plug 'thalesmello/webcomplete.vim'
     Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-    if has('win32') || has('win64')
-      Plug 'tbodt/deoplete-tabnine', { 'do': 'powershell.exe .\install.ps1' }
-    else
-      Plug 'tbodt/deoplete-tabnine', { 'do': './install.sh' }
-    endif
-    let g:deoplete#enable_at_startup = 1
+    " if has('win32') || has('win64')
+    "   Plug 'tbodt/deoplete-tabnine', { 'do': 'powershell.exe .\install.ps1' }
+    " else
+    "   Plug 'tbodt/deoplete-tabnine', { 'do': './install.sh' }
+    " endif
+    " let g:deoplete#enable_at_startup = 0
   else
     Plug '1995eaton/vim-better-javascript-completion'
     Plug 'posva/vim-vue'
@@ -84,8 +84,12 @@ command! PluginBaby PlugClean | PlugInstall
 " Tree Sitter's written in Lua so we have to do luado to run the config, this
 " just enables the highlighting globally...
 if has('nvim')
-  luado require'nvim-treesitter.configs'.setup { highlight = { enable = true } }
+  luado require'nvim-treesitter.configs'.setup { highlight = { enable = true, additional_vim_regex_highlighting = false } }
 endif
+
+" If the highlighting breaks you can reset with this:
+" Warning: this writes the current file...
+map <leader>rr :write \| edit \| TSBufEnable highlight<cr>
 
 " -----------------------------------------------------------------------------------------  DEFAULTS  ---------------------------------------------------------------------------------------------------
 
@@ -242,7 +246,13 @@ set nowrap
 
 " Maintain undo
 set undofile 
-set undodir=~/.vim/undodir
+" nvim has a different undo format to normal vim
+" keep them both...
+if has("nvim")
+  set undodir=~/.vim/nvim-undodir
+else
+  set undodir=~/.vim/undodir
+endif
 
 " Set's yank to use the normal clipboard
 set clipboard=unnamed
@@ -253,6 +263,12 @@ set autoread
 set previewheight=30
 
 set diffopt+=vertical
+
+" Fix terrible side scrolling defaults
+" Increment for the scroll amount...
+set sidescroll=10
+" Padding to for the cursor position...
+set sidescrolloff=30
 
 " -----------------------------------------------------------------------------------------  STARTIFY  -------------------------------------------------------------------------------------------------
 
@@ -289,6 +305,12 @@ let g:startify_lists = [
 autocmd User Startified sil! unmap <buffer> q
 
 map <leader>G :Startify<cr>
+
+" --------------------------------------------------------------------------------------  COMMENTARY  ----------------------------------------------------------------------------------------------------
+
+" autocmd FileType vue.html.javascript.css setlocal commentstring=\/\/\ %s
+" autocmd FileType vue setlocal commentstring=\/\/\ %s
+" autocmd FileType javascript setlocal commentstring=\/\/\ %s
 
 " --------------------------------------------------------------------------------------  EASYMOTION  ----------------------------------------------------------------------------------------------------
 
@@ -370,13 +392,7 @@ endfunction
 command! -nargs=* Dark :exe 'colo' DarkColours()[<args>]
 command! -nargs=* Light :exe 'colo' LightColours()[<args>]
 
-if has("gui_macvim")
-  colo Monokai
-elseif has("nvim")
-  colo gruvbox
-else
-  colo slate
-endif
+colo gruvbox
 
 " An array of colours for the term_colourscheme_colours function based on the
 " current values of the colourscheme's highlight groups...
@@ -699,8 +715,8 @@ endfunction
 let g:fzf_layout = { 'down': '35%' }
 
 map <leader>pp :Files<cr>
-" map <leader>ff :Ag<cr>
-" map <leader>fw :Ag <c-r><c-w><cr>
+map <leader>ff :Ag<cr>
+map <leader>fw :Ag <c-r><c-w><cr>
 
 " -----------------------------------------------------------------------------------------  DIRVISH  --------------------------------------------------------------------------------------------------
 
@@ -718,7 +734,7 @@ endfunction
 function DirvishPreviewTreeMaps()
   augroup dirvish_config
     autocmd!
-    autocmd FileType dirvish silent! nmap <buffer> l :call dirvish#open("edit", 0)<CR> \| :call PreviewOrClosePreview('feedkeys("p")')<cr>
+    autocmd FileType dirvish silent! nmap <buffer> l :call dirvish#open("edit", 0)<CR> \| :call PreviewIfDir()<CR>
     autocmd FileType dirvish silent! nmap <buffer> k k:call PreviewIfDir()<CR>
     autocmd FileType dirvish silent! nmap <buffer> j j:call PreviewIfDir()<CR>
     autocmd FileType dirvish silent! nmap <buffer> h <Plug>(dirvish_up):call feedkeys("p")<CR>
@@ -879,8 +895,8 @@ function Search(term)
 endfunction
 command! -nargs=* Search silent! call Search(expand("<args>"))
 " These are taken out because I'm just using fzf
-map <leader>ff :Search 
-map <leader>fw :Search <c-r><c-w><cr>
+" map <leader>ff :Search 
+" map <leader>fw :Search <c-r><c-w><cr>
 " map <leader>fW :exe 'Search' expand('<cWORD>')<cr>
 
 map <leader>ss :call ReturnToSearcher()<cr>
@@ -967,8 +983,6 @@ command BufTerm new | set filetype=bufterm.sh | norm i
 
 command DelEmptyLines exe 'g/^\([\s\t]\)*$/d'
 
-" -----------------------------------------------------------------------------------------  COMMANDS  -------------------------------------------------------------------------------------------------
-
 " Goes to my vimrc
 command! Vimrc e ~/.vim/vimrc
 " Goes to my vom config folder
@@ -1003,7 +1017,7 @@ command! Test call Test()
 
 " -----------------------------------------------------------------------------------------  AUTOCMDS  -------------------------------------------------------------------------------------------------
 
-" au OptionSet,BufEnter *.vue set filetype=vue.html.javascript.css
+au OptionSet,BufEnter *.vue set filetype=vue.html.javascript.css
 " au OptionSet,BufEnter *.ejs set filetype=html
 
 " -----------------------------------------------------------------------------------------  QUICKFIX  -------------------------------------------------------------------------------------------------
@@ -1153,6 +1167,9 @@ map <silent> <c-]> :<c-u>call TryTagOrSaveJtag()<cr>
 
 " -----------------------------------------------------------------------------------------  MAPPINGS  -------------------------------------------------------------------------------------------------
 
+" Run this file with node-repl
+map <leader>! :!pretty-repl %<tab><cr>
+
 " Fugitive mappings
 "
 " Add a commit or branch name to the "d" register then you can use
@@ -1161,16 +1178,16 @@ map <leader>pd :Gdiff <c-r>d<cr>
 nnoremap <silent> <leader>gg :G<cr>
 nnoremap <silent> <leader>gd :Gdiff<cr>
 nnoremap <silent> <leader>gr :Gread<cr>
-nnoremap <silent> <leader>gb :Gblame<cr>
-nnoremap <leader>gpu :G push<cr>
+nnoremap <silent> <leader>gb :G blame<cr>
+nnoremap <leader>gpu :!git push -u origin $(git branch --show-current)<cr>
 
 " Note, this always refers to the cwd git repo...
 nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 
 " type any word then press ctrl-z in insert mode to console log it
 " with an id string...
-inoremap <C-a> <esc>v'.cconsole.log('@FILTER <c-r>": ', <c-r>")
-inoremap <c-f> <esc>v'.cconsole.log('@FILTER <c-r>"')
+inoremap <C-a> <esc>v`[cconsole.log('@FILTER <c-r>": ', <c-r>")
+inoremap <c-f> <esc>v`[cconsole.log('@FILTER <c-r>"')
 
 inoremap {<Space> {  }<Left><Left>
 inoremap {{<Space> {{  }}<Left><Left><Left>
