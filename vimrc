@@ -10,6 +10,7 @@ call plug#begin('~/.local/share/vim/plugged')
   if has("gui_macvim") || has("nvim")
   endif
   Plug 'flazz/vim-colorschemes'
+  Plug 'jxnblk/vim-mdx-js'
 
   " Syntax
   Plug 'yuezk/vim-js'
@@ -1186,8 +1187,8 @@ nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 
 " type any word then press ctrl-z in insert mode to console log it
 " with an id string...
-inoremap <C-a> <esc>v`[cconsole.log('@FILTER <c-r>": ', <c-r>")
-inoremap <c-f> <esc>v`[cconsole.log('@FILTER <c-r>"')
+inoremap <c-a> <esc>^Cconsole.log('@FILTER <c-r>":', <c-r>")
+inoremap <c-f> <esc>^Cconsole.log('@FILTER <c-r>"')
 
 inoremap {<Space> {  }<Left><Left>
 inoremap {{<Space> {{  }}<Left><Left><Left>
