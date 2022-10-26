@@ -1252,6 +1252,49 @@ map <leader><leader>r :w! \| silent pedit! +setfiletype\ javascript\|0read!node\
 " Show marks before jumping to mark position...
 map <leader>' :marks<cr>:'
 
+" " Auto indent when pasting...
+" nnoremap p :pu<cr>='['[
+" nnoremap P P='['[
+
+" Find Vue component sections
+nnoremap <leader>vs /<style<cr>zz
+nnoremap <leader>vd /data()<cr>zz
+nnoremap <leader>vc /computed:<cr>zz
+nnoremap <leader>vm /methods:<cr>zz
+
+" Quick finds (this is backwards to usual vim commands but feels more natural
+" because of how the * key usually works)
+nnoremap <leader>a"* "fya"/<c-r>f<cr>
+nnoremap <leader>a'* "fya'/<c-r>f<cr>
+nnoremap <leader>a<* "fya</<c-r>f<cr>
+nnoremap <leader>a>* "fya>/<c-r>f<cr>
+nnoremap <leader>a(* "fya(/<c-r>f<cr>
+nnoremap <leader>a)* "fya)/<c-r>f<cr>
+nnoremap <leader>ab* "fyab/<c-r>f<cr>
+nnoremap <leader>aB* "fyaB/<c-r>f<cr>
+nnoremap <leader>a[* "fya[/<c-r>f<cr>
+nnoremap <leader>a]* "fya]/<c-r>f<cr>
+nnoremap <leader>a{* "fya{/<c-r>f<cr>
+nnoremap <leader>a}* "fya}/<c-r>f<cr>
+nnoremap <leader>i"* "fyi"/<c-r>f<cr>
+nnoremap <leader>i'* "fyi'/<c-r>f<cr>
+nnoremap <leader>i<* "fyi</<c-r>f<cr>
+nnoremap <leader>i>* "fyi>/<c-r>f<cr>
+nnoremap <leader>i(* "fyi(/<c-r>f<cr>
+nnoremap <leader>i)* "fyi)/<c-r>f<cr>
+nnoremap <leader>ib* "fyib/<c-r>f<cr>
+nnoremap <leader>iB* "fyiB/<c-r>f<cr>
+nnoremap <leader>i[* "fyi[/<c-r>f<cr>
+nnoremap <leader>i]* "fyi]/<c-r>f<cr>
+nnoremap <leader>i{* "fyi{/<c-r>f<cr>
+nnoremap <leader>i}* "fyi}/<c-r>f<cr>
+nnoremap <leader>W* "fyW/<c-r>f<cr>
+nnoremap <leader>iW* "fyiW/<c-r>f<cr>
+nnoremap <leader>b* "fyb/<c-r>f<cr>
+nnoremap <leader>B* "fyB/<c-r>f<cr>
+nnoremap <leader>e* "fye/<c-r>f<cr>
+nnoremap <leader>E* '"fyE/<c-r>f<cr>
+
 " -----------------------------------------------------------------------------------------  GOTO  -------------------------------------------------------------------------------------------------
 
 " A smarter goto file command...
