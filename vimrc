@@ -36,8 +36,9 @@ call plug#begin('~/.local/share/vim/plugged')
     " let g:deoplete#enable_at_startup = 0
   else
     Plug '1995eaton/vim-better-javascript-completion'
-    Plug 'posva/vim-vue'
   endif
+
+  Plug 'posva/vim-vue'
 
   " CSS and inline colors >> #344390 <<
   Plug 'KabbAmine/vCoolor.vim'
@@ -269,7 +270,7 @@ set diffopt+=vertical
 " Increment for the scroll amount...
 set sidescroll=10
 " Padding to for the cursor position...
-set sidescrolloff=30
+set sidescrolloff=10
 
 " -----------------------------------------------------------------------------------------  STARTIFY  -------------------------------------------------------------------------------------------------
 
@@ -310,7 +311,7 @@ map <leader>G :Startify<cr>
 " --------------------------------------------------------------------------------------  COMMENTARY  ----------------------------------------------------------------------------------------------------
 
 " autocmd FileType vue.html.javascript.css setlocal commentstring=\/\/\ %s
-" autocmd FileType vue setlocal commentstring=\/\/\ %s
+autocmd FileType vue setlocal commentstring=\/\/\ %s
 " autocmd FileType javascript setlocal commentstring=\/\/\ %s
 
 " --------------------------------------------------------------------------------------  EASYMOTION  ----------------------------------------------------------------------------------------------------
@@ -647,6 +648,8 @@ map <leader>bd* :sil! call DeleteAllBufsNotInArgv()<cr>
 map <leader>bdD :sil! call DeleteAllButThisBuf()<cr>
 map <leader>bde :call DeleteEmptyBuffers()<cr>
 map <leader><leader>n :new \| wincmd p \| close!<cr>
+nmap <leader>b <Nop>
+nmap <leader>bd <Nop>
 
 " Args list mappings
 map <leader>an :n<cr>
@@ -662,6 +665,7 @@ map <leader>a<tab> q:iArgs <tab>
 " Add to args list from buffer completion menu...
 command! -nargs=* -complete=buffer BufArgs argedit <args>
 map <leader>ab<tab> q:iBufArgs <tab>
+nmap <leader>a <Nop>
 
 " -----------------------------------------------------------------------------------------  AUTOCOMPLETION  -------------------------------------------------------------------------------------------------
 
@@ -962,6 +966,7 @@ nmap <silent> e e:noh<cr>
 
 " vim-sneak Mappings
 " Remaps f and t to work over multi lines
+nmap <Nop> <Plug>Sneak_S
 nmap <Nop> <Plug>Sneak_s
 map f <Plug>Sneak_f
 map F <Plug>Sneak_F
@@ -1018,7 +1023,7 @@ command! Test call Test()
 
 " -----------------------------------------------------------------------------------------  AUTOCMDS  -------------------------------------------------------------------------------------------------
 
-au OptionSet,BufEnter *.vue set filetype=vue.html.javascript.css
+" au OptionSet,BufEnter *.vue set filetype=vue.html.javascript.css
 " au OptionSet,BufEnter *.ejs set filetype=html
 
 " -----------------------------------------------------------------------------------------  QUICKFIX  -------------------------------------------------------------------------------------------------
@@ -1185,7 +1190,7 @@ nnoremap <leader>gpu :!git push -u origin $(git branch --show-current)<cr>
 " Note, this always refers to the cwd git repo...
 nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 
-" type any word then press ctrl-z in insert mode to console log it
+" type any word then press ctrl-a in insert mode to console log it
 " with an id string...
 inoremap <c-a> <esc>^Cconsole.log('@FILTER <c-r>":', <c-r>")
 inoremap <c-f> <esc>^Cconsole.log('@FILTER <c-r>"')
