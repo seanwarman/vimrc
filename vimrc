@@ -720,6 +720,7 @@ endfunction
 let g:fzf_layout = { 'down': '35%' }
 
 map <leader>pp :Files<cr>
+map <leader>pw "zyiw:Files<cr><c-\><c-n>"zpi
 map <leader>ff :Ag<cr>
 map <leader>fw :Ag <c-r><c-w><cr>
 
