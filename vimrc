@@ -10,35 +10,16 @@ call plug#begin('~/.local/share/vim/plugged')
   if has("gui_macvim") || has("nvim")
   endif
   Plug 'flazz/vim-colorschemes'
-  Plug 'jxnblk/vim-mdx-js'
 
   " Syntax
-  Plug 'yuezk/vim-js'
-  Plug 'HerringtonDarkholme/yats.vim'
   Plug 'mattn/emmet-vim'
-  Plug 'maxmellon/vim-jsx-pretty'
-  Plug 'peitalin/vim-jsx-typescript'
-  Plug 'leafgarland/typescript-vim'
-  Plug 'chrisbra/csv.vim'
+  Plug 'yuezk/vim-js'
 
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
   if has('nvim')
-    " Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-    " Plug 'wellle/tmux-complete.vim'
-    " Plug 'thalesmello/webcomplete.vim'
     Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-    " if has('win32') || has('win64')
-    "   Plug 'tbodt/deoplete-tabnine', { 'do': 'powershell.exe .\install.ps1' }
-    " else
-    "   Plug 'tbodt/deoplete-tabnine', { 'do': './install.sh' }
-    " endif
-    " let g:deoplete#enable_at_startup = 0
-  else
-    Plug '1995eaton/vim-better-javascript-completion'
   endif
-
-  Plug 'posva/vim-vue'
 
   " CSS and inline colors >> #344390 <<
   Plug 'KabbAmine/vCoolor.vim'
@@ -86,7 +67,21 @@ command! PluginBaby PlugClean | PlugInstall
 " Tree Sitter's written in Lua so we have to do luado to run the config, this
 " just enables the highlighting globally...
 if has('nvim')
-  luado require'nvim-treesitter.configs'.setup { highlight = { enable = true, additional_vim_regex_highlighting = false } }
+lua << EOF
+  require'nvim-treesitter.configs'.setup {
+    indent = {
+      enable = false
+    },
+    incremental_selection = {
+      enable = false
+    },
+    highlight = {
+      enable = true,
+      disable = { "vue" },
+      additional_vim_regex_highlighting = true
+    }
+  }
+EOF
 endif
 
 " If the highlighting breaks you can reset with this:
@@ -669,58 +664,63 @@ nmap <leader>a <Nop>
 
 " -----------------------------------------------------------------------------------------  AUTOCOMPLETION  -------------------------------------------------------------------------------------------------
 
-set completeopt=menuone
-set complete=.,w,b,u,t,i
+" set completeopt=menuone
+" set complete=.,w,b,u,t,i
 
-set omnifunc=syntaxcomplete#Complete
-function CompleteOmni()
-  if !pumvisible()
-    call feedkeys("\<c-x>\<c-o>")
-  else
-    call feedkeys("\<c-n>")
-  endif
-  return ''
-endfunction
+" set omnifunc=syntaxcomplete#Complete
+" function CompleteOmni()
+"   if !pumvisible()
+"     call feedkeys("\<c-x>\<c-o>")
+"   else
+"     call feedkeys("\<c-n>")
+"   endif
+"   return ''
+" endfunction
 
-" This works but it's actually not as useful as c-n
-" imap <tab> <c-r>=CompleteOmni()<cr>
-imap <tab> <c-n>
-imap <s-tab> <c-p>
-
-
-function CountCols()
-  let l:n = 1
-  let l:total = 0
-  let l:curline = getcharpos('.')[1]
-  while l:n < l:curline
-    let l:total += col([l:n, '$'])
-    let l:n += 1
-  endwhile
-  " col() adds a 1 for every line so minus off the number of lines...
-  let l:total += (col('.') - l:curline)
-  return 'total is: ' . l:total
-endfunction
+" " This works but it's actually not as useful as c-n
+" " imap <tab> <c-r>=CompleteOmni()<cr>
+" imap <tab> <c-n>
+" imap <s-tab> <c-p>
 
 
+" function CountCols()
+"   let l:n = 1
+"   let l:total = 0
+"   let l:curline = getcharpos('.')[1]
+"   while l:n < l:curline
+"     let l:total += col([l:n, '$'])
+"     let l:n += 1
+"   endwhile
+"   " col() adds a 1 for every line so minus off the number of lines...
+"   let l:total += (col('.') - l:curline)
+"   return 'total is: ' . l:total
+" endfunction
 
 
 
-function CompleteNode()
-  call setcursorcharpos('.', col('.') -1)
-  let l:word = expand('<cWORD>')
-  call setcursorcharpos('.', col('.') +1)
 
 
-  " call complete(col('.'), [ 'constructor', '__defineGetter__', '__defineSetter__', 'hasOwnProperty', '__lookupGetter__', '__lookupSetter__', 'isPrototypeOf', 'propertyIsEnumerable', 'toString', 'valueOf', '__proto__', 'toLocaleString' ])
-  return l:word
-endfunction
+" function CompleteNode()
+"   call setcursorcharpos('.', col('.') -1)
+"   let l:word = expand('<cWORD>')
+"   call setcursorcharpos('.', col('.') +1)
+
+
+"   " call complete(col('.'), [ 'constructor', '__defineGetter__', '__defineSetter__', 'hasOwnProperty', '__lookupGetter__', '__lookupSetter__', 'isPrototypeOf', 'propertyIsEnumerable', 'toString', 'valueOf', '__proto__', 'toLocaleString' ])
+"   return l:word
+" endfunction
 
 " -------------------------------------------------------------------------------------------  FZF  ---------------------------------------------------------------------------------------------------
 
 let g:fzf_layout = { 'down': '35%' }
 
 map <leader>pp :Files<cr>
+" Find file under cursor...
 map <leader>pw "zyiw:Files<cr><c-\><c-n>"zpi
+" Find file name...
+map <leader>fp :exe 'Ag' expand('%:t:r')<cr>
+" Find vue markup type component from file name...
+map <leader>fcp :exe 'Ag <' . expand('%:t:r')<cr>
 map <leader>ff :Ag<cr>
 map <leader>fw :Ag <c-r><c-w><cr>
 
@@ -1002,6 +1002,8 @@ command! Tags e ~/.vim/tags
 command! Jtags e ~/.vim/scripts/jtags
 " Finds all merge conflicts inside the app/ dir...
 command! -nargs=+ -complete=dir Fix :F '<<<' <args>
+" Inputs a search for conflict markers in file...
+command! Conflicts /=======\|>>>>>>>\|<<<<<<< HEAD
 " Creates an actions creator, with types...
 command! AC call ActionCreator()
 " Runs anything and prints it in a preview window...
@@ -1025,7 +1027,7 @@ command! Test call Test()
 " -----------------------------------------------------------------------------------------  AUTOCMDS  -------------------------------------------------------------------------------------------------
 
 " au OptionSet,BufEnter *.vue set filetype=vue.html.javascript.css
-" au OptionSet,BufEnter *.ejs set filetype=html
+au OptionSet,BufEnter *.js set filetype=typescript
 
 " -----------------------------------------------------------------------------------------  QUICKFIX  -------------------------------------------------------------------------------------------------
 
@@ -1257,10 +1259,12 @@ map <leader>' :marks<cr>:'
 " nnoremap P P='['[
 
 " Find Vue component sections
-nnoremap <leader>vs /<style<cr>zz
-nnoremap <leader>vd /data()<cr>zz
-nnoremap <leader>vc /computed:<cr>zz
-nnoremap <leader>vm /methods:<cr>zz
+nnoremap <leader>vst /<style/s+1<cr>zt
+nnoremap <leader>vd /data()<cr>zt
+nnoremap <leader>vc /computed:<cr>zt
+nnoremap <leader>vm /methods:<cr>zt
+nnoremap <leader>vp /props:<cr>zt
+nnoremap <leader>vsc /<script/s+1<cr>zt
 
 " Quick finds (this is backwards to usual vim commands but feels more natural
 " because of how the * key usually works)
@@ -1293,7 +1297,10 @@ nnoremap <leader>iW* "fyiW/<c-r>f<cr>
 nnoremap <leader>b* "fyb/<c-r>f<cr>
 nnoremap <leader>B* "fyB/<c-r>f<cr>
 nnoremap <leader>e* "fye/<c-r>f<cr>
-nnoremap <leader>E* '"fyE/<c-r>f<cr>
+nnoremap <leader>E* "fyE/<c-r>f<cr>
+
+" Shortcut to find conflict markers...
+nnoremap <leader>/c :ConflictMarkers<cr>
 
 " -----------------------------------------------------------------------------------------  GOTO  -------------------------------------------------------------------------------------------------
 
