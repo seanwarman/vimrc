@@ -5,15 +5,12 @@
 runtime ftplugin/man.vim
 
 call plug#begin('~/.local/share/vim/plugged')
-  " These colorschemes break the term vim's colours
-  " so only load them in the gui version...
-  if has("gui_macvim") || has("nvim")
-  endif
   Plug 'flazz/vim-colorschemes'
 
   " Syntax
   Plug 'mattn/emmet-vim'
   Plug 'yuezk/vim-js'
+  Plug 'leafOfTree/vim-vue-plugin'
 
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
