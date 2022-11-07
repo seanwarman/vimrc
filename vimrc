@@ -74,7 +74,7 @@ lua << EOF
     },
     highlight = {
       enable = true,
-      disable = { "vue" },
+      disable = { "vue", "javascript", "typescript", "ts", "js" },
       additional_vim_regex_highlighting = true
     }
   }
@@ -559,6 +559,11 @@ endfunction
 " Status line that shows the args or the bufs list
 set statusline=%#MatchParen#\ %{fnamemodify(getcwd(),':t')}\ %*%#StatusLineTerm#\ %{StatusLineGitBranch()}\ %*\ %t:%p%%:%c\ %#ErrorMsg#%m%*%=%{ListArgsOrBuffers()}\ 
 
+" Make the git status a better colour combination
+if !has("nvim")
+  hi StatusLineTerm ctermfg=235 ctermbg=108
+endif
+
 " Always show the statusline
 set laststatus=2
 
@@ -888,8 +893,8 @@ function FindFile(path)
 endfunction
 command! -nargs=* -complete=file_in_path FindFile let &path=LsDirsFromCwdExcluding('.angular .git node_modules') | call FindFile(expand("<args>")) | let @/ = '<args>'
 " nnoremap <leader>pp :FindFile <c-f>i<c-x><c-v><c-p>
-nmap <leader>pw :FindFile <c-r><c-w><c-f><tab><cr>
-nmap <leader>pW :exe 'FindFile' expand('<cWORD>')<cr>
+" nmap <leader>pw :FindFile <c-r><c-w><c-f><tab><cr>
+" nmap <leader>pW :exe 'FindFile' expand('<cWORD>')<cr>
 
 function Search(term)
   call ReadCommandToSearcherBuf('ag ' . shellescape(a:term) . ' .')
@@ -1172,6 +1177,11 @@ endfunction
 map <silent> <c-]> :<c-u>call TryTagOrSaveJtag()<cr>
 
 " -----------------------------------------------------------------------------------------  MAPPINGS  -------------------------------------------------------------------------------------------------
+
+" Add a eslint ignore comment above
+nnoremap <leader>iO O/* eslint-disable */<esc>
+nnoremap <leader>io o/* eslint-disable */<esc>
+nnoremap <leader>ii cc/* eslint-disable */<esc>
 
 " Run this file with node-repl
 map <leader>! :!pretty-repl %<tab><cr>
