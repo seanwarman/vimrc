@@ -19,8 +19,8 @@ call plug#begin('~/.local/share/vim/plugged')
   endif
 
   " CSS and inline colors >> #344390 <<
-  Plug 'KabbAmine/vCoolor.vim'
-  Plug 'ap/vim-css-color'
+  " Plug 'KabbAmine/vCoolor.vim'
+  " Plug 'ap/vim-css-color'
 
   " Can't do without this one...
   Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
@@ -329,7 +329,7 @@ endfunction
 
 command! SaveSesh call SaveSesh(fnamemodify(getcwd(), ':t') . '-' . join(split(StatusLineGitBranch(), '\/'), '-'))
 
-map <leader><leader>s :SaveSesh<cr>
+map <leader>ss :SaveSesh<cr>
 
 " ------------------------------------------------------------------------------------------  COLORS  -------------------------------------------------------------------------------------------------
 
@@ -557,12 +557,7 @@ function StatusLineGitBranch()
 endfunction
 
 " Status line that shows the args or the bufs list
-set statusline=%#MatchParen#\ %{fnamemodify(getcwd(),':t')}\ %*%#StatusLineTerm#\ %{StatusLineGitBranch()}\ %*\ %t:%p%%:%c\ %#ErrorMsg#%m%*%=%{ListArgsOrBuffers()}\ 
-
-" Make the git status a better colour combination
-if !has("nvim")
-  hi StatusLineTerm ctermfg=235 ctermbg=108
-endif
+set statusline=%#MatchParen#\ %{fnamemodify(getcwd(),':t')}\ %*%#IncSearch#\ %{StatusLineGitBranch()}\ %*\ %t:%p%%:%c\ %#ErrorMsg#%m%*%=%{ListArgsOrBuffers()}\ 
 
 " Always show the statusline
 set laststatus=2
@@ -907,7 +902,7 @@ command! -nargs=* Search silent! call Search(expand("<args>"))
 " map <leader>fw :Search <c-r><c-w><cr>
 " map <leader>fW :exe 'Search' expand('<cWORD>')<cr>
 
-map <leader>ss :call ReturnToSearcher()<cr>
+" map <leader>ss :call ReturnToSearcher()<cr>
 
 " -----------------------------------------------------------------------------------------  NETRW  ----------------------------------------------------------------------------------------------------
 
