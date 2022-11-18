@@ -383,8 +383,8 @@ function DarkColours()
         \]
 endfunction
 
-command! -nargs=* Dark :exe 'colo' DarkColours()[<args>]
-command! -nargs=* Light :exe 'colo' LightColours()[<args>]
+command! -nargs=* Dark :exe 'colo ' . DarkColours()[<args>]
+command! -nargs=* Light :exe 'colo ' . LightColours()[<args>]
 
 colo gruvbox
 
@@ -1171,7 +1171,35 @@ function TryTagOrSaveJtag()
 endfunction
 map <silent> <c-]> :<c-u>call TryTagOrSaveJtag()<cr>
 
+" ------------------------------------------------------------------------------------------  TMUX  ----------------------------------------------------------------------------------------------------
+
+" Open ranger in a tmux split with the current file selected...
+noremap <leader>. :silent !tmux split zsh -c "export TERM=xterm-256color; export HIGHLIGHT_STYLE=zenburn && ranger --selectfile=%<tab>"<cr>
+" Can add a mapping to ranger rc.conf that looks like this to open files in
+" vim...
+" map e shell tmux send -t! ':e ' %p '^M'
+
 " -----------------------------------------------------------------------------------------  MAPPINGS  -------------------------------------------------------------------------------------------------
+
+" Quick git command (ends with a space)
+noremap <leader>g<leader> :G 
+
+" Do Kakoun type mappings for end and start of line
+noremap gh 0
+noremap gl $
+
+" Jump commands that use va...
+nnoremap [t vato<esc>
+nnoremap ]t vat<esc>
+nnoremap ]" va"<esc>
+nnoremap [" va"o<esc>
+nnoremap ]' va'<esc>
+nnoremap [' va'o<esc>
+nnoremap ]> va><esc>
+nnoremap [> va>o<esc>
+nnoremap [f [{?\w(<cr>^:noh<cr>
+nnoremap ]f /\w(<cr>f(%f{%:noh<cr>
+
 
 " Add a eslint ignore comment above
 nnoremap <leader>iO O/* eslint-disable */<esc>
