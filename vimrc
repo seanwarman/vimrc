@@ -575,7 +575,7 @@ endfunction
 function DeleteEmptyBuffers()
   let l:bufnums = ListEmptyBufNums()
   if len(trim(l:bufnums)) > 1
-    exe 'bd! ' ListEmptyBufNums()
+    exe 'bd! ' . ListEmptyBufNums()
   else 
     echo 'No empty buffers'
   endif
@@ -600,9 +600,9 @@ endfunction
 
 function ArgAddOrRemoveFile(path)
   if PathExistsInArgv(fnamemodify(a:path, ':p'))
-    exe 'argdelete' a:path
+    exe 'argdelete ' . a:path
   else
-    exe 'argadd' a:path
+    exe 'argadd ' . a:path
   endif
 endfunction
 
@@ -619,13 +619,13 @@ endfunction
 function DeleteAllBufsNotInArgv()
   let l:paths = ListAllBufsNotInArgv()
   if len(l:paths)
-    exe 'bd!' join(ListAllBufsNotInArgv())
+    exe 'bd! ' . join(ListAllBufsNotInArgv())
   endif
   call DeleteEmptyBuffers()
 endfunction
 
 function DeleteAllButThisBuf()
-  exe 'sil! bd! ' ListAllBufNums(bufnr())
+  exe 'sil! bd! ' . ListAllBufNums(bufnr())
   call DeleteEmptyBuffers()
 endfunction
 
@@ -648,7 +648,7 @@ map <leader>an :n<cr>
 map <leader>ap :N<cr>
 map <leader>aa :call ArgAddOrRemoveFile(expand('%'))<cr>
 " Add all open buffers to the args list...
-map <leader>aA :exe 'argadd' join(ListAllBufNames())<cr>
+map <leader>aA :exe 'argadd ' . join(ListAllBufNames())<cr>
 map <leader>al :sall<cr>
 map <leader>aD :argdelete *<cr>
 " Select buffer from completion menu...
@@ -713,9 +713,9 @@ let g:fzf_layout = { 'down': '35%' }
 
 map <leader>pp :Files<cr>
 " Find file under cursor...
-map <leader>pw "zyiw:Files<cr><c-\><c-n>"zpi
+" map <leader>pw "zyiw:Files<cr><c-\><c-n>"zpi
 " Find file name...
-map <leader>fp :exe 'Ag' expand('%:t:r')<cr>
+map <leader>fp :exe 'Ag ' . expand('%:t:r')<cr>
 " Find vue markup type component from file name...
 map <leader>fcp :exe 'Ag <' . expand('%:t:r')<cr>
 map <leader>ff :Ag<cr>
@@ -769,10 +769,10 @@ function DirvishPreviewTree()
   norm p
 endfunction
 command! DirvishPreviewTree :sil! call DirvishPreviewTree()
-map <leader>. :DirvishPreviewTree<cr>
+" map <leader>. :DirvishPreviewTree<cr>
 
 function DirvishPositionLeft(width)
-  exe "norm \<c-w>H" a:width "\<c-w><"
+  exe "norm \<c-w>H " . a:width . " \<c-w><"
 endfunction
 
 function PreviewOrClosePreview(prevcmd)
@@ -781,13 +781,13 @@ function PreviewOrClosePreview(prevcmd)
     " Do I want to add the file to args automatically?
     " argadd %
   else
-    exe 'call' a:prevcmd
+    exe 'call ' . a:prevcmd
   endif
 endfunction
 
 function DirvishFindMatchAtCursor()
   let l:bits = split(expand('<cWORD>'), ':')
-  exe 'pedit +' . l:bits[1] '' l:bits[0]
+  exe 'pedit +' . l:bits[1] . ' ' . l:bits[0]
 endfunction
 
 function DirvishHereOrCwd(dir)
@@ -840,7 +840,7 @@ function ReadCommandToSearcherBuf(cmd)
   " au CursorMoved <buffer> call PeditFileAtLine()
   nmap <silent> <buffer> gq :sil! pc \| Bclose!<cr>
   silent! pedit
-  exe '0read!' a:cmd 
+  exe '0read! ' . a:cmd 
   w
 endfunction
 
@@ -888,8 +888,8 @@ function FindFile(path)
 endfunction
 command! -nargs=* -complete=file_in_path FindFile let &path=LsDirsFromCwdExcluding('.angular .git node_modules') | call FindFile(expand("<args>")) | let @/ = '<args>'
 " nnoremap <leader>pp :FindFile <c-f>i<c-x><c-v><c-p>
-" nmap <leader>pw :FindFile <c-r><c-w><c-f><tab><cr>
-" nmap <leader>pW :exe 'FindFile' expand('<cWORD>')<cr>
+nmap <leader>pw :FindFile <c-r><c-w><c-f><tab><cr>
+nmap <leader>pW :exe 'FindFile ' . expand('<cWORD>')<cr>
 
 function Search(term)
   call ReadCommandToSearcherBuf('ag ' . shellescape(a:term) . ' .')
@@ -900,7 +900,7 @@ command! -nargs=* Search silent! call Search(expand("<args>"))
 " These are taken out because I'm just using fzf
 " map <leader>ff :Search 
 " map <leader>fw :Search <c-r><c-w><cr>
-" map <leader>fW :exe 'Search' expand('<cWORD>')<cr>
+" map <leader>fW :exe 'Search ' . expand('<cWORD>')<cr>
 
 " map <leader>ss :call ReturnToSearcher()<cr>
 
@@ -1090,7 +1090,7 @@ function! EasySplit(filetype, ...)
   execute "sbuffer" . g:easysplit
   " If we leave buffer-list it'll get deleted...
   " au! BufLeave easysplit execute g:easysplit . "bwipeout"
-  execute "set filetype=".a:filetype
+  execute "set filetype=" . a:filetype
   execute "norm \<c-w>J10\<c-w>-gg"
 
   for easydo in a:000
@@ -1136,10 +1136,10 @@ function! LundoDiff()
     call setbufline(g:lundobuf, lnum, line)
   endfor
 
-  au! BufLeave lundo-diff execute "diffoff! |" . g:lundobuf . "bwipeout"
+  au! BufLeave lundo-diff execute "diffoff! | " . g:lundobuf . " bwipeout"
 
   execute "vert diffsplit " . g:lundobufname
-  silent execute 'rundo ' fnameescape(g:undofile)
+  silent execute 'rundo ' . fnameescape(g:undofile)
   norm zR
 
   map <buffer> > :diffput<cr>
