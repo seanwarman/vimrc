@@ -439,6 +439,10 @@ map <leader>ef <plug>(coc-fix-current)
 map <leader>ea <plug>(coc-codeaction)
 map <leader>ed :CocDisable<cr>
 map <leader>ee :CocEnable<cr>
+noremap <leader>jj :CocCommand fzf-preview.Jumps<cr>
+noremap <leader>cc :CocCommand fzf-preview.Changes<cr>
+noremap <leader>mm :CocCommand fzf-preview.Marks<cr>
+
 
 " Hide the gutter background colour
 hi SignColumn ctermbg=NONE
