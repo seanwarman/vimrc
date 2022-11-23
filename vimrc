@@ -14,10 +14,6 @@ call plug#begin('~/.local/share/vim/plugged')
 
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
-  if has('nvim')
-    Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-  endif
-
   " CSS and inline colors >> #344390 <<
   " Plug 'KabbAmine/vCoolor.vim'
   " Plug 'ap/vim-css-color'
@@ -59,32 +55,6 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
 call plug#end()
 command! PluginBaby PlugClean | PlugInstall
-
-" -----------------------------------------------------------------------------------------  TREESITTER  ---------------------------------------------------------------------------------------------------
-
-" Tree Sitter's written in Lua so we have to do luado to run the config, this
-" just enables the highlighting globally...
-if has('nvim')
-lua << EOF
-  require'nvim-treesitter.configs'.setup {
-    indent = {
-      enable = false
-    },
-    incremental_selection = {
-      enable = false
-    },
-    highlight = {
-      enable = true,
-      disable = { "vue", "javascript", "typescript", "ts", "js" },
-      additional_vim_regex_highlighting = true
-    }
-  }
-EOF
-endif
-
-" If the highlighting breaks you can reset with this:
-" Warning: this writes the current file...
-map <leader>rr :write \| edit \| TSBufEnable highlight<cr>
 
 " -----------------------------------------------------------------------------------------  DEFAULTS  ---------------------------------------------------------------------------------------------------
 
