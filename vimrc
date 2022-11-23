@@ -53,6 +53,7 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'justinmk/vim-sneak'
   Plug 'easymotion/vim-easymotion'
   Plug 'rbgrouleff/bclose.vim'
+  Plug 'seanwarman/dundo'
 
   " Markdown preview from Browser
   Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
@@ -446,28 +447,6 @@ noremap <leader>mm :CocCommand fzf-preview.Marks<cr>
 
 " Hide the gutter background colour
 hi SignColumn ctermbg=NONE
-
-" -----------------------------------------------------------------------------------------  ALE  -------------------------------------------------------------------------------------------------
-
-" " This is best set after the colourscheme because of the highlight settings
-" " for the sign column.
-
-" map ]e :ALENext<cr>
-" map [e :ALEPrevious<cr>
-" map <leader>ef :ALEFix<cr>
-" map <leader>ee :ALEToggle<cr>
-
-" " let g:ale_change_sign_column_color = 1
-" set signcolumn=number
-" hi SignColumn ctermbg=NONE
-
-" let g:ale_sign_error = '✗'
-" let g:ale_sign_warning = '❱'
-" let g:ale_completion_enabled = 1
-
-" " Make the gutter colour background more subtle
-" " hi SignColumn ctermbg=NONE
-" let g:ale_fixers = {'vue': ['eslint'], 'typescript': ['prettier', 'eslint'] }
 
 " ----------------------------------------------------------------------------------------  STATUSLINE  ------------------------------------------------------------------------------------------------
 
@@ -908,40 +887,6 @@ command! -nargs=* Search silent! call Search(expand("<args>"))
 
 " map <leader>ss :call ReturnToSearcher()<cr>
 
-" -----------------------------------------------------------------------------------------  NETRW  ----------------------------------------------------------------------------------------------------
-
-let g:loaded_netrw       = 1
-let g:loaded_netrwPlugin = 1
-
-
-" map <leader>. :set previewwindow\|Vexplore\|2<cr>
-" let g:netrw_bufsettings = 'nu'
-" let g:netrw_preview = 1
-" let g:netrw_errorlvl = 2
-" let g:netrw_winsize = 30
-" let g:netrw_list_hide = ''
-" let g:netrw_liststyle = 3
-" let g:netrw_banner = 0
-
-" function NetrwMappings()
-" 	" map <buffer> l <Plug>NetrwLocalBrowseCheck<cr>
-"   " nnoremap <buffer> k k:call PeditFileAtLine()<cr>
-"   " nnoremap <buffer> j j:call PeditFileAtLine()<cr>
-"   " map <buffer> h <Plug>NetrwBrowseUpDir
-"   map <buffer> j jp
-"   map <buffer> k kp
-"   map <buffer> h -
-"   map <buffer> l <cr>
-"   nnoremap <buffer> gq :pc! \| bd!<cr>
-"   set nu
-"   set relativenumber
-" endfunction
-
-" augroup netrw_mappings
-"   autocmd!
-"     autocmd FileType netrw silent! call NetrwMappings()
-" augroup END
-
 " -----------------------------------------------------------------------------------------  SEARCHING  ------------------------------------------------------------------------------------------------
 
 " Causes search to highlight while entering it...
@@ -1120,39 +1065,6 @@ endfunc
 command! -nargs=* MDN call MdnSplit('<args>')
 map <leader>mdn :MDN 
 
-" ------------------------------------------------------------------------------------------  LUNDO  ---------------------------------------------------------------------------------------------------
-
-function! LundoDiff()
-  let g:lundobufname = 'lundo-diff'
-
-  " Set up the buffer (this makes it hidden)
-  let g:lundobuf = bufnr(g:lundobufname, 1)
-  call setbufvar(g:lundobuf, "&buftype", "nofile")
-
-  let g:undofile = undofile(expand("%"))
-  let g:filecontent = systemlist("cat " . expand("%"))
-
-  " setbufline only works on loaded buffers
-  call bufload(g:lundobufname)
-  let lnum = 0
-  for line in g:filecontent
-    let lnum = lnum + 1
-    call setbufline(g:lundobuf, lnum, line)
-  endfor
-
-  au! BufLeave lundo-diff execute "diffoff! | " . g:lundobuf . " bwipeout"
-
-  execute "vert diffsplit " . g:lundobufname
-  silent execute 'rundo ' . fnameescape(g:undofile)
-  norm zR
-
-  map <buffer> > :diffput<cr>
-  map <buffer> < :diffget<cr>
-endfunc
-
-" Lundo!
-map <leader>ld :call LundoDiff()<cr>
-
 " ------------------------------------------------------------------------------------------  JTAGS  --------------------------------------------------------------------------------------------------
 
 " Custom tags command that saves tags one by one...
@@ -1203,7 +1115,8 @@ nnoremap ]> va><esc>
 nnoremap [> va>o<esc>
 nnoremap [f [{?\w(<cr>^:noh<cr>
 nnoremap ]f /\w(<cr>f(%f{%:noh<cr>
-
+nnoremap [[ va[<esc>%
+nnoremap ]] va[<esc>
 
 " Add a eslint ignore comment above
 nnoremap <leader>iO O/* eslint-disable */<esc>
@@ -1271,7 +1184,7 @@ vnoremap <C-j> :m '>+1<CR>gv=gv
 vnoremap <C-k> :m '<-2<CR>gv=gv
 
 " New tab
-map <c-w>gn :tabnew<CR>
+map <c-w>gn :tab new %<CR>
 
 map <leader>> :diffput<cr>
 map <leader>< :diffget<cr>
@@ -1302,36 +1215,136 @@ nnoremap <leader>vsc /<script/s+1<cr>zt
 
 " Quick finds (this is backwards to usual vim commands but feels more natural
 " because of how the * key usually works)
-nnoremap <leader>a"* "fya"/<c-r>f<cr>
-nnoremap <leader>a'* "fya'/<c-r>f<cr>
-nnoremap <leader>a<* "fya</<c-r>f<cr>
-nnoremap <leader>a>* "fya>/<c-r>f<cr>
-nnoremap <leader>a(* "fya(/<c-r>f<cr>
-nnoremap <leader>a)* "fya)/<c-r>f<cr>
-nnoremap <leader>ab* "fyab/<c-r>f<cr>
-nnoremap <leader>aB* "fyaB/<c-r>f<cr>
-nnoremap <leader>a[* "fya[/<c-r>f<cr>
-nnoremap <leader>a]* "fya]/<c-r>f<cr>
-nnoremap <leader>a{* "fya{/<c-r>f<cr>
-nnoremap <leader>a}* "fya}/<c-r>f<cr>
-nnoremap <leader>i"* "fyi"/<c-r>f<cr>
-nnoremap <leader>i'* "fyi'/<c-r>f<cr>
-nnoremap <leader>i<* "fyi</<c-r>f<cr>
-nnoremap <leader>i>* "fyi>/<c-r>f<cr>
-nnoremap <leader>i(* "fyi(/<c-r>f<cr>
-nnoremap <leader>i)* "fyi)/<c-r>f<cr>
-nnoremap <leader>ib* "fyib/<c-r>f<cr>
-nnoremap <leader>iB* "fyiB/<c-r>f<cr>
-nnoremap <leader>i[* "fyi[/<c-r>f<cr>
-nnoremap <leader>i]* "fyi]/<c-r>f<cr>
-nnoremap <leader>i{* "fyi{/<c-r>f<cr>
-nnoremap <leader>i}* "fyi}/<c-r>f<cr>
-nnoremap <leader>W* "fyW/<c-r>f<cr>
-nnoremap <leader>iW* "fyiW/<c-r>f<cr>
-nnoremap <leader>b* "fyb/<c-r>f<cr>
-nnoremap <leader>B* "fyB/<c-r>f<cr>
-nnoremap <leader>e* "fye/<c-r>f<cr>
-nnoremap <leader>E* "fyE/<c-r>f<cr>
+
+" Quicker search for word under cursor (also not as specific)
+" Forwards
+noremap <leader>nw /<c-r><c-w><cr>
+nnoremap <leader>na" "fya"/<c-r>f<cr>
+nnoremap <leader>na' "fya'/<c-r>f<cr>
+nnoremap <leader>na< "fya</<c-r>f<cr>
+nnoremap <leader>na> "fya>/<c-r>f<cr>
+nnoremap <leader>na( "fya(/<c-r>f<cr>
+nnoremap <leader>na) "fya)/<c-r>f<cr>
+nnoremap <leader>nab "fyab/<c-r>f<cr>
+nnoremap <leader>naB "fyaB/<c-r>f<cr>
+nnoremap <leader>na[ "fya[/<c-r>f<cr>
+nnoremap <leader>na] "fya]/<c-r>f<cr>
+nnoremap <leader>na{ "fya{/<c-r>f<cr>
+nnoremap <leader>na} "fya}/<c-r>f<cr>
+nnoremap <leader>ni" "fyi"/<c-r>f<cr>
+nnoremap <leader>ni' "fyi'/<c-r>f<cr>
+nnoremap <leader>ni< "fyi</<c-r>f<cr>
+nnoremap <leader>ni> "fyi>/<c-r>f<cr>
+nnoremap <leader>ni( "fyi(/<c-r>f<cr>
+nnoremap <leader>ni) "fyi)/<c-r>f<cr>
+nnoremap <leader>nib "fyib/<c-r>f<cr>
+nnoremap <leader>niB "fyiB/<c-r>f<cr>
+nnoremap <leader>ni[ "fyi[/<c-r>f<cr>
+nnoremap <leader>ni] "fyi]/<c-r>f<cr>
+nnoremap <leader>ni{ "fyi{/<c-r>f<cr>
+nnoremap <leader>ni} "fyi}/<c-r>f<cr>
+nnoremap <leader>nW "fyW/<c-r>f<cr>
+nnoremap <leader>niW "fyiW/<c-r>f<cr>
+" These both mapped to buffer switching
+" nnoremap <leader>bn "fyb/<c-r>f<cr>
+" nnoremap <leader>Bn "fyB/<c-r>f<cr>
+nnoremap <leader>ne "fye/<c-r>f<cr>
+nnoremap <leader>nE "fyE/<c-r>f<cr>
+
+" Backwards
+noremap <leader>Nw ?<c-r><c-w><cr>
+nnoremap <leader>Na" "fya"?<c-r>f<cr>
+nnoremap <leader>Na' "fya'?<c-r>f<cr>
+nnoremap <leader>Na< "fya<?<c-r>f<cr>
+nnoremap <leader>Na> "fya>?<c-r>f<cr>
+nnoremap <leader>Na( "fya(?<c-r>f<cr>
+nnoremap <leader>Na) "fya)?<c-r>f<cr>
+nnoremap <leader>Nab "fyab?<c-r>f<cr>
+nnoremap <leader>NaB "fyaB?<c-r>f<cr>
+nnoremap <leader>Na[ "fya[?<c-r>f<cr>
+nnoremap <leader>Na] "fya]?<c-r>f<cr>
+nnoremap <leader>Na{ "fya{?<c-r>f<cr>
+nnoremap <leader>Na} "fya}?<c-r>f<cr>
+nnoremap <leader>Ni" "fyi"?<c-r>f<cr>
+nnoremap <leader>Ni' "fyi'?<c-r>f<cr>
+nnoremap <leader>Ni< "fyi<?<c-r>f<cr>
+nnoremap <leader>Ni> "fyi>?<c-r>f<cr>
+nnoremap <leader>Ni( "fyi(?<c-r>f<cr>
+nnoremap <leader>Ni) "fyi)?<c-r>f<cr>
+nnoremap <leader>Nib "fyib?<c-r>f<cr>
+nnoremap <leader>NiB "fyiB?<c-r>f<cr>
+nnoremap <leader>Ni[ "fyi[?<c-r>f<cr>
+nnoremap <leader>Ni] "fyi]?<c-r>f<cr>
+nnoremap <leader>Ni{ "fyi{?<c-r>f<cr>
+nnoremap <leader>Ni} "fyi}?<c-r>f<cr>
+nnoremap <leader>NW "fyW?<c-r>f<cr>
+nnoremap <leader>NiW "fyiW?<c-r>f<cr>
+nnoremap <leader>Ne "fye?<c-r>f<cr>
+nnoremap <leader>NE "fyE?<c-r>f<cr>
+
+" Exact matches
+nnoremap <leader>a"* "fya"/\<<c-r>f\><cr>
+nnoremap <leader>a'* "fya'/\<<c-r>f\><cr>
+nnoremap <leader>a<* "fya</\<<c-r>f\><cr>
+nnoremap <leader>a>* "fya>/\<<c-r>f\><cr>
+nnoremap <leader>a(* "fya(/\<<c-r>f\><cr>
+nnoremap <leader>a)* "fya)/\<<c-r>f\><cr>
+nnoremap <leader>ab* "fyab/\<<c-r>f\><cr>
+nnoremap <leader>aB* "fyaB/\<<c-r>f\><cr>
+nnoremap <leader>a[* "fya[/\<<c-r>f\><cr>
+nnoremap <leader>a]* "fya]/\<<c-r>f\><cr>
+nnoremap <leader>a{* "fya{/\<<c-r>f\><cr>
+nnoremap <leader>a}* "fya}/\<<c-r>f\><cr>
+nnoremap <leader>i"* "fyi"/\<<c-r>f\><cr>
+nnoremap <leader>i'* "fyi'/\<<c-r>f\><cr>
+nnoremap <leader>i<* "fyi</\<<c-r>f\><cr>
+nnoremap <leader>i>* "fyi>/\<<c-r>f\><cr>
+nnoremap <leader>i(* "fyi(/\<<c-r>f\><cr>
+nnoremap <leader>i)* "fyi)/\<<c-r>f\><cr>
+nnoremap <leader>ib* "fyib/\<<c-r>f\><cr>
+nnoremap <leader>iB* "fyiB/\<<c-r>f\><cr>
+nnoremap <leader>i[* "fyi[/\<<c-r>f\><cr>
+nnoremap <leader>i]* "fyi]/\<<c-r>f\><cr>
+nnoremap <leader>i{* "fyi{/\<<c-r>f\><cr>
+nnoremap <leader>i}* "fyi}/\<<c-r>f\><cr>
+nnoremap <leader>W* "fyW/\<<c-r>f\><cr>
+nnoremap <leader>iW* "fyiW/\<<c-r>f\><cr>
+nnoremap <leader>b* "fyb/\<<c-r>f\><cr>
+nnoremap <leader>B* "fyB/\<<c-r>f\><cr>
+nnoremap <leader>e* "fye/\<<c-r>f\><cr>
+nnoremap <leader>E* "fyE/\<<c-r>f\><cr>
+
+" Exact matches backwards
+nnoremap <leader>a"# "fya"?\<<c-r>f\><cr>
+nnoremap <leader>a'# "fya'?\<<c-r>f\><cr>
+nnoremap <leader>a<# "fya<?\<<c-r>f\><cr>
+nnoremap <leader>a># "fya>?\<<c-r>f\><cr>
+nnoremap <leader>a(# "fya(?\<<c-r>f\><cr>
+nnoremap <leader>a)# "fya)?\<<c-r>f\><cr>
+nnoremap <leader>ab# "fyab?\<<c-r>f\><cr>
+nnoremap <leader>aB# "fyaB?\<<c-r>f\><cr>
+nnoremap <leader>a[# "fya[?\<<c-r>f\><cr>
+nnoremap <leader>a]# "fya]?\<<c-r>f\><cr>
+nnoremap <leader>a{# "fya{?\<<c-r>f\><cr>
+nnoremap <leader>a}# "fya}?\<<c-r>f\><cr>
+nnoremap <leader>i"# "fyi"?\<<c-r>f\><cr>
+nnoremap <leader>i'# "fyi'?\<<c-r>f\><cr>
+nnoremap <leader>i<# "fyi<?\<<c-r>f\><cr>
+nnoremap <leader>i># "fyi>?\<<c-r>f\><cr>
+nnoremap <leader>i(# "fyi(?\<<c-r>f\><cr>
+nnoremap <leader>i)# "fyi)?\<<c-r>f\><cr>
+nnoremap <leader>ib# "fyib?\<<c-r>f\><cr>
+nnoremap <leader>iB# "fyiB?\<<c-r>f\><cr>
+nnoremap <leader>i[# "fyi[?\<<c-r>f\><cr>
+nnoremap <leader>i]# "fyi]?\<<c-r>f\><cr>
+nnoremap <leader>i{# "fyi{?\<<c-r>f\><cr>
+nnoremap <leader>i}# "fyi}?\<<c-r>f\><cr>
+nnoremap <leader>W# "fyW?\<<c-r>f\><cr>
+nnoremap <leader>iW# "fyiW?\<<c-r>f\><cr>
+nnoremap <leader>b# "fyb/?<<c-r>f\><cr>
+nnoremap <leader>B# "fyB/?<<c-r>f\><cr>
+nnoremap <leader>e# "fye/?<<c-r>f\><cr>
+nnoremap <leader>E# "fyE/?<<c-r>f\><cr>
 
 " Shortcut to find conflict markers...
 nnoremap <leader>/c :ConflictMarkers<cr>
