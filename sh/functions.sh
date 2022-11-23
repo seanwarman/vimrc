@@ -7,7 +7,7 @@ function mover() {
   # special chars and bits we don't need...
   # NOTE: This is a list of Url encoded conversions,
   # I missed some out that broke sed (like | and \ etc)
-  MOVER_SONGPATHS=$(awk '/File/ { print $0 }' $1 \
+  MOVER_SONGPATHS=$(awk '/File/ { print $0 }' "$1" \
     | sed 's/^File[^/]*=file:\/\///' \
     | sed 's/%20/ /g' \
     | sed 's/%21/!/g' \
@@ -165,11 +165,40 @@ function mover() {
 
   # Create a string of commands that look like:
   # 'cp "<full-path>" "<number> - <file-name>"; cp "<full-path>" "<number> - <file-name>"; [...]'
-  MOVER_CP_COMMAND=$(echo "$MOVER_SONGPATHS" | awk '{FS = "/"; print "cp \"" $0 "\" \"" NR " - " $NF "\";"}')
+  MOVER_CP_COMMAND=$(echo "$MOVER_SONGPATHS" | awk '{
+    FS = "/";
+    print "cp \"" $0 "\" \"" NR " :: " $NF "\";";
+  }') && bash -c "$MOVER_CP_COMMAND"
 
-  # Then evaluate the output using `bash -c "{}"`
-  bash -c "$MOVER_CP_COMMAND"
+  # List all the non-mp3s and convert them with ffmpeg
+  MOVER_CONVERT_CMD=$(ls -I "*.mp3" | sed 's/\.[^.]*$//' | awk '{ print "ffmpeg -i \"" $0 "\".* \"" $0 "\".mp3" }') && bash -c "$MOVER_CONVERT_CMD"
 
-  # Last part is to normalise all the tracks
-  ls | sort -n | mp3gain -p -c -r *.mp3
+  sortplaylist
+  maxvolume
+  listorder
+}
+
+function listorder() {
+  ls -li | sort -n
+}
+
+function maxvolume() {
+  mkdir .maxvol
+  MAX_VOL_CMD=$(ls *.mp3 | sort -n | awk '{ print "ffmpeg -i \"" $0 "\" -vcodec copy -af \"volume=10dB\" \".maxvol/" $0 "\"" }') && bash -c "$MAX_VOL_CMD"
+  # for f in *.mp3; do ffmpeg -i "$f" -vcodec copy -af "volume=10dB" ".maxvol/$f"; done
+
+  rm -f *
+  mv .maxvol/* .
+  rm -rf .maxvol
+}
+
+function sortplaylist() {
+  # Copy all the mp3 files into a hidden dir, this will also update the node numbers and sort them properly
+  mkdir .sorted
+  MOVER_SORT_CMD=$(ls *.mp3 | sort -n | awk '{ print "cp \"" $0 "\" \".sorted/" $0 "\" && mp3gain -c -e -r \".sorted/" $0 "\"" }') && bash -c "$MOVER_SORT_CMD"
+
+  # Delete first round of files move the new ones out of .sorted, del .sorted and list the files to check the order
+  rm -f *
+  mv .sorted/* .
+  rm -rf .sorted
 }
