@@ -1060,10 +1060,13 @@ map <silent> <c-]> :<c-u>call TryTagOrSaveJtag()<cr>
 " ------------------------------------------------------------------------------------------  TMUX  ----------------------------------------------------------------------------------------------------
 
 " Open ranger in a tmux split with the current file selected...
-noremap <leader>. :silent !tmux split zsh -c "export TERM=xterm-256color; export HIGHLIGHT_STYLE=zenburn && ranger --selectfile=%<tab>"<cr>
+" noremap <leader>. :silent !tmux split zsh -c "export TERM=xterm-256color; export HIGHLIGHT_STYLE=zenburn && ranger --selectfile=%<tab>"<cr>
 " Can add a mapping to ranger rc.conf that looks like this to open files in
 " vim...
 " map e shell tmux send -t! ':e ' %p '^M'
+
+" fzf file browser (enter moves dir, ctrl-l opens in vim)
+noremap <leader>. :silent !tmux split zsh -c "export TERM=xterm-256color; ~/.vim/scripts/./fuzd4tmux %:p:h<tab>"<cr>
 
 " -----------------------------------------------------------------------------------------  MAPPINGS  -------------------------------------------------------------------------------------------------
 
