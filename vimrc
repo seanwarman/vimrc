@@ -1066,7 +1066,22 @@ map <silent> <c-]> :<c-u>call TryTagOrSaveJtag()<cr>
 " map e shell tmux send -t! ':e ' %p '^M'
 
 " fzf file browser (enter moves dir, ctrl-l opens in vim)
-noremap <leader>. :silent !tmux split zsh -c "export TERM=xterm-256color; ~/.vim/scripts/./fuzd4tmux %:p:h<tab>"<cr>
+noremap <leader>. :silent !tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fuzd4tmux %:p:h<tab>"<cr>
+
+" -----------------------------------------------------------------------------------------  FUGITIVE  -------------------------------------------------------------------------------------------------
+
+" Add a commit or branch name to the "d" register then you can use
+" it to diff any file from the current branch...
+map <leader>pd :Gdiff <c-r>d<cr>
+nnoremap <silent> <leader>gg :G<cr>
+nnoremap <leader>gd :Gdiff 
+nnoremap <leader>gc :G checkout 
+nnoremap <silent> <leader>gr :Gread<cr>
+nnoremap <silent> <leader>gb :G blame<cr>
+nnoremap <leader>gpu :!git push -u origin $(git branch --show-current)<cr>
+
+" Note, this always refers to the cwd git repo...
+nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 
 " -----------------------------------------------------------------------------------------  MAPPINGS  -------------------------------------------------------------------------------------------------
 
@@ -1098,20 +1113,6 @@ nnoremap <leader>ii cc/* eslint-disable */<esc>
 
 " Run this file with node-repl
 map <leader>! :!pretty-repl %<tab><cr>
-
-" Fugitive mappings
-"
-" Add a commit or branch name to the "d" register then you can use
-" it to diff any file from the current branch...
-map <leader>pd :Gdiff <c-r>d<cr>
-nnoremap <silent> <leader>gg :G<cr>
-nnoremap <silent> <leader>gd :Gdiff<cr>
-nnoremap <silent> <leader>gr :Gread<cr>
-nnoremap <silent> <leader>gb :G blame<cr>
-nnoremap <leader>gpu :!git push -u origin $(git branch --show-current)<cr>
-
-" Note, this always refers to the cwd git repo...
-nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 
 " type any word then press ctrl-a in insert mode to console log it
 " with an id string...
