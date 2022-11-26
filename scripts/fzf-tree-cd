@@ -9,7 +9,7 @@ function fuzd () {
   if [[ -d $dir ]]; then
     fuzd $dir
   elif [[ -f $dir ]]; then
-    fuzd $dir
+    tmux send -t! ':edit ' $dir '^M'
   else
     echo $PWD/$dir
   fi

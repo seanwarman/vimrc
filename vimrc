@@ -410,7 +410,7 @@ map <leader>ef <plug>(coc-fix-current)
 map <leader>ea <plug>(coc-codeaction)
 map <leader>ed :CocDisable<cr>
 map <leader>ee :CocEnable<cr>
-noremap <leader>jj :CocCommand fzf-preview.Jumps<cr>
+" noremap <leader>jj :CocCommand fzf-preview.Jumps<cr>
 noremap <leader>cc :CocCommand fzf-preview.Changes<cr>
 noremap <leader>mm :CocCommand fzf-preview.Marks<cr>
 
@@ -664,15 +664,17 @@ nmap <leader>a <Nop>
 
 let g:fzf_layout = { 'down': '35%' }
 
-map <leader>pp :Files<cr>
-" Find file under cursor...
-" map <leader>pw "zyiw:Files<cr><c-\><c-n>"zpi
-" Find file name...
-map <leader>fp :exe 'Ag ' . expand('%:t:r')<cr>
-" Find vue markup type component from file name...
-map <leader>fcp :exe 'Ag <' . expand('%:t:r')<cr>
-map <leader>ff :Ag<cr>
-map <leader>fw :Ag <c-r><c-w><cr>
+if system('echo $TMUX') == 1
+  map <leader>pp :Files<cr>
+  " Find file under cursor...
+  " map <leader>pw "zyiw:Files<cr><c-\><c-n>"zpi
+  " Find file name...
+  map <leader>fp :exe 'Ag ' . expand('%:t:r')<cr>
+  " Find vue markup type component from file name...
+  map <leader>fcp :exe 'Ag <' . expand('%:t:r')<cr>
+  map <leader>ff :Ag<cr>
+  map <leader>fw :Ag <c-r><c-w><cr>
+endif
 
 " -----------------------------------------------------------------------------------------  DIRVISH  --------------------------------------------------------------------------------------------------
 
@@ -1066,7 +1068,15 @@ map <silent> <c-]> :<c-u>call TryTagOrSaveJtag()<cr>
 " map e shell tmux send -t! ':e ' %p '^M'
 
 " fzf file browser (enter moves dir, ctrl-l opens in vim)
-noremap <leader>. :silent !tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fuzd4tmux %:p:h<tab>"<cr>
+if strlen(system('echo $TMUX')) > 1
+  noremap <leader>. :silent !tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-tree %:p:h<tab>"<cr>
+  noremap <leader>pp :silent !tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-files ."<cr>
+  noremap <leader>pw :silent !tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-files . '<c-r><c-w>'"<cr>
+  noremap <leader>ff :silent !tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-search ."<cr>
+  noremap <leader>fw :silent !tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-search . '<c-r><c-w>'"<cr>
+  noremap <leader>jj :silent let g:fzf_marks = execute('marks') \| silent call system('echo ' . g:fzf_marks . '')<cr>
+  " noremap <leader>jj :silent let g:fzf_marks = execute('marks') \| silent call system('tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-jumps ' . g:fzf_marks . '"')<cr>
+endif
 
 " -----------------------------------------------------------------------------------------  FUGITIVE  -------------------------------------------------------------------------------------------------
 

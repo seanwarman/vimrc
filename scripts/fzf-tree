@@ -1,0 +1,19 @@
+#!/bin/bash
+
+bindings="ctrl-o:execute-silent(tmux send -t! ':cd ' {} '^M'),ctrl-l:execute-silent(tmux send -t! ':edit ' {} '^M'),ctrl-e:preview-down,ctrl-y:preview-up,ctrl-d:preview-page-down,ctrl-u:preview-page-up" 
+preview="if [ -f {} ]; then bat --color always {}; else ls -f --color=always {} | awk 'NR!=1&&NR!=2{print}'; fi"
+
+function fuzd () {
+  cd $1
+  dir=`ls -fp --color=always | awk -v dir=$PWD/ 'NR!=1&&NR!=2{ print dir $0 }NR==2{ print }' | fzf --ansi --layout=reverse --header=$PWD --bind="$bindings" --border=rounded --preview-window=right:50% --preview="$preview"`
+  if [[ -d $dir ]]; then
+    fuzd $dir
+  elif [[ -f $dir ]]; then
+    tmux send -t! ':edit ' $dir '^M'
+  else
+    echo $PWD/$dir
+  fi
+  exit
+}
+
+fuzd $1

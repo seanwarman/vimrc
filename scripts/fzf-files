@@ -1,0 +1,19 @@
+#!/bin/bash
+
+bindings="ctrl-l:execute-silent(tmux send -t! ':edit ' {} '^M'),ctrl-e:preview-down,ctrl-y:preview-up,ctrl-d:preview-page-down,ctrl-u:preview-page-up" 
+preview="bat --color always {}"
+
+function fuzd () {
+  cd $1
+  dir=`fzf --query="$2" --multi --ansi --layout=reverse --header=$PWD --bind="$bindings" --border=rounded --preview-window=right:50% --preview="$preview"`
+  if [[ $dir ]]; then
+
+    vimeditcmd=`echo "$dir" | awk 'BEGIN {ORS=" "} NR==1 {print ":edit " $0} NR!=1 {print "| edit " $0}'`
+
+    tmux send -t! "$vimeditcmd" '^M'
+
+  fi
+  exit
+}
+
+fuzd $1 "$2"
