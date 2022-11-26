@@ -1,4 +1,5 @@
 searcher
+tmp/**/*
 undodir
 session
 .netrwhist
