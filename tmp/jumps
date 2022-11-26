@@ -1,0 +1,31 @@
+
+ jump line  col file/text
+  30  1068    8 .vim/vimrc
+  29    38    0 .vim/vimrc
+  28    41    0 .vim/vimrc
+  27    53    0 .vim/vimrc
+  26    58    0 .vim/vimrc
+  25     1    0 .vim/coc-settings.json
+  22     1    0 various.txt
+  21   515   48 various.txt
+  20     1    0 .vim/messages
+  19    12   15 #   # tmux send -t! ':exe "norm ' $jumpnum '\<c-o>"^M'
+  18   727   13 .vim/vimrc
+  17  1065   17 .vim/vimrc
+  16    60    0 .vim/vimrc
+  15     5    0 
+  14     1    0 #!/bin/bash
+  13    14    0 # fi
+  12  1079    0 .vim/vimrc
+  11     2    0 messages
+  10     3    0 messages
+   9  1083    0 .vim/vimrc
+   8  1078    0 .vim/vimrc
+   7    11    4 #   tmux send -t! ':' $jumpnum
+   6     8   27 jumpnum=`echo "$jumps" | awk '{ print }' | fzf --ansi --layout=reverse --header=$PWD --bind="$bindings" --border=rounded --preview-window=right:50% --preview="$preview"`
+   5     1    0 messages
+   4     7   29 jumps=$(tac ~/.vim/tmp/jumps)
+   3  1088   10 .vim/vimrc
+   2  1085   10 .vim/vimrc
+   1  1077   60 .vim/vimrc
+>

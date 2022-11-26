@@ -4,14 +4,15 @@ bindings="ctrl-l:execute-silent(tmux send -t! ':edit ' {} '^M'),ctrl-e:preview-d
 preview="bat --color always {}"
 
 function fuzd () {
-  jumpnum=`echo "$1" | fzf --ansi --layout=reverse --header=$PWD --bind="$bindings" --border=rounded --preview-window=right:50% --preview="$preview"`
-  if [[ $jumpnum ]]; then
+  jumps=$(tac ~/.vim/tmp/jumps)
+  jumpnum=`echo "$jumps" | awk '{ print }' | fzf --ansi --layout=reverse --header=$PWD --bind="$bindings" --border=rounded --preview-window=right:50% --preview="$preview"`
+  # if [[ $jumpnum ]]; then
 
-    tmux send -t! ':' $jumpnum
-    # tmux send -t! ':exe "norm ' $jumpnum '\<c-o>"^M'
+  #   tmux send -t! ':' $jumpnum
+  #   # tmux send -t! ':exe "norm ' $jumpnum '\<c-o>"^M'
 
-  fi
-  exit
+  # fi
+  # exit
 }
 
 fuzd "$1"

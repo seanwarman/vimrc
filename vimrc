@@ -1074,8 +1074,7 @@ if strlen(system('echo $TMUX')) > 1
   noremap <leader>pw :silent !tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-files . '<c-r><c-w>'"<cr>
   noremap <leader>ff :silent !tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-search ."<cr>
   noremap <leader>fw :silent !tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-search . '<c-r><c-w>'"<cr>
-  noremap <leader>jj :silent let g:fzf_marks = execute('marks') \| silent call system('echo ' . g:fzf_marks . '')<cr>
-  " noremap <leader>jj :silent let g:fzf_marks = execute('marks') \| silent call system('tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-jumps ' . g:fzf_marks . '"')<cr>
+  noremap <silent> <leader>jj :redir! > ~/.vim/tmp/jumps \| silent! jumps \| redir END \| silent! !tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-jumps"<cr>
 endif
 
 " -----------------------------------------------------------------------------------------  FUGITIVE  -------------------------------------------------------------------------------------------------
