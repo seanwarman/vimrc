@@ -664,7 +664,7 @@ nmap <leader>a <Nop>
 
 let g:fzf_layout = { 'down': '35%' }
 
-if system('echo $TMUX') == 1
+if system('echo $TMUX') <= 1
   map <leader>pp :Files<cr>
   " Find file under cursor...
   " map <leader>pw "zyiw:Files<cr><c-\><c-n>"zpi
@@ -724,7 +724,9 @@ function DirvishPreviewTree()
   norm p
 endfunction
 command! DirvishPreviewTree :sil! call DirvishPreviewTree()
-" map <leader>. :DirvishPreviewTree<cr>
+if system('echo $TMUX') <= 1
+  map <leader>. :DirvishPreviewTree<cr>
+endif
 
 function DirvishPositionLeft(width)
   exe "norm \<c-w>H " . a:width . " \<c-w><"

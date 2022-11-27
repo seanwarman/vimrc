@@ -1,0 +1,4 @@
+# Show a fzf menu for tmux sessions with preview...
+function fztach() {
+  tmux attach -t $(tmux list-sessions | fzf --preview 'tmux capture-pane -p -e -t {1}' | awk '{print $1}')
+}
