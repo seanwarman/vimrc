@@ -5,7 +5,7 @@ preview="if [ -f {} ]; then bat --color always {}; else ls -f --color=always {} 
 
 function fuzd () {
   cd $1
-  dir=`ls -fp --color=always | awk -v dir=$PWD/ 'NR!=1&&NR!=2{ print dir $0 }NR==2{ print }' | fzf --ansi --layout=reverse --header=$PWD --bind="$bindings" --border=rounded --preview-window=right:50% --preview="$preview"`
+  dir=`ls -fp --color=always | awk -v dir=$PWD/ 'NR!=1{ print dir $0 }' | fzf --ansi --layout=reverse --header=$PWD --bind="$bindings" --border=rounded --preview-window=right:50% --preview="$preview"`
   if [[ -d $dir ]]; then
     fuzd $dir
   elif [[ -f $dir ]]; then
