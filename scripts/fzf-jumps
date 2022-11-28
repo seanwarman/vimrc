@@ -3,7 +3,7 @@
 bindings="ctrl-e:preview-down,ctrl-y:preview-up,ctrl-d:preview-page-down,ctrl-u:preview-page-up" 
 
 function fuzd () {
-  jumpline=`tac ~/.vim/tmp/jumps | fzf --delimiter="\s+" --ansi --layout=reverse --header=$PWD --bind="$bindings" --border=rounded`
+  jumpline=`cat ~/.vim/tmp/jumps | awk '{a[i++]=$0;fororback=0} END {for (j=i-1; j>=0;) print a[j--]}' | fzf --delimiter="\s+" --ansi --layout=reverse --header=$PWD --bind="$bindings" --border=rounded`
 
   if [[ $jumpline ]]; then
 
