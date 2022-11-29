@@ -9,7 +9,7 @@ function fuzd () {
 
   if [[ $dir ]]; then
 
-    vimeditcmd=`echo "$dir" | awk 'BEGIN {FS=":";ORS=" "} NR==1 {print ":edit " $1} NR!=1 {print "| edit " $1}'`
+    vimeditcmd=`echo "$dir" | awk 'BEGIN {FS=":";ORS=" "} NR==1 {print ":edit +"$2 " " $1} NR!=1 {print "| edit +"$2 " " $1}'`
 
     tmux send -t! "$vimeditcmd" '^M'
 

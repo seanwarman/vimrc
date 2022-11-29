@@ -1081,6 +1081,19 @@ if strlen(system('echo $TMUX')) > 1
   noremap <silent> <leader>jj :redir! > ~/.vim/tmp/jumps \| silent! jumps \| redir END \| silent! !tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-jumps"<cr>
 endif
 
+" -----------------------------------------------------------------------------------------  REGPREVIEW  -------------------------------------------------------------------------------------------------
+
+function! RegPop ()
+  " let s:popid = popup_create(split(execute('reg'), '\n'), #{
+  "       \ line: 38,
+  "       \ col: 168,
+  "       \ maxwidth: 45,
+  "       \ maxheight: 21,
+  "       \ wrap: 0,
+  "       \ close: 'button',
+  "       \ })
+endfunc
+
 " -----------------------------------------------------------------------------------------  FUGITIVE  -------------------------------------------------------------------------------------------------
 
 " Add a commit or branch name to the "d" register then you can use
