@@ -1074,8 +1074,10 @@ if strlen(system('echo $TMUX')) > 1
   noremap <leader>. :silent !tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-tree %:p:h<tab>"<cr>
   noremap <leader>pp :silent !tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-files ."<cr>
   noremap <leader>pw :silent !tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-files . '<c-r><c-w>'"<cr>
+
   noremap <leader>ff :silent !tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-search ."<cr>
   noremap <leader>fw :silent !tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-search . '<c-r><c-w>'"<cr>
+  noremap <leader>fp :silent !tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-search . '%:t:r<tab>'"<cr>
 
   " TODO This only jumps backward
   noremap <silent> <leader>jj :redir! > ~/.vim/tmp/jumps \| silent! jumps \| redir END \| silent! !tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-jumps"<cr>
@@ -1170,9 +1172,15 @@ inoremap ([`<cr> ([`<cr>`])<c-d><esc>O
 " re-maps capital Yank to yank till the end of the line
 map Y y$
 
+
+" TODO Make these onoremap mappings...
+"
 " Attempts to put a single line of properties (eg: {1,2,3}) onto multiple lines
-map <silent> <leader>= :silent! s/\([{\[(]\)\(.\{-}\)\([}\])]\)/\1\r\2\r\3/ \| silent! -1s/ //g \| silent! s/,/,\r/g \| silent! s/$/,/<cr>j=%
+map <silent> <leader>={ :silent! s/\([{\[(]\)\(.\{-}\)\([}\])]\)/\1\r\2\r\3/ \| silent! -1s/ //g \| silent! s/,/,\r/g \| silent! s/$/,/<cr>j=%
 map <silent> <leader>- /[}\])]<cr>v%J<esc>:s/,\([ ]\?}\)/\1/g<cr>gv:s/:/: /g<cr>
+" Puts html attributes onto multi-lines
+noremap <silent> <leader>=< :silent! s/\(<[a-zA-z-]\+\)\s/\1\r/ \| silent! s/>/\r>/g \| silent! -1s/\s/\r/g<cr>=a<:noh<cr>
+noremap <silent> <leader>=> :silent! s/\(<[a-zA-z-]\+\)\s/\1\r/ \| silent! s/>/\r>/g \| silent! -1s/\s/\r/g<cr>=a<:noh<cr>
 
 " select last pasted text
 nnoremap gp `[v`]

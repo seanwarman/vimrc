@@ -5,7 +5,7 @@ preview="bat --color always --line-range :3000 --highlight-line {2} {1}"
 
 function fuzd () {
   cd $1
-  dir=`ag --ignore="node_modules" . | fzf --query="$2" --multi --delimiter=":" --layout=reverse --header=$PWD --bind="$bindings" --border=rounded --preview-window=right:50%,+{2}-4 --preview="$preview"`
+  dir=`ag --ignore $2 --ignore="node_modules" . | fzf --query="$2" --multi --delimiter=":" --layout=reverse --header=$PWD --bind="$bindings" --border=rounded --preview-window=right:50%,+{2}-4 --preview="$preview"`
 
   if [[ $dir ]]; then
 
