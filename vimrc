@@ -276,7 +276,7 @@ map <leader>G :Startify<cr>
 " --------------------------------------------------------------------------------------  COMMENTARY  ----------------------------------------------------------------------------------------------------
 
 " autocmd FileType vue.html.javascript.css setlocal commentstring=\/\/\ %s
-autocmd FileType vue setlocal commentstring=\/\/\ %s
+" autocmd FileType vue setlocal commentstring=\/\/\ %s
 " autocmd FileType javascript setlocal commentstring=\/\/\ %s
 
 " --------------------------------------------------------------------------------------  EASYMOTION  ----------------------------------------------------------------------------------------------------
@@ -961,9 +961,9 @@ set makeprg=./node_modules/.bin/eslint
 " Set the error format to understand eslint's unix output...
 set errorformat=%A%f:%l:%c:%m,%-G%.%#
 
-command! -nargs=* MakeLint silent make --ext .js,.vue,.ts,.tsx,.jsx --ignore-path .gitignore -f unix <args>
-command! -nargs=* LMakeLint silent lmake --ext .js,.vue,.ts,.tsx,.jsx --ignore-path .gitignore -f unix <args>
-command! -nargs=* LMakeLintFix lmake --fix --ext .js,.vue,.ts,.tsx,.jsx --ignore-path .gitignore -f unix <args>
+" command! -nargs=* MakeLint silent make --ext .js,.vue,.ts,.tsx,.jsx --ignore-path .gitignore -f unix <args>
+" command! -nargs=* LMakeLint silent lmake --ext .js,.vue,.ts,.tsx,.jsx --ignore-path .gitignore -f unix <args>
+" command! -nargs=* LMakeLintFix lmake --fix --ext .js,.vue,.ts,.tsx,.jsx --ignore-path .gitignore -f unix <args>
 
 " Run linting on the current file...
 map <leader>l% :LMakeLint % \| lopen<cr>
@@ -1215,12 +1215,12 @@ map <leader>' :marks<cr>:'
 " nnoremap P P='['[
 
 " Find Vue component sections
-nnoremap <leader>vst /<style/s+1<cr>zt
-nnoremap <leader>vd /data()<cr>zt
-nnoremap <leader>vc /computed:<cr>zt
-nnoremap <leader>vm /methods:<cr>zt
-nnoremap <leader>vp /props:<cr>zt
-nnoremap <leader>vsc /<script/s+1<cr>zt
+nnoremap <leader>vst /<style/s+1<cr>
+nnoremap <leader>vd /data()<cr>
+nnoremap <leader>vc /computed:<cr>
+nnoremap <leader>vm /methods:<cr>
+nnoremap <leader>vp /props:<cr>
+nnoremap <leader>vsc /<script/s+1<cr>
 
 " Quick finds (this is backwards to usual vim commands but feels more natural
 " because of how the * key usually works)
