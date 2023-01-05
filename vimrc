@@ -121,7 +121,7 @@ endif
 
 " Don't use Ex mode, use Q for formatting.
 " Revert with ":unmap Q".
-map Q gq
+noremap Q gq
 
 " CTRL-U in insert mode deletes a lot.  Use CTRL-G u to first break undo,
 " so that you can undo CTRL-U after inserting a line break.
@@ -271,7 +271,7 @@ let g:startify_lists = [
 " The quit mapping in startify conflicts with 'q:'...
 autocmd User Startified sil! unmap <buffer> q
 
-map <leader>G :Startify<cr>
+noremap <leader>G :Startify<cr>
 
 " --------------------------------------------------------------------------------------  COMMENTARY  ----------------------------------------------------------------------------------------------------
 
@@ -281,8 +281,8 @@ map <leader>G :Startify<cr>
 
 " --------------------------------------------------------------------------------------  EASYMOTION  ----------------------------------------------------------------------------------------------------
 
-map <Leader>j <Plug>(easymotion-j)
-map <Leader>k <Plug>(easymotion-k)
+noremap <Leader>j <Plug>(easymotion-j)
+noremap <Leader>k <Plug>(easymotion-k)
 
 let g:EasyMotion_startofline = 0
 
@@ -302,7 +302,7 @@ endfunction
 
 command! SaveSesh call SaveSesh(fnamemodify(getcwd(), ':t') . '-' . join(split(StatusLineGitBranch(), '\/'), '-'))
 
-map <leader>ss :SaveSesh<cr>
+noremap <leader>ss :SaveSesh<cr>
 
 " ------------------------------------------------------------------------------------------  COLORS  -------------------------------------------------------------------------------------------------
 
@@ -406,12 +406,14 @@ hi Folded term=standout ctermfg=248 ctermbg=236 guifg=grey49 guibg=black
 
 " -----------------------------------------------------------------------------------------  COC  -------------------------------------------------------------------------------------------------
 
-map ]e <plug>(coc-diagnostic-next)
-map [e <plug>(coc-diagnostic-prev)
-map <leader>ef <plug>(coc-fix-current)
-map <leader>ea <plug>(coc-codeaction)
-map <leader>ed :CocDisable<cr>
-map <leader>ee :CocEnable<cr>
+let g:coc_global_extensions = ['coc-eslint', 'coc-browser', 'coc-css', 'coc-json', 'coc-prettier', 'coc-html']
+
+noremap ]e <plug>(coc-diagnostic-next)
+noremap [e <plug>(coc-diagnostic-prev)
+noremap <leader>ef <plug>(coc-fix-current)
+noremap <leader>ea <plug>(coc-codeaction)
+noremap <leader>ed :CocDisable<cr>
+noremap <leader>ee :CocEnable<cr>
 " noremap <leader>jj :CocCommand fzf-preview.Jumps<cr>
 noremap <leader>cc :CocCommand fzf-preview.Changes<cr>
 noremap <leader>mm :CocCommand fzf-preview.Marks<cr>
@@ -481,7 +483,7 @@ function ToggleStatusLine()
     let g:args_or_buffers = 'buffers'
   endif
 endfunction
-map <leader><leader>t :call ToggleStatusLine()<cr>
+noremap <leader><leader>t :call ToggleStatusLine()<cr>
 
 function ListArgsOrBuffers()
   if g:args_or_buffers == 'args'
@@ -585,34 +587,34 @@ function DeleteAllButThisBuf()
 endfunction
 
 " Buffer mappings
-map <leader>bp :bp<cr>
-map <leader>bn :bn<cr>
-map <leader>bdd :Bclose!<cr>
-map <leader>bd<tab> :<c-f>ibd! <tab>
+noremap <leader>bp :bp<cr>
+noremap <leader>bn :bn<cr>
+noremap <leader>bdd :Bclose!<cr>
+noremap <leader>bd<tab> :<c-f>ibd! <tab>
 " Select buffer from completion menu...
-map <leader>b<tab> q:ib <tab>
-map <leader>bd* :sil! call DeleteAllBufsNotInArgv()<cr>
-map <leader>bdD :sil! call DeleteAllButThisBuf()<cr>
-map <leader>bde :call DeleteEmptyBuffers()<cr>
-map <leader><leader>n :new \| wincmd p \| close!<cr>
-nmap <leader>b <Nop>
-nmap <leader>bd <Nop>
+noremap <leader>b<tab> q:ib <tab>
+noremap <leader>bd* :sil! call DeleteAllBufsNotInArgv()<cr>
+noremap <leader>bdD :sil! call DeleteAllButThisBuf()<cr>
+noremap <leader>bde :call DeleteEmptyBuffers()<cr>
+noremap <leader><leader>n :new \| wincmd p \| close!<cr>
+nnoremap <leader>b <Nop>
+nnoremap <leader>bd <Nop>
 
 " Args list mappings
-map <leader>an :n<cr>
-map <leader>ap :N<cr>
-map <leader>aa :call ArgAddOrRemoveFile(expand('%'))<cr>
+noremap <leader>an :n<cr>
+noremap <leader>ap :N<cr>
+noremap <leader>aa :call ArgAddOrRemoveFile(expand('%'))<cr>
 " Add all open buffers to the args list...
-map <leader>aA :exe 'argadd ' . join(ListAllBufNames())<cr>
-map <leader>al :sall<cr>
-map <leader>aD :argdelete *<cr>
+noremap <leader>aA :exe 'argadd ' . join(ListAllBufNames())<cr>
+noremap <leader>al :sall<cr>
+noremap <leader>aD :argdelete *<cr>
 " Select buffer from completion menu...
 command! -nargs=* -complete=arglist Args argedit <args>
-map <leader>a<tab> q:iArgs <tab>
+noremap <leader>a<tab> q:iArgs <tab>
 " Add to args list from buffer completion menu...
 command! -nargs=* -complete=buffer BufArgs argedit <args>
-map <leader>ab<tab> q:iBufArgs <tab>
-nmap <leader>a <Nop>
+noremap <leader>ab<tab> q:iBufArgs <tab>
+nnoremap <leader>a <Nop>
 
 " -----------------------------------------------------------------------------------------  AUTOCOMPLETION  -------------------------------------------------------------------------------------------------
 
@@ -694,11 +696,11 @@ endfunction
 function DirvishPreviewTreeMaps()
   augroup dirvish_config
     autocmd!
-    autocmd FileType dirvish silent! nmap <buffer> l :call dirvish#open("edit", 0)<CR> \| :call PreviewIfDir()<CR>
-    autocmd FileType dirvish silent! nmap <buffer> k k:call PreviewIfDir()<CR>
-    autocmd FileType dirvish silent! nmap <buffer> j j:call PreviewIfDir()<CR>
-    autocmd FileType dirvish silent! nmap <buffer> h <Plug>(dirvish_up):call feedkeys("p")<CR>
-    autocmd FileType dirvish silent! nmap <buffer> gq <Plug>(dirvish_quit):pc<cr>
+    autocmd FileType dirvish silent! nnoremap <buffer> l :call dirvish#open("edit", 0)<CR> \| :call PreviewIfDir()<CR>
+    autocmd FileType dirvish silent! nnoremap <buffer> k k:call PreviewIfDir()<CR>
+    autocmd FileType dirvish silent! nnoremap <buffer> j j:call PreviewIfDir()<CR>
+    autocmd FileType dirvish silent! nnoremap <buffer> h <Plug>(dirvish_up):call feedkeys("p")<CR>
+    autocmd FileType dirvish silent! nnoremap <buffer> gq <Plug>(dirvish_quit):pc<cr>
   augroup END
 endfunction
 
@@ -790,14 +792,14 @@ function ReadCommandToSearcherBuf(cmd)
   sil! unmap <buffer> k
   sil! unmap <buffer> j
   sil! unmap <buffer> gq
-  nmap <silent> <buffer> <cr> :pc!<cr>gF:bd!{searcher}<cr>
-  nmap <silent> <buffer> l :pc!<cr>gF:bd!{searcher}<cr>
-  nmap <silent> <buffer> k k:call PeditFileAtLine()<cr>
-  nmap <silent> <buffer> j j:call PeditFileAtLine()<cr>
-  nmap <silent> <buffer> x :call ArgAddOrRemoveFile(split(expand('<cWORD>'), ':')[0])<cr>
+  nnoremap <silent> <buffer> <cr> :pc!<cr>gF:bd!{searcher}<cr>
+  nnoremap <silent> <buffer> l :pc!<cr>gF:bd!{searcher}<cr>
+  nnoremap <silent> <buffer> k k:call PeditFileAtLine()<cr>
+  nnoremap <silent> <buffer> j j:call PeditFileAtLine()<cr>
+  nnoremap <silent> <buffer> x :call ArgAddOrRemoveFile(split(expand('<cWORD>'), ':')[0])<cr>
   " I'd like to put this in but it behaves janky...
   " au CursorMoved <buffer> call PeditFileAtLine()
-  nmap <silent> <buffer> gq :sil! pc \| Bclose!<cr>
+  nnoremap <silent> <buffer> gq :sil! pc \| Bclose!<cr>
   silent! pedit
   exe '0read! ' . a:cmd 
   w
@@ -822,14 +824,14 @@ function ReturnToSearcher()
   sil! unmap <buffer> k
   sil! unmap <buffer> j
   sil! unmap <buffer> q
-  nmap <silent> <buffer> <cr> :pc!<cr>gF:sil! bd!{searcher}<cr>
-  nmap <silent> <buffer> l :pc!<cr>gF:sil! bd!{searcher}<cr>
-  nmap <silent> <buffer> k k:call PeditFileAtLine()<cr>
-  nmap <silent> <buffer> j j:call PeditFileAtLine()<cr>
-  nmap <silent> <buffer> x :call ArgAddOrRemoveFile(split(expand('<cWORD>'), ':')[0])<cr>
+  nnoremap <silent> <buffer> <cr> :pc!<cr>gF:sil! bd!{searcher}<cr>
+  nnoremap <silent> <buffer> l :pc!<cr>gF:sil! bd!{searcher}<cr>
+  nnoremap <silent> <buffer> k k:call PeditFileAtLine()<cr>
+  nnoremap <silent> <buffer> j j:call PeditFileAtLine()<cr>
+  nnoremap <silent> <buffer> x :call ArgAddOrRemoveFile(split(expand('<cWORD>'), ':')[0])<cr>
   " I'd like to put this in but it behaves janky...
   " au CursorMoved <buffer> call PeditFileAtLine()
-  nmap <silent> <buffer> gq :sil! pc \| bd!<cr>
+  nnoremap <silent> <buffer> gq :sil! pc \| bd!<cr>
   call PeditFileAtLine()
 endfunction
 
@@ -847,8 +849,8 @@ function FindFile(path)
 endfunction
 command! -nargs=* -complete=file_in_path FindFile let &path=LsDirsFromCwdExcluding('.angular .git node_modules') | call FindFile(expand("<args>")) | let @/ = '<args>'
 " nnoremap <leader>pp :FindFile <c-f>i<c-x><c-v><c-p>
-nmap <leader>pw :FindFile <c-r><c-w><c-f><tab><cr>
-nmap <leader>pW :exe 'FindFile ' . expand('<cWORD>')<cr>
+nnoremap <leader>pw :FindFile <c-r><c-w><c-f><tab><cr>
+nnoremap <leader>pW :exe 'FindFile ' . expand('<cWORD>')<cr>
 
 function Search(term)
   call ReadCommandToSearcherBuf('ag ' . shellescape(a:term) . ' .')
@@ -875,26 +877,26 @@ set hlsearch
 " Custom colour for search highlighting...
 " hi Search term=standout ctermfg=0 ctermbg=11 guifg=Blue guibg=Yellow
 " Clears the hlsearch on most movements...
-nmap <silent> h h:noh<cr>
-nmap <silent> j j:noh<cr>
-nmap <silent> k k:noh<cr>
-nmap <silent> l l:noh<cr>
-nmap <silent> l l:noh<cr>
-nmap <silent> b b:noh<cr>
-nmap <silent> w w:noh<cr>
-nmap <silent> W W:noh<cr>
-nmap <silent> B B:noh<cr>
-nmap <silent> E E:noh<cr>
-nmap <silent> e e:noh<cr>
+nnoremap <silent> h h:noh<cr>
+nnoremap <silent> j j:noh<cr>
+nnoremap <silent> k k:noh<cr>
+nnoremap <silent> l l:noh<cr>
+nnoremap <silent> l l:noh<cr>
+nnoremap <silent> b b:noh<cr>
+nnoremap <silent> w w:noh<cr>
+nnoremap <silent> W W:noh<cr>
+nnoremap <silent> B B:noh<cr>
+nnoremap <silent> E E:noh<cr>
+nnoremap <silent> e e:noh<cr>
 
 " vim-sneak Mappings
 " Remaps f and t to work over multi lines
-nmap <Nop> <Plug>Sneak_S
-nmap <Nop> <Plug>Sneak_s
-map f <Plug>Sneak_f
-map F <Plug>Sneak_F
-map t <Plug>Sneak_t
-map T <Plug>Sneak_T
+nnoremap <Nop> <Plug>Sneak_S
+nnoremap <Nop> <Plug>Sneak_s
+noremap f <Plug>Sneak_f
+noremap F <Plug>Sneak_F
+noremap t <Plug>Sneak_t
+noremap T <Plug>Sneak_T
 
 " -----------------------------------------------------------------------------------------  COMMANDS  -------------------------------------------------------------------------------------------------
 
@@ -906,7 +908,7 @@ function TerminalBufCmd()
   return "\r" . join(getbufline(4, 1, 1000), "\r") . "\r"
 endfunction
 
-au FileType bufterm.sh sil! imap <buffer> <cr> <c-r>=TerminalBufCmd()<cr>
+au FileType bufterm.sh sil! inoremap <buffer> <cr> <c-r>=TerminalBufCmd()<cr>
 
 command BufTerm new | set filetype=bufterm.sh | norm i
 
@@ -966,19 +968,19 @@ set errorformat=%A%f:%l:%c:%m,%-G%.%#
 " command! -nargs=* LMakeLintFix lmake --fix --ext .js,.vue,.ts,.tsx,.jsx --ignore-path .gitignore -f unix <args>
 
 " Run linting on the current file...
-map <leader>l% :LMakeLint % \| lopen<cr>
+noremap <leader>l% :LMakeLint % \| lopen<cr>
 " Run linting on the cwd...
-map <leader>l. :MakeLint . \| copen<cr>
+noremap <leader>l. :MakeLint . \| copen<cr>
 " Fix problems in current file...
-map <leader>lf :LMakeLintFix %<cr>
+noremap <leader>lf :LMakeLintFix %<cr>
 
-map <leader>lo :lopen<cr>
-map <leader>ln :lne<cr>
-map <leader>lp :lp<cr>
+noremap <leader>lo :lopen<cr>
+noremap <leader>ln :lne<cr>
+noremap <leader>lp :lp<cr>
 
-map <leader>co :copen<cr>
-map <leader>cn :cn<cr>
-map <leader>cp :cp<cr>
+noremap <leader>co :copen<cr>
+noremap <leader>cn :cn<cr>
+noremap <leader>cp :cp<cr>
 
 " Runs eslint and prints results to a buffer...
 function Lint(dir)
@@ -1039,7 +1041,7 @@ function! MdnSplit(query)
 endfunc
 
 command! -nargs=* MDN call MdnSplit('<args>')
-map <leader>mdn :MDN 
+noremap <leader>mdn :MDN 
 
 " ------------------------------------------------------------------------------------------  JTAGS  --------------------------------------------------------------------------------------------------
 
@@ -1061,23 +1063,38 @@ function TryTagOrSaveJtag()
     silent! let @p = trim(system('realpath --relative-to=' . expand("#:h") . ' ' . expand("%")))
   endtry
 endfunction
-map <silent> <c-]> :<c-u>call TryTagOrSaveJtag()<cr>
+noremap <silent> <c-]> :<c-u>call TryTagOrSaveJtag()<cr>
 
 " ------------------------------------------------------------------------------------------  TMUX  ----------------------------------------------------------------------------------------------------
 
+function FileOrDir()
+  if len(expand('%'))
+    return '%'
+  endif
+
+  return '%:p:h'
+endfunc
+
 " Open ranger in a tmux split with the current file selected...
-" noremap <leader>. :silent !tmux split zsh -c "export TERM=xterm-256color; export HIGHLIGHT_STYLE=zenburn && ranger --selectfile=%<tab>"<cr>
+noremap <leader>. :silent call system('tmux split bash -c "export TERM=xterm-256color; export HIGHLIGHT_STYLE=zenburn && ranger --selectfile=' . expand(FileOrDir()) . '"')<cr>
+
 " Can add a mapping to ranger rc.conf that looks like this to open files in
 " vim...
 " map e shell tmux send -t! ':e ' %p '^M'
 
 " fzf file browser (enter moves dir, ctrl-l opens in vim)
 if strlen(system('echo $TMUX')) > 1
-  noremap <silent> <leader>. :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-tree %:p:h<tab>"<cr>
+  noremap <silent> <leader>rr :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ranger %:p:h<tab>"<cr>
+  noremap <silent> <leader>rj :silent !tmux split -v bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ranger %:p:h<tab>"<cr>
+  noremap <silent> <leader>rk :silent !tmux split -v -b bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ranger %:p:h<tab>"<cr>
+  noremap <silent> <leader>rl :silent !tmux split -h bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ranger %:p:h<tab>"<cr>
+  noremap <silent> <leader>rh :silent !tmux split -h -b bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ranger %:p:h<tab>"<cr>
+  " noremap <silent> <leader>. :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-tree %:p:h<tab>"<cr>
   noremap <silent> <leader>pp :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-files ."<cr>
   noremap <silent> <leader>pw :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-files . '<c-r><c-w>'"<cr>
   noremap <silent> <leader>ff :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-search ."<cr>
   noremap <silent> <leader>fw :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-search . '<c-r><c-w>'"<cr>
+  noremap <silent> <leader>fW "fyW:silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-search . '<c-r>f'"<cr>
   noremap <silent> <leader>fp :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-search . '%:t<tab><bs>'"<cr>
 
   " TODO This only jumps backward
@@ -1101,7 +1118,7 @@ endfunc
 
 " Add a commit or branch name to the "d" register then you can use
 " it to diff any file from the current branch...
-map <leader>pd :Gdiff <c-r>d<cr>
+noremap <leader>pd :Gdiff <c-r>d<cr>
 nnoremap <silent> <leader>gg :G<cr>
 nnoremap <leader>gd :Gdiff 
 nnoremap <leader>gc :G checkout 
@@ -1113,6 +1130,9 @@ nnoremap <leader>gpu :!git push -u origin $(git branch --show-current)<cr>
 nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 
 " -----------------------------------------------------------------------------------------  MAPPINGS  -------------------------------------------------------------------------------------------------
+
+" Quick search case-insensitive
+noremap <leader>/ /\c
 
 " Quick git command (ends with a space)
 noremap <leader>g<leader> :G 
@@ -1141,7 +1161,7 @@ nnoremap <leader>io o/* eslint-disable */<esc>
 nnoremap <leader>ii cc/* eslint-disable */<esc>
 
 " Run this file with node-repl
-map <leader>! :!pretty-repl %<tab><cr>
+noremap <leader>! :!pretty-repl %<tab><cr>
 
 " type any word then press ctrl-a in insert mode to console log it
 " with an id string...
@@ -1171,14 +1191,14 @@ inoremap ([`<cr> ([`<cr>`])<c-d><esc>O
 " inoremap " ""<Left>
 
 " re-maps capital Yank to yank till the end of the line
-map Y y$
+noremap Y y$
 
 
 " TODO Make these onoremap mappings...
 "
 " Attempts to put a single line of properties (eg: {1,2,3}) onto multiple lines
-map <silent> <leader>={ :silent! s/\([{\[(]\)\(.\{-}\)\([}\])]\)/\1\r\2\r\3/ \| silent! -1s/ //g \| silent! s/,/,\r/g \| silent! s/$/,/<cr>j=%
-map <silent> <leader>- /[}\])]<cr>v%J<esc>:s/,\([ ]\?}\)/\1/g<cr>gv:s/:/: /g<cr>
+noremap <silent> <leader>={ :silent! s/\([{\[(]\)\(.\{-}\)\([}\])]\)/\1\r\2\r\3/ \| silent! -1s/ //g \| silent! s/,/,\r/g \| silent! s/$/,/<cr>j=%
+noremap <silent> <leader>- /[}\])]<cr>v%J<esc>:s/,\([ ]\?}\)/\1/g<cr>gv:s/:/: /g<cr>
 " Puts html attributes onto multi-lines
 noremap <silent> <leader>=< :silent! s/\(<[a-zA-z-]\+\)\s/\1\r/ \| silent! s/>/\r>/g \| silent! -1s/\s/\r/g<cr>=a<:noh<cr>
 noremap <silent> <leader>=> :silent! s/\(<[a-zA-z-]\+\)\s/\1\r/ \| silent! s/>/\r>/g \| silent! -1s/\s/\r/g<cr>=a<:noh<cr>
@@ -1193,22 +1213,22 @@ vnoremap <C-j> :m '>+1<CR>gv=gv
 vnoremap <C-k> :m '<-2<CR>gv=gv
 
 " New tab
-map <c-w>gn :tab new %<CR>
+noremap <c-w>gn :tab new %<CR>
 
-map <leader>> :diffput<cr>
-map <leader>< :diffget<cr>
+noremap <leader>> :diffput<cr>
+noremap <leader>< :diffget<cr>
 
 " Split a jsx component's props onto multi lines
-map <leader>t= 0f<f v/\/>\\|><cr>hc<cr><c-r>"<cr><esc>kA<bs><esc>0dwv$:s/ /\r/g<cr>='[:noh<cr>
-map <leader>t- ?<<cr>v/\/>\\|><cr>J<esc>:noh<cr>
+noremap <leader>t= 0f<f v/\/>\\|><cr>hc<cr><c-r>"<cr><esc>kA<bs><esc>0dwv$:s/ /\r/g<cr>='[:noh<cr>
+noremap <leader>t- ?<<cr>v/\/>\\|><cr>J<esc>:noh<cr>
 " Go to the styles from a style.<name> for RN
-map gs <c-w>v"syiwbbgdf'gf/<c-r>s<cr>
+noremap gs <c-w>v"syiwbbgdf'gf/<c-r>s<cr>
 
 " Running node scripts
-map <leader><leader>r :w! \| silent pedit! +setfiletype\ javascript\|0read!node\ . console<cr>
+noremap <leader><leader>r :w! \| silent pedit! +setfiletype\ javascript\|0read!node\ . console<cr>
 
 " Show marks before jumping to mark position...
-map <leader>' :marks<cr>:'
+noremap <leader>' :marks<cr>:'
 
 " " Auto indent when pasting...
 " nnoremap p :pu<cr>='['[
@@ -1356,7 +1376,7 @@ nnoremap <leader>e# "fye/?<<c-r>f\><cr>
 nnoremap <leader>E# "fyE/?<<c-r>f\><cr>
 
 " Shortcut to find conflict markers...
-nnoremap <leader>/c :ConflictMarkers<cr>
+nnoremap <leader>C :ConflictMarkers<cr>
 
 " -----------------------------------------------------------------------------------------  GOTO  -------------------------------------------------------------------------------------------------
 
@@ -1415,7 +1435,7 @@ function GotoFile()
     call GotoFileSpecial()
   endtry
 endfunction
-map gf :call GotoFile()<cr>
+noremap gf :call GotoFile()<cr>
 
 " -----------------------------------------------------------------------------------------  NINTER  ------------------------------------------------------------------------------------
 
