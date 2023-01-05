@@ -891,12 +891,12 @@ nnoremap <silent> e e:noh<cr>
 
 " vim-sneak Mappings
 " Remaps f and t to work over multi lines
-nnoremap <Nop> <Plug>Sneak_S
-nnoremap <Nop> <Plug>Sneak_s
-noremap f <Plug>Sneak_f
-noremap F <Plug>Sneak_F
-noremap t <Plug>Sneak_t
-noremap T <Plug>Sneak_T
+nmap <Nop> <Plug>Sneak_S
+nmap <Nop> <Plug>Sneak_s
+map f <Plug>Sneak_f
+map F <Plug>Sneak_F
+map t <Plug>Sneak_t
+map T <Plug>Sneak_T
 
 " -----------------------------------------------------------------------------------------  COMMANDS  -------------------------------------------------------------------------------------------------
 
