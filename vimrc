@@ -1150,8 +1150,8 @@ nnoremap ]' va'<esc>
 nnoremap [' va'o<esc>
 nnoremap ]> va><esc>
 nnoremap [> va>o<esc>
-nnoremap [f [{?\w(<cr>^:noh<cr>
-nnoremap ]f /\w(<cr>f(%f{%:noh<cr>
+" nnoremap [f [{?\w(<cr>^:noh<cr>
+" nnoremap ]f /\w(<cr>f(%f{%:noh<cr>
 nnoremap [[ va[<esc>%
 nnoremap ]] va[<esc>
 
@@ -1377,6 +1377,12 @@ nnoremap <leader>E# "fyE/?<<c-r>f\><cr>
 
 " Shortcut to find conflict markers...
 nnoremap <leader>C :ConflictMarkers<cr>
+
+" -----------------------------------------------------------------------------------------  OPERATOR MAPS  -------------------------------------------------------------------------------------------------
+
+" JS Function movement...
+onoremap f :<c-u>exe "norm! /\\(\\([\\[(]\\\| \\\|.\\n\\\|\\n\\)[a-zA-Z_.]\\+(\\\| (.*) =>\\)/s+1\r"<cr>
+onoremap F :<c-u>exe "norm! ?\\(\\([\\[(]\\\| \\\|.\\n\\\|\\n\\)[a-zA-Z_.]\\+(\\\| (.*) =>\\)?s+1\r"<cr>
 
 " -----------------------------------------------------------------------------------------  GOTO  -------------------------------------------------------------------------------------------------
 
