@@ -1378,11 +1378,19 @@ nnoremap <leader>E# "fyE/?<<c-r>f\><cr>
 " Shortcut to find conflict markers...
 nnoremap <leader>C :ConflictMarkers<cr>
 
+" Find function mappings
+function FindFunctionPattern()
+  return '\(\([\[(]\| \|.\n\|\n\)[a-zA-Z_.]\+(\| (.*) =>\)'
+endfunc
+
+nnoremap <silent> ]f :<c-u>silent! exe "norm! /" . FindFunctionPattern() . "/s+1\r:noh\r"<cr>
+nnoremap <silent> [f :<c-u>silent! exe "norm! ?" . FindFunctionPattern() . "?s+1\r:noh\r"<cr>
+
 " -----------------------------------------------------------------------------------------  OPERATOR MAPS  -------------------------------------------------------------------------------------------------
 
 " JS Function movement...
-onoremap f :<c-u>exe "norm! /\\(\\([\\[(]\\\| \\\|.\\n\\\|\\n\\)[a-zA-Z_.]\\+(\\\| (.*) =>\\)/s+1\r"<cr>
-onoremap F :<c-u>exe "norm! ?\\(\\([\\[(]\\\| \\\|.\\n\\\|\\n\\)[a-zA-Z_.]\\+(\\\| (.*) =>\\)?s+1\r"<cr>
+onoremap f :<c-u>exe "norm! /" . FindFunctionPattern() . "/s+1\r:noh\r"<cr>
+onoremap F :<c-u>exe "norm! ?" . FindFunctionPattern() . "?s+1\r:noh\r"<cr>
 
 " -----------------------------------------------------------------------------------------  GOTO  -------------------------------------------------------------------------------------------------
 
