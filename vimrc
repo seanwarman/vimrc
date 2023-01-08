@@ -951,7 +951,7 @@ command! Test call Test()
 " -----------------------------------------------------------------------------------------  AUTOCMDS  -------------------------------------------------------------------------------------------------
 
 " au OptionSet,BufEnter *.vue set filetype=vue.html.javascript.css
-au OptionSet,BufEnter *.js set filetype=typescript
+" au OptionSet,BufEnter *.js set filetype=typescript
 
 " -----------------------------------------------------------------------------------------  QUICKFIX  -------------------------------------------------------------------------------------------------
 
@@ -1193,9 +1193,6 @@ inoremap ([`<cr> ([`<cr>`])<c-d><esc>O
 " re-maps capital Yank to yank till the end of the line
 noremap Y y$
 
-
-" TODO Make these onoremap mappings...
-"
 " Attempts to put a single line of properties (eg: {1,2,3}) onto multiple lines
 noremap <silent> <leader>={ :silent! s/\([{\[(]\)\(.\{-}\)\([}\])]\)/\1\r\2\r\3/ \| silent! -1s/ //g \| silent! s/,/,\r/g \| silent! s/$/,/<cr>j=%
 noremap <silent> <leader>- /[}\])]<cr>v%J<esc>:s/,\([ ]\?}\)/\1/g<cr>gv:s/:/: /g<cr>
@@ -1383,14 +1380,45 @@ function FindFunctionPattern()
   return '\(\([\[(]\| \|.\n\|\n\)[a-zA-Z_.]\+(\| (.*) =>\)'
 endfunc
 
-nnoremap <silent> ]f :<c-u>silent! exe "norm! /" . FindFunctionPattern() . "/s+1\r:noh\r"<cr>
-nnoremap <silent> [f :<c-u>silent! exe "norm! ?" . FindFunctionPattern() . "?s+1\r:noh\r"<cr>
+function Executer(execution)
+  " Set a local count var
+  let s:count = 1
+  if v:count
+    let s:count = v:count
+  endif
 
-" -----------------------------------------------------------------------------------------  OPERATOR MAPS  -------------------------------------------------------------------------------------------------
+  " Run the execution 
+  while s:count > 0
+    exe a:execution
+    let s:count = s:count - 1
+  endwhile
+endfunc
 
-" JS Function movement...
-onoremap f :<c-u>exe "norm! /" . FindFunctionPattern() . "/s+1\r:noh\r"<cr>
-onoremap F :<c-u>exe "norm! ?" . FindFunctionPattern() . "?s+1\r:noh\r"<cr>
+" JS Function movements...
+onoremap x :<c-u>silent! call Executer("norm! /" . FindFunctionPattern() . "/s+1\r:noh\r")<cr>
+onoremap X :<c-u>silent! call Executer("norm! ?" . FindFunctionPattern() . "?s+1\r:noh\r")<cr>
+nnoremap ]x :<c-u>silent! call Executer("norm! /" . FindFunctionPattern() . "/s+1\r:noh\r")<cr>
+nnoremap [x :<c-u>silent! call Executer("norm! ?" . FindFunctionPattern() . "?s+1\r:noh\r")<cr>
+vnoremap ]x :<c-u>silent! call Executer("norm! \egv/" . FindFunctionPattern() . "/s+1\r")<cr>
+vnoremap [x :<c-u>silent! call Executer("norm! \egv?" . FindFunctionPattern() . "?s+1\r")<cr>
+
+" Return movements...
+onoremap r :<c-u>silent! call Executer("norm! /return\r")<cr>
+onoremap R :<c-u>silent! call Executer("norm! ?return\r")<cr>
+nnoremap ]r :<c-u>silent! call Executer("norm! /return\r")<cr>
+nnoremap [r :<c-u>silent! call Executer("norm! ?return\r")<cr>
+vnoremap ]r :<c-u>silent! call Executer("norm! \egv/return\r")<cr>
+vnoremap [r :<c-u>silent! call Executer("norm! \egv?return\r")<cr>
+
+" If movements...
+onoremap ih :<c-u>silent! call Executer("norm! /if (/e\rvib")<cr>
+onoremap iH :<c-u>silent! call Executer("norm! ?if (?e\rvib")<cr>
+onoremap h :<c-u>silent! call Executer("norm! /if (/e\r")<cr>
+onoremap H :<c-u>silent! call Executer("norm! ?if (?e\r")<cr>
+nnoremap ]h :<c-u>silent! call Executer("norm! /if (/e\r")<cr>
+nnoremap [h :<c-u>silent! call Executer("norm! ?if (?e\r")<cr>
+vnoremap ]h :<c-u>silent! call Executer("norm! \egv/if (/e\r")<cr>
+vnoremap [h :<c-u>silent! call Executer("norm! \egv?if (?e\r")<cr>
 
 " -----------------------------------------------------------------------------------------  GOTO  -------------------------------------------------------------------------------------------------
 
