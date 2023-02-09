@@ -591,9 +591,9 @@ endfunction
 noremap <leader>bp :bp<cr>
 noremap <leader>bn :bn<cr>
 noremap <leader>bdd :Bclose!<cr>
-noremap <leader>bd<tab> :<c-f>ibd! <tab>
+noremap <leader>bd<tab> :<c-f>ibd! 
 " Select buffer from completion menu...
-noremap <leader>b<tab> q:ib <tab>
+noremap <leader>b<tab> q:ib 
 noremap <leader>bd* :sil! call DeleteAllBufsNotInArgv()<cr>
 noremap <leader>bdD :sil! call DeleteAllButThisBuf()<cr>
 noremap <leader>bde :call DeleteEmptyBuffers()<cr>
@@ -611,10 +611,10 @@ noremap <leader>al :sall<cr>
 noremap <leader>aD :argdelete *<cr>
 " Select buffer from completion menu...
 command! -nargs=* -complete=arglist Args argedit <args>
-noremap <leader>a<tab> q:iArgs <tab>
+noremap <leader>a<tab> q:iArgs 
 " Add to args list from buffer completion menu...
 command! -nargs=* -complete=buffer BufArgs argedit <args>
-noremap <leader>ab<tab> q:iBufArgs <tab>
+noremap <leader>ab<tab> q:iBufArgs 
 nnoremap <leader>a <Nop>
 
 " -----------------------------------------------------------------------------------------  AUTOCOMPLETION  -------------------------------------------------------------------------------------------------
