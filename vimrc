@@ -9,8 +9,9 @@ call plug#begin('~/.local/share/vim/plugged')
 
   " Syntax
   Plug 'mattn/emmet-vim'
-  Plug 'yuezk/vim-js'
-  Plug 'leafOfTree/vim-vue-plugin'
+  " Plug 'yuezk/vim-js'
+  " Plug 'leafOfTree/vim-vue-plugin'
+  Plug 'MaxMEllon/vim-jsx-pretty'
 
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
@@ -406,12 +407,12 @@ hi Folded term=standout ctermfg=248 ctermbg=236 guifg=grey49 guibg=black
 
 " -----------------------------------------------------------------------------------------  COC  -------------------------------------------------------------------------------------------------
 
-let g:coc_global_extensions = ['coc-eslint', 'coc-browser', 'coc-css', 'coc-json', 'coc-prettier', 'coc-html']
+let g:coc_global_extensions = ['coc-tsserver', 'coc-eslint', 'coc-browser', 'coc-css', 'coc-json', 'coc-prettier', 'coc-html']
 
-noremap ]e <plug>(coc-diagnostic-next)
-noremap [e <plug>(coc-diagnostic-prev)
-noremap <leader>ef <plug>(coc-fix-current)
-noremap <leader>ea <plug>(coc-codeaction)
+map ]e <Plug>(coc-diagnostic-next)
+map [e <Plug>(coc-diagnostic-prev)
+map <leader>ef <Plug>(coc-fix-current)
+map <leader>ea <Plug>(coc-codeaction)
 noremap <leader>ed :CocDisable<cr>
 noremap <leader>ee :CocEnable<cr>
 " noremap <leader>jj :CocCommand fzf-preview.Jumps<cr>
@@ -1131,6 +1132,11 @@ nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 
 " -----------------------------------------------------------------------------------------  MAPPINGS  -------------------------------------------------------------------------------------------------
 
+" Create or edit a test file for this component
+nnoremap <leader>tt :exe 'e ' . expand('%:s?js?test.js?')<cr>
+" Create or edit a component version of this test
+nnoremap <leader>tc :exe 'e ' . expand('%:s?test.js?js?')<cr>
+
 " Quick search case-insensitive
 noremap <leader>/ /\c
 
@@ -1165,8 +1171,8 @@ noremap <leader>! :!pretty-repl %<tab><cr>
 
 " type any word then press ctrl-a in insert mode to console log it
 " with an id string...
-inoremap <c-a> <esc>^Cconsole.log('@FILTER <c-r>":', <c-r>")
-inoremap <c-f> <esc>^Cconsole.log('@FILTER <c-r>"')
+inoremap <c-a> <esc>^Cconsole.log(`@FILTER <c-r>":`, <c-r>")
+inoremap <c-f> <esc>^Cconsole.log(`@FILTER <c-r>"`)
 
 inoremap {<Space> {  }<Left><Left>
 inoremap {{<Space> {{  }}<Left><Left><Left>
@@ -1395,10 +1401,12 @@ function Executer(execution)
 endfunc
 
 " JS Function movements...
-onoremap x :<c-u>silent! call Executer("norm! /" . FindFunctionPattern() . "/s+1\r:noh\r")<cr>
-onoremap X :<c-u>silent! call Executer("norm! ?" . FindFunctionPattern() . "?s+1\r:noh\r")<cr>
-nnoremap ]x :<c-u>silent! call Executer("norm! /" . FindFunctionPattern() . "/s+1\r:noh\r")<cr>
-nnoremap [x :<c-u>silent! call Executer("norm! ?" . FindFunctionPattern() . "?s+1\r:noh\r")<cr>
+onoremap ix :<c-u>silent! call Executer("norm! /" . FindFunctionPattern() . "/s+1\r/(\rvib")<cr>
+onoremap iX :<c-u>silent! call Executer("norm! ?" . FindFunctionPattern() . "?s+1\r/(\rvib")<cr>
+onoremap x :<c-u>silent! call Executer("norm! /" . FindFunctionPattern() . "/s+1\r")<cr>
+onoremap X :<c-u>silent! call Executer("norm! ?" . FindFunctionPattern() . "?s+1\r")<cr>
+nnoremap ]x :<c-u>silent! call Executer("norm! /" . FindFunctionPattern() . "/s+1\r")<cr>
+nnoremap [x :<c-u>silent! call Executer("norm! ?" . FindFunctionPattern() . "?s+1\r")<cr>
 vnoremap ]x :<c-u>silent! call Executer("norm! \egv/" . FindFunctionPattern() . "/s+1\r")<cr>
 vnoremap [x :<c-u>silent! call Executer("norm! \egv?" . FindFunctionPattern() . "?s+1\r")<cr>
 
