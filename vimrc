@@ -1093,7 +1093,7 @@ if strlen(system('echo $TMUX')) > 1
   " noremap <silent> <leader>. :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-tree %:p:h<tab>"<cr>
   noremap <silent> <leader>pp :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-files ."<cr>
   noremap <silent> <leader>pw :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-files . '<c-r><c-w>'"<cr>
-  noremap <silent> <leader>ff :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-search ."<cr>
+  " noremap <silent> <leader>ff :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-search ."<cr>
   noremap <silent> <leader>fw :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-search . '<c-r><c-w>'"<cr>
   noremap <silent> <leader>fW "fyW:silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-search . '<c-r>f'"<cr>
   noremap <silent> <leader>fp :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-search . '%:t<tab><bs>'"<cr>
@@ -1131,6 +1131,9 @@ nnoremap <leader>gpu :!git push -u origin $(git branch --show-current)<cr>
 nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 
 " -----------------------------------------------------------------------------------------  MAPPINGS  -------------------------------------------------------------------------------------------------
+
+" Create a CodeCommit PR (needs aws installed)
+" nnoremap <leader><leader>pr :echo system('aws codecommit create-pull-request --title "' . FugitiveHead() . '" --targets sourceReference=' . FugitiveHead() . ',repositoryName=$(git remote get-url origin \| awk -F "/" \'{print $(NF)}\')')<cr>
 
 " Create or edit a test file for this component
 nnoremap <leader>tt :exe 'e ' . expand('%:s?js?test.js?')<cr>
