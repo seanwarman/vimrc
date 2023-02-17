@@ -423,7 +423,16 @@ noremap <leader>mm :CocCommand fzf-preview.Marks<cr>
 " Hide the gutter background colour
 hi SignColumn ctermbg=NONE
 
-noremap <silent> <c-]> :<c-u>call CocAction('jumpDefinition')<cr>
+function s:tryTagOrUseCoc(actionType)
+  try
+    call CocAction(a:actionType)
+  catch
+    exe 'tag! ' . expand('<cword>')
+  endtry
+endfunction
+
+noremap <c-]> :<c-u>call <SID>tryTagOrUseCoc('jumpDefinition')<cr>
+nnoremap gt :<c-u>call <SID>tryTagOrUseCoc('jumpTypeDefinition')<cr>
 
 " ----------------------------------------------------------------------------------------  STATUSLINE  ------------------------------------------------------------------------------------------------
 
