@@ -423,6 +423,8 @@ noremap <leader>mm :CocCommand fzf-preview.Marks<cr>
 " Hide the gutter background colour
 hi SignColumn ctermbg=NONE
 
+noremap <silent> <c-]> :<c-u>call CocAction('jumpDefinition')<cr>
+
 " ----------------------------------------------------------------------------------------  STATUSLINE  ------------------------------------------------------------------------------------------------
 
 function FindArgv(path)
@@ -915,8 +917,9 @@ command BufTerm new | set filetype=bufterm.sh | norm i
 
 command DelEmptyLines exe 'g/^\([\s\t]\)*$/d'
 
-" Goes to my vimrc
+" Config file shortcuts
 command! Vimrc e ~/.vim/vimrc
+command! Vimzsh e ~/.zshrc
 " Goes to my vom config folder
 command! VimConfig e ~/.vim
 " Writes and reloads the vimrc...
@@ -1064,7 +1067,7 @@ function TryTagOrSaveJtag()
     silent! let @p = trim(system('realpath --relative-to=' . expand("#:h") . ' ' . expand("%")))
   endtry
 endfunction
-noremap <silent> <c-]> :<c-u>call TryTagOrSaveJtag()<cr>
+" noremap <silent> <c-]> :<c-u>call TryTagOrSaveJtag()<cr>
 
 " ------------------------------------------------------------------------------------------  TMUX  ----------------------------------------------------------------------------------------------------
 
