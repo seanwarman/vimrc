@@ -9,15 +9,15 @@ call plug#begin('~/.local/share/vim/plugged')
 
   " Syntax
   Plug 'mattn/emmet-vim'
-  " Plug 'yuezk/vim-js'
+  Plug 'yuezk/vim-js'
   " Plug 'leafOfTree/vim-vue-plugin'
   Plug 'MaxMEllon/vim-jsx-pretty'
 
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
   " CSS and inline colors >> #344390 <<
-  " Plug 'KabbAmine/vCoolor.vim'
-  " Plug 'ap/vim-css-color'
+  Plug 'KabbAmine/vCoolor.vim'
+  Plug 'ap/vim-css-color'
 
   " Can't do without this one...
   Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
@@ -432,7 +432,8 @@ function s:tryTagOrUseCoc(actionType)
 endfunction
 
 noremap <c-]> :<c-u>call <SID>tryTagOrUseCoc('jumpDefinition')<cr>
-nnoremap gt :<c-u>call <SID>tryTagOrUseCoc('jumpTypeDefinition')<cr>
+" nnoremap gt :<c-u>call <SID>tryTagOrUseCoc('jumpTypeDefinition')<cr>
+nnoremap gr :<c-u>call <SID>tryTagOrUseCoc('jumpReferences')<cr>
 
 " ----------------------------------------------------------------------------------------  STATUSLINE  ------------------------------------------------------------------------------------------------
 
