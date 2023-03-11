@@ -9,16 +9,8 @@ function fuzd () {
 
   if [[ $dir ]]; then
 
-    # Ascii hex codes for dollar and apostrophes (\x27, \x24)...
-    # Allows for file names with $ dollars in the name (blame RemixJS)
-    vimeditcmd=`echo "$dir" | awk '\
-      BEGIN\
-      {FS=":";ORS=" "}\
-      NR==1\
-      {print ":exe \x27 edit +"$2 "\x27 . escape(\x27" $1 "\x27, \x27\x24\x27)"}\
-      NR!=1\
-      {print "| exe \x27 edit +"$2 "\x27 . escape(\x27" $1 "\x27, \x27\x24\x27)"}\
-    '`
+    # This still doesn't work with files with "$" in the name but the line number breaks the substr function (i think) so spend some time on it...
+    vimeditcmd=`echo "$dir" | awk 'BEGIN {FS=":";ORS=" "} NR==1 {print ":edit +"$2 " " $1} NR!=1 {print "| edit +"$2 " " $1}'`
 
     tmux send -t! "$vimeditcmd" '^M'
 

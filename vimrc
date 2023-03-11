@@ -1145,6 +1145,8 @@ nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 
 " -----------------------------------------------------------------------------------------  MAPPINGS  -------------------------------------------------------------------------------------------------
 
+inoremap <c-j> <c-o>J
+
 " Create a CodeCommit PR (needs aws installed)
 " nnoremap <leader><leader>pr :echo system('aws codecommit create-pull-request --title "' . FugitiveHead() . '" --targets sourceReference=' . FugitiveHead() . ',repositoryName=$(git remote get-url origin \| awk -F "/" \'{print $(NF)}\')')<cr>
 
