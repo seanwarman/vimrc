@@ -12,6 +12,7 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'yuezk/vim-js'
   " Plug 'leafOfTree/vim-vue-plugin'
   Plug 'MaxMEllon/vim-jsx-pretty'
+  Plug 'digitaltoad/vim-pug'
 
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
@@ -360,7 +361,12 @@ endfunction
 command! -nargs=* Dark :exe 'colo ' . DarkColours()[<args>]
 command! -nargs=* Light :exe 'colo ' . LightColours()[<args>]
 
-colo gruvbox
+" colo gruvbox
+set background=light
+Light 3
+
+command Daytime :set background=light | Light 3
+command Nighttime :set background=dark | colo gruvbox
 
 " An array of colours for the term_colourscheme_colours function based on the
 " current values of the colourscheme's highlight groups...
