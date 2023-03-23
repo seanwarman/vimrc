@@ -1145,6 +1145,7 @@ nnoremap <leader>gc :G checkout
 nnoremap <silent> <leader>gr :Gread<cr>
 nnoremap <silent> <leader>gb :G blame<cr>
 nnoremap <leader>gpu :!git push -u origin $(git branch --show-current)<cr>
+nnoremap <leader>gl :G log<cr>
 
 " Note, this always refers to the cwd git repo...
 nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
@@ -1224,8 +1225,8 @@ inoremap ([`<cr> ([`<cr>`])<c-d><esc>O
 noremap Y y$
 
 " Attempts to put a single line of properties (eg: {1,2,3}) onto multiple lines
-noremap <silent> <leader>={ :silent! s/\([{\[(]\)\(.\{-}\)\([}\])]\)/\1\r\2\r\3/ \| silent! -1s/ //g \| silent! s/,/,\r/g \| silent! s/$/,/<cr>j=%
-noremap <silent> <leader>- /[}\])]<cr>v%J<esc>:s/,\([ ]\?}\)/\1/g<cr>gv:s/:/: /g<cr>
+noremap <silent> <leader>g= :silent! s/\([{\[(]\)\(.\{-}\)\([}\])]\)/\1\r\2\r\3/ \| silent! -1s/ //g \| silent! s/,/,\r/g \| silent! s/$/,/<cr>j=%
+noremap <silent> <leader>g- /[}\])]<cr>v%J<esc>:s/,\([ ]\?}\)/\1/g<cr>gv:s/:/: /g<cr>
 " Puts html attributes onto multi-lines
 noremap <silent> <leader>=< :silent! s/\(<[a-zA-z-]\+\)\s/\1\r/ \| silent! s/>/\r>/g \| silent! -1s/\s/\r/g<cr>=a<:noh<cr>
 noremap <silent> <leader>=> :silent! s/\(<[a-zA-z-]\+\)\s/\1\r/ \| silent! s/>/\r>/g \| silent! -1s/\s/\r/g<cr>=a<:noh<cr>
