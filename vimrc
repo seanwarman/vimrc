@@ -1300,6 +1300,7 @@ nnoremap <leader>ni[ "fyi[/<c-r>f<cr>
 nnoremap <leader>ni] "fyi]/<c-r>f<cr>
 nnoremap <leader>ni{ "fyi{/<c-r>f<cr>
 nnoremap <leader>ni} "fyi}/<c-r>f<cr>
+nnoremap <leader>nit "fyit/<c-r>f<cr>
 nnoremap <leader>nW "fyW/<c-r>f<cr>
 nnoremap <leader>niW "fyiW/<c-r>f<cr>
 " These both mapped to buffer switching
