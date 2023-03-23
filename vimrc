@@ -1453,6 +1453,36 @@ nnoremap [h :<c-u>silent! call Executer("norm! ?if (?e\r")<cr>
 vnoremap ]h :<c-u>silent! call Executer("norm! \egv/if (/e\r")<cr>
 vnoremap [h :<c-u>silent! call Executer("norm! \egv?if (?e\r")<cr>
 
+" -----------------------------------------------------------------------------------------  Foldeasy  ---------------------------------------------------------------------------------------------------
+
+let g:foldeasy_on = 0
+
+func! ToggleFoldEasy()
+  if g:foldeasy_on == 1
+    let g:foldeasy_on = 0
+    unmap k
+    unmap j
+    unmap <c-d>
+    unmap <c-u>
+    unmap gg
+    unmap G
+    unmap <esc>
+    echo 'Fold mode off'
+  else
+    let g:foldeasy_on = 1
+    nnoremap k :call Executer("norm! zfk<c-y>")<cr>
+    nnoremap j :call Executer("norm! zfj<c-e>")<cr>
+    nnoremap <c-d> :call Executer("norm! 37zfj37<c-e>")<cr>
+    nnoremap <c-u> :call Executer("norm! 37zfk37<c-y>")<cr>
+    nnoremap gg :call Executer("norm! zfgg")<cr>
+    nnoremap G :call Executer("norm! zfG")<cr>
+    nnoremap <esc> :call ToggleFoldEasy()<cr>
+    echo 'Fold mode on'
+  endif
+endfunc
+
+nnoremap <leader>z :call ToggleFoldEasy()<cr>
+
 " -----------------------------------------------------------------------------------------  GOTO  -------------------------------------------------------------------------------------------------
 
 " A smarter goto file command...
