@@ -41,6 +41,9 @@ call plug#begin('~/.local/share/vim/plugged')
   " Every editor needs multi cursors
   Plug 'mg979/vim-visual-multi'
 
+  " Fold plugin
+  Plug 'anschnapp/move-less'
+
   " Vim-like utils
   Plug 'itchyny/vim-cursorword'
   Plug 'adelarsq/vim-matchit'
@@ -1458,31 +1461,40 @@ vnoremap [h :<c-u>silent! call Executer("norm! \egv?if (?e\r")<cr>
 
 let g:foldeasy_on = 0
 
-func! ToggleFoldEasy()
-  if g:foldeasy_on == 1
+func! FoldEasyOff()
     let g:foldeasy_on = 0
-    unmap k
-    unmap j
-    unmap <c-d>
-    unmap <c-u>
-    unmap gg
-    unmap G
-    unmap <esc>
+    silent! unmap k
+    silent! unmap j
+    silent! unmap <c-d>
+    silent! unmap <c-u>
+    silent! unmap gg
+    silent! unmap G
+    silent! unmap <esc>
     echo 'Fold mode off'
-  else
-    let g:foldeasy_on = 1
-    nnoremap k :call Executer("norm! zfk<c-y>")<cr>
-    nnoremap j :call Executer("norm! zfj<c-e>")<cr>
-    nnoremap <c-d> :call Executer("norm! 37zfj37<c-e>")<cr>
-    nnoremap <c-u> :call Executer("norm! 37zfk37<c-y>")<cr>
-    nnoremap gg :call Executer("norm! zfgg")<cr>
-    nnoremap G :call Executer("norm! zfG")<cr>
-    nnoremap <esc> :call ToggleFoldEasy()<cr>
-    echo 'Fold mode on'
-  endif
 endfunc
 
-nnoremap <leader>z :call ToggleFoldEasy()<cr>
+func! FoldEasyDown()
+    let g:foldeasy_on = 1
+    silent! nnoremap k :silent! call Executer("norm! zd")<cr>
+    nnoremap j :call Executer("norm! zfj<c-e>")<cr>
+    silent! nnoremap <c-u> :silent! call Executer("norm! zd")<cr>
+    nnoremap <c-d> :call Executer("norm! 37zfj37<c-e>")<cr>
+    nnoremap <esc> :call FoldEasyOff()<cr>
+    echo 'Fold mode on (down)'
+endfunc
+
+func! FoldEasyUp()
+    let g:foldeasy_on = 1
+    nnoremap k :call Executer("norm! zfk<c-y>")<cr>
+    silent! nnoremap j :silent! call Executer("norm! zdj<c-e>")<cr>
+    nnoremap <c-u> :call Executer("norm! 37zfk37<c-y>")<cr>
+    silent! nnoremap <c-d> :silent! call Executer("norm! zd")<cr>
+    nnoremap <esc> :call FoldEasyOff()<cr>
+    echo 'Fold mode on (up)'
+endfunc
+
+nnoremap <leader>zk :call FoldEasyUp()<cr>
+nnoremap <leader>zj :call FoldEasyDown()<cr>
 
 " -----------------------------------------------------------------------------------------  GOTO  -------------------------------------------------------------------------------------------------
 
