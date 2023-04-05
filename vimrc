@@ -41,8 +41,8 @@ call plug#begin('~/.local/share/vim/plugged')
   " Every editor needs multi cursors
   Plug 'mg979/vim-visual-multi'
 
-  " Fold plugin
-  Plug 'anschnapp/move-less'
+  " Tags plugin
+  Plug 'preservim/tagbar'
 
   " Vim-like utils
   Plug 'itchyny/vim-cursorword'
@@ -440,7 +440,7 @@ function s:tryTagOrUseCoc(actionType)
   endtry
 endfunction
 
-noremap <c-]> :<c-u>call <SID>tryTagOrUseCoc('jumpDefinition')<cr>
+" noremap <c-]> :<c-u>call <SID>tryTagOrUseCoc('jumpDefinition')<cr>
 " nnoremap gt :<c-u>call <SID>tryTagOrUseCoc('jumpTypeDefinition')<cr>
 nnoremap gr :<c-u>call <SID>tryTagOrUseCoc('jumpReferences')<cr>
 
@@ -1086,7 +1086,7 @@ function TryTagOrSaveJtag()
     silent! let @p = trim(system('realpath --relative-to=' . expand("#:h") . ' ' . expand("%")))
   endtry
 endfunction
-" noremap <silent> <c-]> :<c-u>call TryTagOrSaveJtag()<cr>
+noremap <silent> <c-]> :<c-u>call TryTagOrSaveJtag()<cr>
 
 " ------------------------------------------------------------------------------------------  TMUX  ----------------------------------------------------------------------------------------------------
 
@@ -1121,7 +1121,7 @@ if strlen(system('echo $TMUX')) > 1
   noremap <silent> <leader>fp :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-search . '%:t<tab><bs>'"<cr>
 
   " TODO This only jumps backward
-  noremap <silent> <leader>jj :redir! > ~/.vim/tmp/jumps \| silent! jumps \| redir END \| silent! !tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-jumps"<cr>
+  " noremap <silent> <leader>jj :redir! > ~/.vim/tmp/jumps \| silent! jumps \| redir END \| silent! !tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-jumps"<cr>
 endif
 
 " -----------------------------------------------------------------------------------------  REGPREVIEW  -------------------------------------------------------------------------------------------------
