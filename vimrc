@@ -214,6 +214,9 @@ set noswapfile
 " Put .swp files into here...
 set dir=$HOME/.vim/tmp
 
+" Keeps the cursors col position between buffers
+set nostartofline
+
 set nowrap
 
 " Maintain undo
