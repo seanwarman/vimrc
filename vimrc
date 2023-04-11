@@ -1289,6 +1289,7 @@ nnoremap <leader>vsc /<script/s+1<cr>
 " Quicker search for word under cursor (also not as specific)
 " Forwards
 noremap <leader>nw /<c-r><c-w><cr>
+noremap <leader>n" /<c-r>"<cr>
 nnoremap <leader>na" "fya"/<c-r>f<cr>
 nnoremap <leader>na' "fya'/<c-r>f<cr>
 nnoremap <leader>na< "fya</<c-r>f<cr>
@@ -1324,6 +1325,7 @@ nnoremap <leader>nE "fyE/<c-r>f<cr>
 
 " Backwards
 noremap <leader>Nw ?<c-r><c-w><cr>
+noremap <leader>N" ?<c-r>"<cr>
 nnoremap <leader>Na" "fya"?<c-r>f<cr>
 nnoremap <leader>Na' "fya'?<c-r>f<cr>
 nnoremap <leader>Na< "fya<?<c-r>f<cr>
