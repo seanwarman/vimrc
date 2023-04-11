@@ -1162,6 +1162,9 @@ nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 
 " -----------------------------------------------------------------------------------------  MAPPINGS  -------------------------------------------------------------------------------------------------
 
+nnoremap <silent> [f :let @f = '[{@f' \| norm @f<cr>
+nnoremap <silent> ]f :let @f = ']}@f' \| norm @f<cr>
+
 inoremap <c-j> <c-o>J
 
 " Create a CodeCommit PR (needs aws installed)
