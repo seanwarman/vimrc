@@ -369,7 +369,11 @@ command! -nargs=* Light :exe 'colo ' . LightColours()[<args>]
 
 " colo gruvbox
 set background=light
-Light 3
+colo bubblegum-256-light
+
+" Fold highlights are always too strong looking, link it to whatever the
+" Comment color is for the color scheme...
+hi! link Folded Comment
 
 command Daytime :set background=light | Light 3
 command Nighttime :set background=dark | colo gruvbox
