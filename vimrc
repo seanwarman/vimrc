@@ -416,9 +416,6 @@ function SetAnsiTermColours()
   silent! call term_setansicolors(bufnr(), map(g:term_colourscheme_colours, g:MapAnsiTermFunc))
 endfunction
 
-" Make the fold colour more subtle
-hi Folded term=standout ctermfg=248 ctermbg=236 guifg=grey49 guibg=black
-
 " autocmd TerminalOpen,TermChanged,TerminalWinOpen,Syntax * silent! call SetAnsiTermColours()
 
 " -----------------------------------------------------------------------------------------  COC  -------------------------------------------------------------------------------------------------
@@ -1591,3 +1588,4 @@ endfunction
 " Later on the first request could check for imported modules, it'll ask the
 " user if they want to include them which would cause the server to install
 " that module and allow it to include that module's API.
+"
