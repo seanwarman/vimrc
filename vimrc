@@ -41,6 +41,9 @@ call plug#begin('~/.local/share/vim/plugged')
   " Every editor needs multi cursors
   Plug 'mg979/vim-visual-multi'
 
+  " Trying this again...
+  Plug 'jacquesbh/vim-showmarks'
+
   " Tags plugin
   Plug 'preservim/tagbar'
 
@@ -325,7 +328,8 @@ function LightColours()
         \ 'flattened_light',
         \ 'fruidle',
         \ 'seagull',
-        \ 'whitebox'
+        \ 'whitebox',
+        \ 'bubblegum-256-light'
         \]
 endfunction
 function DarkColours()
@@ -364,19 +368,13 @@ function DarkColours()
         \]
 endfunction
 
-command! -nargs=* Dark :exe 'colo ' . DarkColours()[<args>]
-command! -nargs=* Light :exe 'colo ' . LightColours()[<args>]
+command! -nargs=* Dark :set background=dark | exe 'colo ' . DarkColours()[<args>]
+command! -nargs=* Light :set background=light | exe 'colo ' . LightColours()[<args>]
 
-" colo gruvbox
-set background=light
-colo bubblegum-256-light
+command Daytime :Light 10
+command Nighttime :Dark 10
 
-" Fold highlights are always too strong looking, link it to whatever the
-" Comment color is for the color scheme...
-hi! link Folded Comment
-
-command Daytime :set background=light | Light 3
-command Nighttime :set background=dark | colo gruvbox
+Daytime
 
 " An array of colours for the term_colourscheme_colours function based on the
 " current values of the colourscheme's highlight groups...
@@ -417,6 +415,10 @@ function SetAnsiTermColours()
 endfunction
 
 " autocmd TerminalOpen,TermChanged,TerminalWinOpen,Syntax * silent! call SetAnsiTermColours()
+
+" Fold highlights are always too strong looking, link it to whatever the
+" Comment color is for the color scheme...
+hi! link Folded Comment
 
 " -----------------------------------------------------------------------------------------  COC  -------------------------------------------------------------------------------------------------
 
@@ -1024,6 +1026,10 @@ function FixLint(dir)
   echo 'Done!'
 endfunction
 command! -nargs=* -complete=dir FixLintFile call FixLint(expand("<args>"))
+
+" ----------------------------------------------------------------------------------------  SHOW MARKS  -------------------------------------------------------------------------------------------------
+
+autocmd VimEnter * DoShowMarks!
 
 " -------------------------------------------------------------------------------------------  MDN  ----------------------------------------------------------------------------------------------------
 
