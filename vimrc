@@ -1265,6 +1265,7 @@ nnoremap <leader>gd :Gdiff
 nnoremap <leader>gc :G checkout 
 nnoremap <silent> <leader>gr :Gread<cr>
 nnoremap <silent> <leader>gb :G blame<cr>
+nnoremap <leader>gpp :G pull origin 
 nnoremap <leader>gpu :!git push -u origin $(git branch --show-current)<cr>
 nnoremap <leader>gl :G log<cr>
 
