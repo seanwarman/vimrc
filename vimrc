@@ -1031,6 +1031,114 @@ command! -nargs=* -complete=dir FixLintFile call FixLint(expand("<args>"))
 
 autocmd VimEnter * DoShowMarks!
 
+nnoremap mQ :mark Q \| DoShowMarks<cr>
+nnoremap mW :mark W \| DoShowMarks<cr>
+nnoremap mE :mark E \| DoShowMarks<cr>
+nnoremap mR :mark R \| DoShowMarks<cr>
+nnoremap mT :mark T \| DoShowMarks<cr>
+nnoremap mY :mark Y \| DoShowMarks<cr>
+nnoremap mU :mark U \| DoShowMarks<cr>
+nnoremap mI :mark I \| DoShowMarks<cr>
+nnoremap mO :mark O \| DoShowMarks<cr>
+nnoremap mP :mark P \| DoShowMarks<cr>
+nnoremap mA :mark A \| DoShowMarks<cr>
+nnoremap mS :mark S \| DoShowMarks<cr>
+nnoremap mD :mark D \| DoShowMarks<cr>
+nnoremap mF :mark F \| DoShowMarks<cr>
+nnoremap mG :mark G \| DoShowMarks<cr>
+nnoremap mH :mark H \| DoShowMarks<cr>
+nnoremap mJ :mark J \| DoShowMarks<cr>
+nnoremap mK :mark K \| DoShowMarks<cr>
+nnoremap mL :mark L \| DoShowMarks<cr>
+nnoremap mZ :mark Z \| DoShowMarks<cr>
+nnoremap mX :mark X \| DoShowMarks<cr>
+nnoremap mC :mark C \| DoShowMarks<cr>
+nnoremap mV :mark V \| DoShowMarks<cr>
+nnoremap mB :mark B \| DoShowMarks<cr>
+nnoremap mN :mark N \| DoShowMarks<cr>
+nnoremap mM :mark M \| DoShowMarks<cr>
+
+nnoremap mq :mark q \| DoShowMarks<cr>
+nnoremap mw :mark w \| DoShowMarks<cr>
+nnoremap me :mark e \| DoShowMarks<cr>
+nnoremap mr :mark r \| DoShowMarks<cr>
+nnoremap mt :mark t \| DoShowMarks<cr>
+nnoremap my :mark y \| DoShowMarks<cr>
+nnoremap mu :mark u \| DoShowMarks<cr>
+nnoremap mi :mark i \| DoShowMarks<cr>
+nnoremap mo :mark o \| DoShowMarks<cr>
+nnoremap mp :mark p \| DoShowMarks<cr>
+nnoremap ma :mark a \| DoShowMarks<cr>
+nnoremap ms :mark s \| DoShowMarks<cr>
+nnoremap md :mark d \| DoShowMarks<cr>
+nnoremap mf :mark f \| DoShowMarks<cr>
+nnoremap mg :mark g \| DoShowMarks<cr>
+nnoremap mh :mark h \| DoShowMarks<cr>
+nnoremap mj :mark j \| DoShowMarks<cr>
+nnoremap mk :mark k \| DoShowMarks<cr>
+nnoremap ml :mark l \| DoShowMarks<cr>
+nnoremap mz :mark z \| DoShowMarks<cr>
+nnoremap mx :mark x \| DoShowMarks<cr>
+nnoremap mc :mark c \| DoShowMarks<cr>
+nnoremap mv :mark v \| DoShowMarks<cr>
+nnoremap mb :mark b \| DoShowMarks<cr>
+nnoremap mn :mark n \| DoShowMarks<cr>
+nnoremap mm :mark m \| DoShowMarks<cr>
+
+nnoremap dmQ :delm Q \| DoShowMarks<cr>
+nnoremap dmW :delm W \| DoShowMarks<cr>
+nnoremap dmE :delm E \| DoShowMarks<cr>
+nnoremap dmR :delm R \| DoShowMarks<cr>
+nnoremap dmT :delm T \| DoShowMarks<cr>
+nnoremap dmY :delm Y \| DoShowMarks<cr>
+nnoremap dmU :delm U \| DoShowMarks<cr>
+nnoremap dmI :delm I \| DoShowMarks<cr>
+nnoremap dmO :delm O \| DoShowMarks<cr>
+nnoremap dmP :delm P \| DoShowMarks<cr>
+nnoremap dmA :delm A \| DoShowMarks<cr>
+nnoremap dmS :delm S \| DoShowMarks<cr>
+nnoremap dmD :delm D \| DoShowMarks<cr>
+nnoremap dmF :delm F \| DoShowMarks<cr>
+nnoremap dmG :delm G \| DoShowMarks<cr>
+nnoremap dmH :delm H \| DoShowMarks<cr>
+nnoremap dmJ :delm J \| DoShowMarks<cr>
+nnoremap dmK :delm K \| DoShowMarks<cr>
+nnoremap dmL :delm L \| DoShowMarks<cr>
+nnoremap dmZ :delm Z \| DoShowMarks<cr>
+nnoremap dmX :delm X \| DoShowMarks<cr>
+nnoremap dmC :delm C \| DoShowMarks<cr>
+nnoremap dmV :delm V \| DoShowMarks<cr>
+nnoremap dmB :delm B \| DoShowMarks<cr>
+nnoremap dmN :delm N \| DoShowMarks<cr>
+nnoremap dmM :delm M \| DoShowMarks<cr>
+
+nnoremap dmq :delm q \| DoShowMarks<cr>
+nnoremap dmw :delm w \| DoShowMarks<cr>
+nnoremap dme :delm e \| DoShowMarks<cr>
+nnoremap dmr :delm r \| DoShowMarks<cr>
+nnoremap dmt :delm t \| DoShowMarks<cr>
+nnoremap dmy :delm y \| DoShowMarks<cr>
+nnoremap dmu :delm u \| DoShowMarks<cr>
+nnoremap dmi :delm i \| DoShowMarks<cr>
+nnoremap dmo :delm o \| DoShowMarks<cr>
+nnoremap dmp :delm p \| DoShowMarks<cr>
+nnoremap dma :delm a \| DoShowMarks<cr>
+nnoremap dms :delm s \| DoShowMarks<cr>
+nnoremap dmd :delm d \| DoShowMarks<cr>
+nnoremap dmf :delm f \| DoShowMarks<cr>
+nnoremap dmg :delm g \| DoShowMarks<cr>
+nnoremap dmh :delm h \| DoShowMarks<cr>
+nnoremap dmj :delm j \| DoShowMarks<cr>
+nnoremap dmk :delm k \| DoShowMarks<cr>
+nnoremap dml :delm l \| DoShowMarks<cr>
+nnoremap dmz :delm z \| DoShowMarks<cr>
+nnoremap dmx :delm x \| DoShowMarks<cr>
+nnoremap dmc :delm c \| DoShowMarks<cr>
+nnoremap dmv :delm v \| DoShowMarks<cr>
+nnoremap dmb :delm b \| DoShowMarks<cr>
+nnoremap dmn :delm n \| DoShowMarks<cr>
+nnoremap dmm :delm m \| DoShowMarks<cr>
+
 " -------------------------------------------------------------------------------------------  MDN  ----------------------------------------------------------------------------------------------------
 
 function! MenuMovement()
