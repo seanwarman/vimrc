@@ -1,7 +1,10 @@
 {
-  "eslint.packageManager": "yarn",
-  "eslint.nodePath": ".yarn/sdks",
+  "eslint.packageManager": "npm",
+  "eslint.nodePath": "/Users/seanwarman/.nvm/versions/node/v18.14.0/bin/node",
   "workspace.workspaceFolderCheckCwd": false,
-  "tsserver.tsdk": ".yarn/sdks/typescript/lib",
-  "suggest.noselect":true
+  "suggest.noselect": true,
+  "coc.preferences.formatOnSave": false,
+  "typescript.preferences.quoteStyle": "single",
+  "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": true,
+  "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": true
 }

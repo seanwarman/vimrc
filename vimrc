@@ -315,6 +315,15 @@ command! SaveSesh call SaveSesh(fnamemodify(getcwd(), ':t') . '-' . join(split(S
 
 noremap <leader>ss :SaveSesh<cr>
 
+" -----------------------------------------------------------------------------------------  ITALICS  ------------------------------------------------------------------------------------
+
+function! SetItalicTheming()
+  hi Comment cterm=italic
+  hi Keyword cterm=italic
+endfunc
+
+call SetItalicTheming()
+
 " ------------------------------------------------------------------------------------------  COLORS  -------------------------------------------------------------------------------------------------
 
 function LightColours()
@@ -368,13 +377,13 @@ function DarkColours()
         \]
 endfunction
 
-command! -nargs=* Dark :set background=dark | exe 'colo ' . DarkColours()[<args>]
-command! -nargs=* Light :set background=light | exe 'colo ' . LightColours()[<args>]
+command! -nargs=* Dark :set background=dark | exe 'colo ' . DarkColours()[<args>] | call SetItalicTheming()
+command! -nargs=* Light :set background=light | exe 'colo ' . LightColours()[<args>] | call SetItalicTheming()
 
-command Daytime :Light 10
-command Nighttime :Dark 10
+command Daytime Light 10
+command Nighttime Dark 10
 
-Daytime
+Nighttime
 
 " An array of colours for the term_colourscheme_colours function based on the
 " current values of the colourscheme's highlight groups...
@@ -422,7 +431,7 @@ hi! link Folded Comment
 
 " -----------------------------------------------------------------------------------------  COC  -------------------------------------------------------------------------------------------------
 
-let g:coc_global_extensions = ['coc-tsserver', 'coc-eslint', 'coc-browser', 'coc-css', 'coc-json', 'coc-prettier', 'coc-html']
+let g:coc_global_extensions = ['coc-tsserver', 'coc-eslint', 'coc-browser', 'coc-css', 'coc-json', 'coc-prettier', 'coc-html', '@yaegassy/coc-tailwindcss3']
 
 map ]e <Plug>(coc-diagnostic-next)
 map [e <Plug>(coc-diagnostic-prev)
@@ -433,6 +442,10 @@ noremap <leader>ee :CocEnable<cr>
 " noremap <leader>jj :CocCommand fzf-preview.Jumps<cr>
 noremap <leader>cc :CocCommand fzf-preview.Changes<cr>
 noremap <leader>mm :CocCommand fzf-preview.Marks<cr>
+" Prettier formatting...
+vnoremap <leader>ep <Plug>(coc-format-selected)
+nnoremap <leader>ep <Plug>(coc-format-selected)
+nnoremap <leader>epp <Plug>(coc-format-selected)j
 
 
 " Hide the gutter background colour
@@ -461,7 +474,7 @@ function FindArgv(path)
   return 0
 endfunction
 
-function FilePathToBufName(path, bufnr)
+function FilePathToBufName(path, bufnr, index)
   let l:file = ''
   if len(a:path) > 0
     let l:file = fnamemodify(a:path, ":t")
@@ -473,14 +486,11 @@ function FilePathToBufName(path, bufnr)
     let l:file = l:file . '«'
   endif
   if bufnr() == a:bufnr
+    let g:buf_index = a:index
     let l:file = '[' . l:file . ']'
   endif
 
   return l:file
-endfunction
-
-function ListBuffers()
-  return join(map(getbufinfo({'buflisted':1}), { key, val -> FilePathToBufName(val.name, val.bufnr) }), ' • ')
 endfunction
 
 function FileNameOrPath(path)
@@ -499,8 +509,27 @@ function FilePathToSelected(path)
   endif
 endfunction
 
+let g:buf_index = 0
+let g:statusline_buffer_len = 140
+function ListBuffers()
+  let buffers = map(getbufinfo({'buflisted':1}), { key, val -> FilePathToBufName(val.name, val.bufnr, key) })
+  let bufstr = join(buffers, ' • ')
+  if len(bufstr) > g:statusline_buffer_len
+    if g:buf_index > 8
+      let offset = g:buf_index - 6
+      return '... ' . join(slice(buffers, offset, offset + 7), ' • ') . ' ...'
+    endif
+      return join(slice(buffers, 0, 8), ' • ') . ' ... '
+  endif
+  return bufstr
+endfunction
+
 function ListArgs()
-  return join(map(argv(), { key,val -> FilePathToSelected(val) }), ' • ')
+  let args = join(map(argv(), { key,val -> FilePathToSelected(val) }), ' • ')
+  if len(args) > g:statusline_buffer_len
+    return slice(args, 0, g:statusline_buffer_len) . ' ... '
+  endif
+  return args
 endfunction
 
 let g:args_or_buffers = 'buffers'
@@ -585,9 +614,9 @@ endfunction
 
 function ArgAddOrRemoveFile(path)
   if PathExistsInArgv(fnamemodify(a:path, ':p'))
-    exe 'argdelete ' . a:path
+    exe 'argdelete ' . fnameescape(a:path)
   else
-    exe 'argadd ' . a:path
+    exe 'argadd ' . fnameescape(a:path)
   endif
 endfunction
 
@@ -696,16 +725,32 @@ nnoremap <leader>a <Nop>
 
 let g:fzf_layout = { 'down': '35%' }
 
+map <leader>bb :Buffers<cr>
+map <leader>hh :History<cr>
+map <leader>tt :Windows<cr>
+map <leader>ww :Windows<cr>
+map <leader>mm :Marks<cr>
+map <leader>cc :Commits<cr>
+
 if system('echo $TMUX') <= 1
   map <leader>pp :Files<cr>
   " Find file under cursor...
-  " map <leader>pw "zyiw:Files<cr><c-\><c-n>"zpi
+  map <leader>pw "zyiw:Files<cr><c-\><c-n>"zpi
   " Find file name...
   map <leader>fp :exe 'Ag ' . expand('%:t:r')<cr>
   " Find vue markup type component from file name...
   map <leader>fcp :exe 'Ag <' . expand('%:t:r')<cr>
   map <leader>ff :Ag<cr>
   map <leader>fw :Ag <c-r><c-w><cr>
+
+  " nnoremap <leader>pp :FindFile <c-f>i<c-x><c-v><c-p>
+  " map <leader>fcp :exe 'Search <' . expand('%:t:r')<cr>
+  " map <leader>fp :exe 'Search ' . expand('%:t:r')<cr>
+  " map <leader>ff :Search 
+  " map <leader>fw :Search <c-r><c-w><cr>
+  " map <leader>fW :exe 'Search ' . expand('<cWORD>')<cr>
+
+  " map <leader>ss :call ReturnToSearcher()<cr>
 endif
 
 " -----------------------------------------------------------------------------------------  DIRVISH  --------------------------------------------------------------------------------------------------
@@ -727,8 +772,10 @@ function DirvishPreviewTreeMaps()
     autocmd FileType dirvish silent! nnoremap <buffer> l :call dirvish#open("edit", 0)<CR> \| :call PreviewIfDir()<CR>
     autocmd FileType dirvish silent! nnoremap <buffer> k k:call PreviewIfDir()<CR>
     autocmd FileType dirvish silent! nnoremap <buffer> j j:call PreviewIfDir()<CR>
-    autocmd FileType dirvish silent! nnoremap <buffer> h <Plug>(dirvish_up):call feedkeys("p")<CR>
+    autocmd FileType dirvish silent! nnoremap <buffer> h <Plug>(dirvish_up):call PreviewIfDir()<CR>
     autocmd FileType dirvish silent! nnoremap <buffer> gq <Plug>(dirvish_quit):pc<cr>
+    autocmd FileType dirvish silent! nnoremap <buffer> <c-d> <c-d>:call PreviewIfDir()<CR>
+    autocmd FileType dirvish silent! nnoremap <buffer> <c-u> <c-u>:call PreviewIfDir()<CR>
   augroup END
 endfunction
 
@@ -756,9 +803,6 @@ function DirvishPreviewTree()
   norm p
 endfunction
 command! DirvishPreviewTree :sil! call DirvishPreviewTree()
-if system('echo $TMUX') <= 1
-  map <leader>. :DirvishPreviewTree<cr>
-endif
 
 function DirvishPositionLeft(width)
   exe "norm \<c-w>H " . a:width . " \<c-w><"
@@ -877,8 +921,8 @@ function FindFile(path)
 endfunction
 command! -nargs=* -complete=file_in_path FindFile let &path=LsDirsFromCwdExcluding('.angular .git node_modules') | call FindFile(expand("<args>")) | let @/ = '<args>'
 " nnoremap <leader>pp :FindFile <c-f>i<c-x><c-v><c-p>
-nnoremap <leader>pw :FindFile <c-r><c-w><c-f><tab><cr>
-nnoremap <leader>pW :exe 'FindFile ' . expand('<cWORD>')<cr>
+" nnoremap <leader>pw :FindFile <c-r><c-w><c-f><tab><cr>
+" nnoremap <leader>pW :exe 'FindFile ' . expand('<cWORD>')<cr>
 
 function Search(term)
   call ReadCommandToSearcherBuf('ag ' . shellescape(a:term) . ' .')
@@ -927,6 +971,8 @@ map t <Plug>Sneak_t
 map T <Plug>Sneak_T
 
 " -----------------------------------------------------------------------------------------  COMMANDS  -------------------------------------------------------------------------------------------------
+
+" command Replay s/cy\.only/cy\./ | call search(input('Test: ')) | 
 
 " Kind of works...
 function TerminalBufCmd()
@@ -1216,30 +1262,31 @@ function FileOrDir()
   return '%:p:h'
 endfunc
 
-" Open ranger in a tmux split with the current file selected...
-noremap <leader>. :silent call system('tmux split bash -c "export TERM=xterm-256color; export HIGHLIGHT_STYLE=zenburn && ranger --selectfile=' . expand(FileOrDir()) . '"')<cr>
-
 " Can add a mapping to ranger rc.conf that looks like this to open files in
 " vim...
 " map e shell tmux send -t! ':e ' %p '^M'
 
 " fzf file browser (enter moves dir, ctrl-l opens in vim)
 if strlen(system('echo $TMUX')) > 1
-  noremap <silent> <leader>rr :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ranger %:p:h<tab>"<cr>
-  noremap <silent> <leader>rj :silent !tmux split -v bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ranger %:p:h<tab>"<cr>
-  noremap <silent> <leader>rk :silent !tmux split -v -b bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ranger %:p:h<tab>"<cr>
-  noremap <silent> <leader>rl :silent !tmux split -h bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ranger %:p:h<tab>"<cr>
-  noremap <silent> <leader>rh :silent !tmux split -h -b bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ranger %:p:h<tab>"<cr>
-  " noremap <silent> <leader>. :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-tree %:p:h<tab>"<cr>
-  noremap <silent> <leader>pp :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-files ."<cr>
-  noremap <silent> <leader>pw :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-files . '<c-r><c-w>'"<cr>
-  " noremap <silent> <leader>ff :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-search ."<cr>
-  noremap <silent> <leader>fw :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-search . '<c-r><c-w>'"<cr>
-  noremap <silent> <leader>fW "fyW:silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-search . '<c-r>f'"<cr>
-  noremap <silent> <leader>fp :silent !tmux split bash -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-search . '%:t<tab><bs>'"<cr>
+  noremap <silent> <leader>rr :silent !tmux split bash -c "export TERM=xterm-256color; ranger %:p:h<tab>"<cr>
+  noremap <silent> <leader>rj :silent !tmux split -v bash -c "export TERM=xterm-256color; ranger %:p:h<tab>"<cr>
+  noremap <silent> <leader>rk :silent !tmux split -v -b bash -c "export TERM=xterm-256color; ranger %:p:h<tab>"<cr>
+  noremap <silent> <leader>rl :silent !tmux split -h bash -c "export TERM=xterm-256color; ranger %:p:h<tab>"<cr>
+  noremap <silent> <leader>rh :silent !tmux split -h -b bash -c "export TERM=xterm-256color; ranger %:p:h<tab>"<cr>
+  " noremap <silent> <leader>. :silent !tmux split bash -c "export TERM=xterm-256color; ~/.vim/scripts/./fzf-tree %:p:h<tab>"<cr>
+  noremap <leader>. :silent call system('tmux split bash -c "export TERM=xterm-256color; export HIGHLIGHT_STYLE=zenburn && ranger --selectfile=' . expand(FileOrDir()) . '"')<cr>
+  noremap <silent> <leader>pp :silent !tmux split bash -c "export TERM=xterm-256color; ~/.vim/scripts/./fzf-files ."<cr>
+  noremap <silent> <leader>pw :silent !tmux split bash -c "export TERM=xterm-256color; ~/.vim/scripts/./fzf-files . '<c-r><c-w>'"<cr>
+  " noremap <silent> <leader>ff :silent !tmux split bash -c "export TERM=xterm-256color; ~/.vim/scripts/./fzf-search ."<cr>
+  noremap <leader>ff :Ag<cr>
+  noremap <silent> <leader>fw :silent !tmux split bash -c "export TERM=xterm-256color; ~/.vim/scripts/./fzf-search . '<c-r><c-w>'"<cr>
+  noremap <silent> <leader>fW "fyW:silent !tmux split bash -c "export TERM=xterm-256color; ~/.vim/scripts/./fzf-search . '<c-r>f'"<cr>
+  noremap <silent> <leader>fp :exe 'silent !tmux split bash -c "export TERM=xterm-256color; ~/.vim/scripts/./fzf-search . ' . fnameescape(expand('%:t')) . '"'
 
   " TODO This only jumps backward
-  " noremap <silent> <leader>jj :redir! > ~/.vim/tmp/jumps \| silent! jumps \| redir END \| silent! !tmux split zsh -c "export TERM=xterm-256color; export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-jumps"<cr>
+  " noremap <silent> <leader>jj :redir! > ~/.vim/tmp/jumps \| silent! jumps \| redir END \| silent! !tmux split zsh -c "export TERM=xterm-256color; ~/.vim/scripts/./fzf-jumps"<cr>
+else
+  noremap <leader>. :DirvishPreviewTree<cr>
 endif
 
 " -----------------------------------------------------------------------------------------  REGPREVIEW  -------------------------------------------------------------------------------------------------
@@ -1261,18 +1308,36 @@ endfunc
 " it to diff any file from the current branch...
 noremap <leader>pd :Gdiff <c-r>d<cr>
 nnoremap <silent> <leader>gg :G<cr>
-nnoremap <leader>gd :Gdiff 
+nnoremap <leader>gdi :Gdiff 
+nnoremap <leader>gd<Tab> :<c-u><c-f>iG branch -d 
 nnoremap <leader>gc :G checkout 
 nnoremap <silent> <leader>gr :Gread<cr>
 nnoremap <silent> <leader>gb :G blame<cr>
 nnoremap <leader>gpp :G pull origin 
 nnoremap <leader>gpu :!git push -u origin $(git branch --show-current)<cr>
+nnoremap <leader>gpf :!git push -uf origin $(git branch --show-current)<cr>
 nnoremap <leader>gl :G log<cr>
 
 " Note, this always refers to the cwd git repo...
 nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 
 " -----------------------------------------------------------------------------------------  MAPPINGS  -------------------------------------------------------------------------------------------------
+
+" Checkout a branch with the text in the clipboard reg...
+nnoremap <leader>gC :silent exe 'G checkout -B ' . substitute(input('Branch text: '), ' ', '-', 'g')<cr>
+
+" View github action run (need gh cli installed https://cli.github.com/manual/gh)
+nnoremap <leader>grv :!gh run view<cr>
+nnoremap <silent> <leader>grw :silent! !gh run view --web<cr><c-l>
+nnoremap <silent> <leader>gpr :silent! !gh pr view --web<cr><c-l>
+
+" Close and delete buffer...
+nnoremap <c-w>C :bd! \| close<cr>
+
+" cypress assertion
+inoremap <c-\> .should('exist')
+
+" inoremap <c-k> <esc>Da
 
 nnoremap <silent> [f :let @f = '[{@f' \| norm @f<cr>
 nnoremap <silent> ]f :let @f = ']}@f' \| norm @f<cr>
@@ -1283,7 +1348,7 @@ inoremap <c-j> <c-o>J
 " nnoremap <leader><leader>pr :echo system('aws codecommit create-pull-request --title "' . FugitiveHead() . '" --targets sourceReference=' . FugitiveHead() . ',repositoryName=$(git remote get-url origin \| awk -F "/" \'{print $(NF)}\')')<cr>
 
 " Create or edit a test file for this component
-nnoremap <leader>tt :exe 'e ' . expand('%:s?js?test.js?')<cr>
+nnoremap <leader>TT :exe 'e ' . expand('%:s?js?test.js?')<cr>
 " Create or edit a component version of this test
 nnoremap <leader>tc :exe 'e ' . expand('%:s?test.js?js?')<cr>
 
@@ -1599,20 +1664,20 @@ endfunc
 
 func! FoldEasyDown()
     let g:foldeasy_on = 1
-    silent! nnoremap k :silent! call Executer("norm! zd")<cr>
-    nnoremap j :call Executer("norm! zfj<c-e>")<cr>
-    silent! nnoremap <c-u> :silent! call Executer("norm! zd")<cr>
-    nnoremap <c-d> :call Executer("norm! 37zfj37<c-e>")<cr>
+    nnoremap k :norm! zdzz<cr>
+    nnoremap j :norm! zfjzz<cr>
+    nnoremap <c-u> :norm! zd<cr>
+    nnoremap <c-d> :norm! 37zfj37<cr>
     nnoremap <esc> :call FoldEasyOff()<cr>
     echo 'Fold mode on (down)'
 endfunc
 
 func! FoldEasyUp()
     let g:foldeasy_on = 1
-    nnoremap k :call Executer("norm! zfk<c-y>")<cr>
-    silent! nnoremap j :silent! call Executer("norm! zdj<c-e>")<cr>
-    nnoremap <c-u> :call Executer("norm! 37zfk37<c-y>")<cr>
-    silent! nnoremap <c-d> :silent! call Executer("norm! zd")<cr>
+    nnoremap k :norm! zfkzz<cr>
+    nnoremap j :norm! zdjzz<cr>
+    nnoremap <c-u> :norm! 37zfk37<cr>
+    nnoremap <c-d> :norm! zd<cr>
     nnoremap <esc> :call FoldEasyOff()<cr>
     echo 'Fold mode on (up)'
 endfunc
@@ -1703,4 +1768,3 @@ endfunction
 " Later on the first request could check for imported modules, it'll ask the
 " user if they want to include them which would cause the server to install
 " that module and allow it to include that module's API.
-"

@@ -9,10 +9,10 @@ function fuzd () {
 
   if [[ $dir ]]; then
 
-    # This still doesn't work with files with "$" in the name but the line number breaks the substr function (i think) so spend some time on it...
     vimeditcmd=`echo "$dir" | awk 'BEGIN {FS=":";ORS=" "} NR==1 {print ":edit +"$2 " " $1} NR!=1 {print "| edit +"$2 " " $1}'`
 
-    tmux send -t! "$vimeditcmd" '^M'
+    # calling this in an expression to subs "$" dollar signs in file names...
+    tmux send -t! "$(echo $vimeditcmd | sed 's/\$/\\$/')" '^M'
 
   fi
   exit
