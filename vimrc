@@ -24,7 +24,7 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
   Plug 'junegunn/fzf.vim'
 
-  " Best git plugin ever
+  " Git plugins
   Plug 'tpope/vim-fugitive'
   Plug 'tommcdo/vim-fugitive-blame-ext'
 
@@ -1027,6 +1027,7 @@ command! Test call Test()
 
 " au OptionSet,BufEnter *.vue set filetype=vue.html.javascript.css
 " au OptionSet,BufEnter *.js set filetype=typescript
+au! SessionLoadPost * silent! exe 'G checkout ' . fnamemodify(v:this_session, ':t')
 
 " -----------------------------------------------------------------------------------------  QUICKFIX  -------------------------------------------------------------------------------------------------
 
@@ -1281,7 +1282,7 @@ if strlen(system('echo $TMUX')) > 1
   noremap <leader>ff :Ag<cr>
   noremap <silent> <leader>fw :silent !tmux split bash -c "export TERM=xterm-256color; ~/.vim/scripts/./fzf-search . '<c-r><c-w>'"<cr>
   noremap <silent> <leader>fW "fyW:silent !tmux split bash -c "export TERM=xterm-256color; ~/.vim/scripts/./fzf-search . '<c-r>f'"<cr>
-  noremap <silent> <leader>fp :exe 'silent !tmux split bash -c "export TERM=xterm-256color; ~/.vim/scripts/./fzf-search . ' . fnameescape(expand('%:t')) . '"'
+  noremap <silent> <leader>fp :exe 'silent !tmux split bash -c "export TERM=xterm-256color; ~/.vim/scripts/./fzf-search . ' . fnameescape(expand('%:t')) . '"'<cr>
 
   " TODO This only jumps backward
   " noremap <silent> <leader>jj :redir! > ~/.vim/tmp/jumps \| silent! jumps \| redir END \| silent! !tmux split zsh -c "export TERM=xterm-256color; ~/.vim/scripts/./fzf-jumps"<cr>
@@ -1324,7 +1325,7 @@ nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 " -----------------------------------------------------------------------------------------  MAPPINGS  -------------------------------------------------------------------------------------------------
 
 " Checkout a branch with the text in the clipboard reg...
-nnoremap <leader>gC :silent exe 'G checkout -B ' . substitute(input('Branch text: '), ' ', '-', 'g')<cr>
+nnoremap <leader>gC :silent exe 'G checkout -B ' . substitute(input('Branch text: '), ' ', '-', 'g') \| silent exe 'SS ' . FugitiveHead()<cr>
 
 " View github action run (need gh cli installed https://cli.github.com/manual/gh)
 nnoremap <leader>grv :!gh run view<cr>
