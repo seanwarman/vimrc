@@ -13,6 +13,7 @@ call plug#begin('~/.local/share/vim/plugged')
   " Plug 'leafOfTree/vim-vue-plugin'
   Plug 'MaxMEllon/vim-jsx-pretty'
   Plug 'digitaltoad/vim-pug'
+  Plug 'yggdroot/indentline'
 
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
@@ -284,6 +285,19 @@ autocmd User Startified sil! unmap <buffer> q
 
 noremap <leader>G :Startify<cr>
 
+au! SessionLoadPost * silent! exe 'G checkout ' . fnamemodify(v:this_session, ':t')
+
+function! DeleteSessionAndBranch(name)
+  exe 'SDelete ' . a:name
+  exe 'G branch -D ' . a:name
+endfunc
+
+function! SessionDir(A,L,P)
+  return system('ls ~/.vim/session')
+endfunc
+
+command! -nargs=* -complete=custom,SessionDir DSession call DeleteSessionAndBranch('<args>')
+
 " --------------------------------------------------------------------------------------  COMMENTARY  ----------------------------------------------------------------------------------------------------
 
 " autocmd FileType vue.html.javascript.css setlocal commentstring=\/\/\ %s
@@ -383,7 +397,7 @@ command! -nargs=* Light :set background=light | exe 'colo ' . LightColours()[<ar
 command Daytime Light 10
 command Nighttime Dark 10
 
-Nighttime
+Daytime
 
 " An array of colours for the term_colourscheme_colours function based on the
 " current values of the colourscheme's highlight groups...
@@ -1027,7 +1041,6 @@ command! Test call Test()
 
 " au OptionSet,BufEnter *.vue set filetype=vue.html.javascript.css
 " au OptionSet,BufEnter *.js set filetype=typescript
-au! SessionLoadPost * silent! exe 'G checkout ' . fnamemodify(v:this_session, ':t')
 
 " -----------------------------------------------------------------------------------------  QUICKFIX  -------------------------------------------------------------------------------------------------
 
