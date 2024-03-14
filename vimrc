@@ -56,7 +56,6 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'tpope/vim-surround'
   Plug 'tpope/vim-abolish'
   Plug 'justinmk/vim-sneak'
-  Plug 'easymotion/vim-easymotion'
   Plug 'rbgrouleff/bclose.vim'
   Plug 'seanwarman/dundo'
 
@@ -304,13 +303,6 @@ command! -nargs=* -complete=custom,SessionDir DSession call DeleteSessionAndBran
 " autocmd FileType vue setlocal commentstring=\/\/\ %s
 " autocmd FileType javascript setlocal commentstring=\/\/\ %s
 
-" --------------------------------------------------------------------------------------  EASYMOTION  ----------------------------------------------------------------------------------------------------
-
-noremap <Leader>j <Plug>(easymotion-j)
-noremap <Leader>k <Plug>(easymotion-k)
-
-let g:EasyMotion_startofline = 0
-
 " ------------------------------------------------------------------------------------------  VUE  ----------------------------------------------------------------------------------------------------
 
 let g:vue_pre_processors = ['scss']
@@ -397,6 +389,7 @@ command! -nargs=* Light :set background=light | exe 'colo ' . LightColours()[<ar
 command Daytime Light 10
 command Nighttime Dark 10
 
+" Night
 Daytime
 
 " An array of colours for the term_colourscheme_colours function based on the
@@ -1466,6 +1459,9 @@ noremap <leader>' :marks<cr>:'
 " nnoremap p :pu<cr>='['[
 " nnoremap P P='['[
 
+" Find in selection
+vnoremap <leader>nv :g/
+
 " Find Vue component sections
 nnoremap <leader>vst /<style/s+1<cr>
 nnoremap <leader>vd /data()<cr>
@@ -1782,3 +1778,9 @@ endfunction
 " Later on the first request could check for imported modules, it'll ask the
 " user if they want to include them which would cause the server to install
 " that module and allow it to include that module's API.
+
+" -----------------------------------------------------------------------------------------  CYPRESS  ------------------------------------------------------------------------------------
+
+" Copy current filename to cypress test address
+nnoremap <leader>cc :let @+ = 'localhost:3001/__/#/specs/runner?file=' . expand("%:.")<cr>
+
