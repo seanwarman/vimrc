@@ -5,6 +5,7 @@
   "suggest.noselect": true,
   "coc.preferences.formatOnSave": false,
   "typescript.preferences.quoteStyle": "single",
+  "javascript.preferences.quoteStyle": "single",
   "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": true,
   "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": true
 }
