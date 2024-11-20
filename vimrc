@@ -58,9 +58,6 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'justinmk/vim-sneak'
   Plug 'rbgrouleff/bclose.vim'
   Plug 'seanwarman/dundo'
-
-  " Markdown preview from Browser
-  Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() } }
 call plug#end()
 command! PluginBaby PlugClean | PlugInstall
 
@@ -447,7 +444,7 @@ map <leader>ea <Plug>(coc-codeaction)
 noremap <leader>ed :CocDisable<cr>
 noremap <leader>ee :CocEnable<cr>
 " noremap <leader>jj :CocCommand fzf-preview.Jumps<cr>
-noremap <leader>cc :CocCommand fzf-preview.Changes<cr>
+" noremap <leader>cc :CocCommand fzf-preview.Changes<cr>
 noremap <leader>mm :CocCommand fzf-preview.Marks<cr>
 " Prettier formatting...
 vnoremap <leader>ep <Plug>(coc-format-selected)
@@ -700,7 +697,6 @@ nnoremap <leader>a <Nop>
 " imap <tab> <c-n>
 " imap <s-tab> <c-p>
 
-
 " function CountCols()
 "   let l:n = 1
 "   let l:total = 0
@@ -714,10 +710,6 @@ nnoremap <leader>a <Nop>
 "   return 'total is: ' . l:total
 " endfunction
 
-
-
-
-
 " function CompleteNode()
 "   call setcursorcharpos('.', col('.') -1)
 "   let l:word = expand('<cWORD>')
@@ -728,6 +720,30 @@ nnoremap <leader>a <Nop>
 "   return l:word
 " endfunction
 
+function! Registers(findstart, base)
+  if a:findstart == 1
+    let l:line = getline('.')
+    let l:col = col('.') - 1
+    while l:col > 0 && l:line[l:col - 1] =~ '\w'
+      let l:col -= 1
+    endwhile
+    return l:col
+  endif
+  let l:regs = [ '"', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'n', 'p', 'q', 'r', 's', 'u', 'v', 'w', 'y', 'z', '-', '*', '.', ':', '%', '#', '/', '=' ]
+  return {
+    \'words': map(l:regs,
+      \{ i, reg -> {
+        \'key': reg,
+        \'word': getreginfo(reg).regcontents[0],
+        \'abbr': toupper(reg) . ': ',
+        \'menu': slice(trim(getreginfo(reg).regcontents[0]), 0, 20)
+      \}
+    \})
+  \}
+endfunction
+
+set completefunc=Registers
+
 " -------------------------------------------------------------------------------------------  FZF  ---------------------------------------------------------------------------------------------------
 
 let g:fzf_layout = { 'down': '35%' }
@@ -737,7 +753,7 @@ map <leader>hh :History<cr>
 map <leader>tt :Windows<cr>
 map <leader>ww :Windows<cr>
 map <leader>mm :Marks<cr>
-map <leader>cc :Commits<cr>
+" map <leader>cc :Commits<cr>
 
 if system('echo $TMUX') <= 1
   map <leader>pp :Files<cr>
@@ -1330,6 +1346,9 @@ nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 
 " -----------------------------------------------------------------------------------------  MAPPINGS  -------------------------------------------------------------------------------------------------
 
+" Find cscope function calls
+" nnoremap <c-[> :cscope find s <c-r><c-w><cr>
+
 " Checkout a branch with the text in the clipboard reg...
 nnoremap <leader>gC :silent exe 'G checkout -B ' . substitute(input('Branch text: '), ' ', '-', 'g') \| silent exe 'SS ' . FugitiveHead()<cr>
 
@@ -1656,6 +1675,11 @@ nnoremap [h :<c-u>silent! call Executer("norm! ?if (?e\r")<cr>
 vnoremap ]h :<c-u>silent! call Executer("norm! \egv/if (/e\r")<cr>
 vnoremap [h :<c-u>silent! call Executer("norm! \egv?if (?e\r")<cr>
 
+" -----------------------------------------------------------------------------------------  REACT MAPPINGS  -------------------------------------------------------------------------------------------------
+
+" Convert a string type className into a c() type one...
+nnoremap <leader>cf ca"{}<esc>ic()<esc>i<cr><esc>O<c-r>",<esc>hh:s/"/'/g<cr>=abj
+
 " -----------------------------------------------------------------------------------------  Foldeasy  ---------------------------------------------------------------------------------------------------
 
 let g:foldeasy_on = 0
@@ -1784,3 +1808,7 @@ endfunction
 " Copy current filename to cypress test address
 nnoremap <leader>cc :let @+ = 'localhost:3001/__/#/specs/runner?file=' . expand("%:.")<cr>
 
+
+func GetEntity(type)
+  exe 'norm 0/' . input(a:type . ': ') . '' | let @c = getcurpos()[2] | exe 'norm e' | let @e = getcurpos()[2] | exe 'norm o"' . a:type . '": ["cpa, "epa],'
+endfunc
