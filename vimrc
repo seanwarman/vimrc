@@ -221,7 +221,8 @@ set dir=$HOME/.vim/tmp
 " Keeps the cursors col position between buffers
 set nostartofline
 
-set nowrap
+set wrap
+set breakindent
 
 " Maintain undo
 set undofile 
