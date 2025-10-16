@@ -1838,7 +1838,7 @@ endfunction
 " -----------------------------------------------------------------------------------------  CYPRESS  ------------------------------------------------------------------------------------
 
 " Copy current filename to cypress test address
-nnoremap <leader>cc :let @+ = 'localhost:3001/__/#/specs/runner?file=' . expand("%:.")<cr>
+nnoremap <leader>cc :let @+ = 'localhost:3000/__/#/specs/runner?file=' . expand("%:.")<cr>
 
 
 func GetEntity(type)
