@@ -250,6 +250,18 @@ set sidescroll=10
 " Padding to for the cursor position...
 set sidescrolloff=10
 
+" -----------------------------------------------------------------------------------------  HIGHLIGHTING  -------------------------------------------------------------------------------------------------
+
+let g:htl_all_templates = 1
+" Enable syntax highlighting
+syntax on
+
+" Define a new syntax region for backtick strings with newlines after
+autocmd FileType javascript syntax region BacktickString start="`" end="`" contains=html skipwhite skipnl
+
+" Highlight the BacktickString region using existing HTML highlighting
+highlight link BacktickString htmlString
+
 " -----------------------------------------------------------------------------------------  STARTIFY  -------------------------------------------------------------------------------------------------
 
 let g:startify_change_to_dir = 0
