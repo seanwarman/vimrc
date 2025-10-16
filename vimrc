@@ -309,7 +309,7 @@ function! SessionDir(A,L,P)
   return system('ls ~/.vim/session')
 endfunc
 
-command! -nargs=* -complete=custom,SessionDir DSession call DeleteSessionAndBranch('<args>')
+command! -nargs=* -complete=custom,SessionDir DSessionAndBranch call DeleteSessionAndBranch('<args>')
 
 " --------------------------------------------------------------------------------------  COMMENTARY  ----------------------------------------------------------------------------------------------------
 
