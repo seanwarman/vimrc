@@ -1471,7 +1471,9 @@ inoremap ([`<cr> ([`<cr>`])<c-d><esc>O
 noremap Y y$
 
 " Attempts to put a single line of properties (eg: {1,2,3}) onto multiple lines
-noremap <silent> <leader>g= :silent! s/\([{\[(]\)\(.\{-}\)\([}\])]\)/\1\r\2\r\3/ \| silent! -1s/ //g \| silent! s/,/,\r/g \| silent! s/$/,/<cr>j=%
+noremap <silent> <leader>g=, :silent! s/\([{\[(]\)\(.\{-}\)\([}\])]\)/\1\r\2\r\3/ \| silent! -1s/ //g \| silent! s/,/,\r/g \| silent! s/$/,/<cr>j=%
+noremap <silent> <leader>g=; 0f{ciB<cr><esc>O<c-r>"<esc>:s/;\(\w\)/;\r\1/g<cr>=aB]}
+
 noremap <silent> <leader>g- /[}\])]<cr>v%J<esc>:s/,\([ ]\?}\)/\1/g<cr>gv:s/:/: /g<cr>
 " Puts html attributes onto multi-lines
 noremap <silent> <leader>=< :silent! s/\(<[a-zA-z-]\+\)\s/\1\r/ \| silent! s/>/\r>/g \| silent! -1s/\s/\r/g<cr>=a<:noh<cr>
