@@ -1308,14 +1308,15 @@ endfunc
 
 " fzf file browser (enter moves dir, ctrl-l opens in vim)
 if strlen(system('echo $TMUX')) > 1
+  command Ranger silent call system('tmux split bash -c "export TERM=xterm-256color; export HIGHLIGHT_STYLE=zenburn && ranger --selectfile=' . expand(FileOrDir()) . '"')<cr>
   noremap <silent> <leader>rr :silent !tmux split bash -c "export TERM=xterm-256color; ranger %:p:h<tab>"<cr>
   noremap <silent> <leader>rj :silent !tmux split -v bash -c "export TERM=xterm-256color; ranger %:p:h<tab>"<cr>
   noremap <silent> <leader>rk :silent !tmux split -v -b bash -c "export TERM=xterm-256color; ranger %:p:h<tab>"<cr>
   noremap <silent> <leader>rl :silent !tmux split -h bash -c "export TERM=xterm-256color; ranger %:p:h<tab>"<cr>
   noremap <silent> <leader>rh :silent !tmux split -h -b bash -c "export TERM=xterm-256color; ranger %:p:h<tab>"<cr>
   " noremap <silent> <leader>. :silent !tmux split bash -c "export TERM=xterm-256color; ~/.vim/scripts/./fzf-tree %:p:h<tab>"<cr>
-  noremap <leader>. :silent call system('tmux split bash -c "export TERM=xterm-256color; export HIGHLIGHT_STYLE=zenburn && ranger --selectfile=' . expand(FileOrDir()) . '"')<cr>
-  noremap <silent> <leader>pp :silent !tmux split bash -c "export TERM=xterm-256color; ~/.vim/scripts/./fzf-files ."<cr>
+  noremap <leader>. :Ranger<cr>
+  noremap <silent> <leader>pp :silent !tmux split bash -c "export TERM=xterm-256color;export BAT_THEME=gruvbox-dark; ~/.vim/scripts/./fzf-files ."<cr>
   noremap <silent> <leader>pw :silent !tmux split bash -c "export TERM=xterm-256color; ~/.vim/scripts/./fzf-files . '<c-r><c-w>'"<cr>
   " noremap <silent> <leader>ff :silent !tmux split bash -c "export TERM=xterm-256color; ~/.vim/scripts/./fzf-search ."<cr>
   noremap <leader>ff :Ag<cr>
