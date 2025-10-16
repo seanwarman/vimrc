@@ -1362,7 +1362,19 @@ nnoremap <leader>gl :G log<cr>
 " Note, this always refers to the cwd git repo...
 nnoremap <leader>fch :!git checkout $(git branch \| fzf)<cr>
 
+" -----------------------------------------------------------------------------------------  COC-GIT  -------------------------------------------------------------------------------------------------
+
+nnoremap <leader>gX :call CocActionAsync('runCommand', 'git.chunkUndo')<cr>
+
 " -----------------------------------------------------------------------------------------  MAPPINGS  -------------------------------------------------------------------------------------------------
+
+" Make a media query block css (copying current line's selector)
+nnoremap <leader>@ yyf{]}o@media (min-width: 783px) {<cr><c-r>"<cr>}<cr>}<esc><c-p><c-p>cc
+
+" Delete whitespace from selection
+vnoremap <leader><bs> :s/\%V //g<cr>
+" Add whitespace to selection
+vnoremap <leader>i :s/\%V\(\W\)/ \1 /g<cr>
 
 " Find cscope function calls
 " nnoremap <c-[> :cscope find s <c-r><c-w><cr>
