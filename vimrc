@@ -14,6 +14,10 @@ call plug#begin('~/.local/share/vim/plugged')
   Plug 'MaxMEllon/vim-jsx-pretty'
   Plug 'digitaltoad/vim-pug'
   Plug 'yggdroot/indentline'
+  Plug 'jonsmithers/vim-html-template-literals'
+  Plug 'pangloss/vim-javascript'
+  " Plug 'prabirshrestha/vim-lsp'
+  " Plug 'mattn/vim-lsp-settings'
 
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
